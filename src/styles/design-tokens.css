@@ -1,0 +1,59 @@
+/* ==========================================================================
+   FashionStore - Global Design Tokens
+   Fuente de verdad para la estética visual web (Angular / HTML)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+:root {
+  /* Marca e Interacción Principal */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #eef2ff;
+  
+  /* Acento Tecnológico / IA / Probador */
+  --accent: #06b6d4;
+  --accent-light: #ecfeff;
+  
+  /* Fondos y Superficies */
+  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #eef2f6 50%, #e0e7ff 100%);
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-glass: rgba(255, 255, 255, 0.85);
+  
+  /* Textos y Jerarquía */
+  --text-main: #0f172a;
+  --text-body: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  
+  /* Estados */
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --success-border: #a7f3d0;
+  
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --warning-border: #fde68a;
+  
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+
+  /* Elevación y Radios */
+  --radius-card: 16px;
+  --radius-btn: 10px;
+  --radius-badge: 9999px;
+  --shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(0, 0, 0, 0.04);
+  --shadow-btn: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text-body);
+  background: var(--bg-gradient);
+}
+
+h1, h2, h3, .brand-title {
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--text-main);
+}

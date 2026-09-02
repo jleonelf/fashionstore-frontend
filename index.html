@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FashionStore — Plataforma Omnicanal Inteligente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #eef2ff;
+      --accent: #06b6d4;
+      --dark-bg: #090d16;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius: 16px;
+      --shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #eef2f6 50%, #e0e7ff 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark-bg);
+      text-decoration: none;
+    }
+
+    .brand span {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #ecfdf5;
+      color: #065f46;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid #a7f3d0;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+
+    .main-container {
+      flex: 1;
+      max-width: 1100px;
+      margin: 2.5rem auto;
+      padding: 0 1.5rem;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    .hero-info {
+      padding-top: 1rem;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .hero-info h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #0f172a;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-info p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 1.75rem;
+    }
+
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #ffffff;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+
+    .feature-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .card-auth {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2.25rem;
+    }
+
+    .tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 1.75rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+      margin-bottom: 1.15rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 0.4rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background: #ffffff;
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+    }
+
+    .alert-box {
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      margin-bottom: 1.25rem;
+      display: none;
+    }
+
+    .alert-success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .alert-danger {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .user-profile-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 auto 0.75rem auto;
+    }
+
+    .profile-info {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.45rem 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 0.875rem;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .info-val {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .btn-logout {
+      width: 100%;
+      padding: 0.75rem;
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="#" class="brand">
+      👗 <span>FashionStore</span>
+    </a>
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      Backend API: 127.0.0.1:8000 (Activo)
+    </div>
+  </header>
+
+  <main class="main-container">
+    <section class="hero-info">
+      <div class="hero-tag">Ciclo 1 • Fundamentos & Catálogo</div>
+      <h1>Tu Moda, Tu Talla, en Todas las Sucursales.</h1>
+      <p>
+        Plataforma omnicanal con catálogo centralizado, inventario por sucursales en tiempo real, vestidor virtual y gestión de reservas en tienda física.
+      </p>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <div class="feature-icon">🛍️</div>
+          <div>
+            <strong>Catálogo Unificado & Stock Distribuido</strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Consulta disponibilidad exacta por talla, color y sucursal en Santa Cruz.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">✨</div>
+          <div>
+            <strong>Vestidor Virtual & Probador</strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Prueba prendas superpuestas mediante detección de pose y segmentación.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">📦</div>
+          <div>
+            <strong>Kardex & Costos Valorizados</strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Control de costo promedio ponderado y último costo por lote de recepción.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card-auth">
+      <!-- PANEL DE FORMULARIO -->
+      <div id="authForms">
+        <div class="tabs">
+          <button class="tab-btn active" id="tabLogin" onclick="mostrarTab('login')">Iniciar Sesión</button>
+          <button class="tab-btn" id="tabRegistro" onclick="mostrarTab('registro')">Registrarse</button>
+        </div>
+
+        <div id="alertBox" class="alert-box"></div>
+
+        <!-- FORMULARIO LOGIN -->
+        <form id="formLogin" onsubmit="ejecutarLogin(event)">
+          <div class="form-group">
+            <label for="loginCorreo">Correo Electrónico</label>
+            <input type="email" id="loginCorreo" placeholder="admin@fashionstore.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="loginClave">Contraseña</label>
+            <input type="password" id="loginClave" placeholder="••••••••" required>
+          </div>
+
+          <button type="submit" class="btn-submit" id="btnLoginSubmit">Ingresar a la Plataforma</button>
+        </form>
+
+        <!-- FORMULARIO REGISTRO -->
+        <form id="formRegistro" style="display: none;" onsubmit="ejecutarRegistro(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="regNombres">Nombres *</label>
+              <input type="text" id="regNombres" placeholder="Ej. Carlos" required>
+            </div>
+            <div class="form-group">
+              <label for="regApellidos">Apellidos *</label>
+              <input type="text" id="regApellidos" placeholder="Ej. Santistevan" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regCorreo">Correo Electrónico *</label>
+            <input type="email" id="regCorreo" placeholder="carlos@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="regClave">Contraseña * (mínimo 6 caracteres)</label>
+            <input type="password" id="regClave" placeholder="••••••••" required minlength="6">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="regTelefono">Teléfono / Celular</label>
+              <input type="tel" id="regTelefono" placeholder="+591 70000000">
+            </div>
+            <div class="form-group">
+              <label for="regFechaNac">Fecha de Nacimiento</label>
+              <input type="date" id="regFechaNac">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regDireccion">Dirección de Referencia</label>
+            <input type="text" id="regDireccion" placeholder="Av. San Martín 3er Anillo">
+          </div>
+
+          <button type="submit" class="btn-submit" id="btnRegSubmit">Crear Cuenta de Cliente</button>
+        </form>
+      </div>
+
+      <!-- PANEL DE PERFIL DE USUARIO AUTENTICADO -->
+      <div id="userProfile" class="user-profile-panel">
+        <div class="profile-header">
+          <div class="profile-avatar" id="avatarLetra">U</div>
+          <h2 id="perfilNombre">Nombre Usuario</h2>
+          <p id="perfilCorreo" style="color: var(--text-muted); font-size: 0.9rem;">correo@example.com</p>
+        </div>
+
+        <div class="profile-info">
+          <div class="info-row">
+            <span class="info-label">Rol Asignado:</span>
+            <span class="info-val" id="perfilRol" style="color: var(--primary);">CLIENTE</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Estado de Cuenta:</span>
+            <span class="info-val" id="perfilEstado" style="color: var(--success);">ACTIVO</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Teléfono:</span>
+            <span class="info-val" id="perfilTelefono">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Dirección:</span>
+            <span class="info-val" id="perfilDireccion">-</span>
+          </div>
+        </div>
+
+        <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000/api/v1';
+
+    function mostrarTab(tab) {
+      ocultarAlerta();
+      if (tab === 'login') {
+        document.getElementById('formLogin').style.display = 'block';
+        document.getElementById('formRegistro').style.display = 'none';
+        document.getElementById('tabLogin').classList.add('active');
+        document.getElementById('tabRegistro').classList.remove('active');
+      } else {
+        document.getElementById('formLogin').style.display = 'none';
+        document.getElementById('formRegistro').style.display = 'block';
+        document.getElementById('tabRegistro').classList.add('active');
+        document.getElementById('tabLogin').classList.remove('active');
+      }
+    }
+
+    function mostrarAlerta(mensaje, tipo = 'success') {
+      const box = document.getElementById('alertBox');
+      box.textContent = mensaje;
+      box.className = `alert-box alert-${tipo}`;
+      box.style.display = 'block';
+    }
+
+    function ocultarAlerta() {
+      document.getElementById('alertBox').style.display = 'none';
+    }
+
+    async function ejecutarLogin(e) {
+      e.preventDefault();
+      ocultarAlerta();
+      const btn = document.getElementById('btnLoginSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
+
+      const correo = document.getElementById('loginCorreo').value.trim();
+      const contrasenia = document.getElementById('loginClave').value;
+
+      try {
+        const resp = await fetch(`${API_BASE}/sesion`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correo_electronico: correo, contrasenia })
+        });
+
+        const data = await resp.json();
+        if (resp.ok) {
+          mostrarAlerta('¡Inicio de sesión exitoso!', 'success');
+          guardarSesion(data);
+        } else {
+          mostrarAlerta(data.detail || 'Credenciales incorrectas.', 'danger');
+        }
+      } catch (err) {
+        mostrarAlerta('No se pudo conectar con el servidor backend (127.0.0.1:8000).', 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Ingresar a la Plataforma';
+      }
+    }
+
+    async function ejecutarRegistro(e) {
+      e.preventDefault();
+      ocultarAlerta();
+      const btn = document.getElementById('btnRegSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Procesando registro...';
+
+      const payload = {
+        nombres: document.getElementById('regNombres').value.trim(),
+        apellidos: document.getElementById('regApellidos').value.trim(),
+        correo_electronico: document.getElementById('regCorreo').value.trim(),
+        contrasenia: document.getElementById('regClave').value,
+        telefono: document.getElementById('regTelefono').value.trim() || null,
+        fecha_nacimiento: document.getElementById('regFechaNac').value || null,
+        direccion_referencia: document.getElementById('regDireccion').value.trim() || null,
+        preferencias: {}
+      };
+
+      try {
+        const resp = await fetch(`${API_BASE}/clientes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+        if (resp.status === 201) {
+          mostrarAlerta(`¡Cuenta creada para ${data.nombre_completo}! Ahora puedes iniciar sesión.`, 'success');
+          document.getElementById('formRegistro').reset();
+          setTimeout(() => {
+            mostrarTab('login');
+            document.getElementById('loginCorreo').value = data.correo_electronico;
+          }, 1500);
+        } else {
+          mostrarAlerta(data.detail || 'Error al registrar cliente.', 'danger');
+        }
+      } catch (err) {
+        mostrarAlerta('Error de conexión con el backend.', 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Crear Cuenta de Cliente';
+      }
+    }
+
+    function guardarSesion(data) {
+      localStorage.setItem('fs_token', data.access_token);
+      localStorage.setItem('fs_usuario', JSON.stringify(data.usuario));
+      renderizarPerfil(data.usuario);
+    }
+
+    function renderizarPerfil(u) {
+      document.getElementById('authForms').style.display = 'none';
+      document.getElementById('userProfile').style.display = 'block';
+
+      document.getElementById('avatarLetra').textContent = (u.nombres || 'U')[0].toUpperCase();
+      document.getElementById('perfilNombre').textContent = u.nombre_completo || `${u.nombres} ${u.apellidos}`;
+      document.getElementById('perfilCorreo').textContent = u.correo_electronico;
+      document.getElementById('perfilRol').textContent = u.rol;
+      document.getElementById('perfilEstado').textContent = u.estado;
+      document.getElementById('perfilTelefono').textContent = u.telefono || 'No especificado';
+      document.getElementById('perfilDireccion').textContent = u.direccion_referencia || 'No especificada';
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('fs_token');
+      localStorage.removeItem('fs_usuario');
+      document.getElementById('authForms').style.display = 'block';
+      document.getElementById('userProfile').style.display = 'none';
+      mostrarTab('login');
+    }
+
+    // Cargar sesión previa si existe
+    window.addEventListener('DOMContentLoaded', () => {
+      const u = localStorage.getItem('fs_usuario');
+      if (u) {
+        try {
+          renderizarPerfil(JSON.parse(u));
+        } catch (e) {
+          cerrarSesion();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
