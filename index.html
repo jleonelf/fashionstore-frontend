@@ -7,23 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles/design-tokens.css">
   <style>
-    :root {
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --primary-light: #eef2ff;
-      --accent: #06b6d4;
-      --dark-bg: #090d16;
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --success: #10b981;
-      --danger: #ef4444;
-      --radius: 16px;
-      --shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(0, 0, 0, 0.04);
-    }
-
     * {
       box-sizing: border-box;
       margin: 0;
@@ -32,18 +17,18 @@
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: linear-gradient(135deg, #f8fafc 0%, #eef2f6 50%, #e0e7ff 100%);
-      color: var(--text-main);
+      background: var(--bg-gradient);
+      color: var(--text-body);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
     header {
-      background: rgba(255, 255, 255, 0.85);
+      background: var(--card-glass);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
+      padding: 0.85rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -57,9 +42,9 @@
       align-items: center;
       gap: 0.75rem;
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 700;
-      color: var(--dark-bg);
+      color: var(--text-main);
       text-decoration: none;
     }
 
@@ -69,17 +54,44 @@
       -webkit-text-fill-color: transparent;
     }
 
+    .nav-links {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(241, 245, 249, 0.8);
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .nav-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: #ecfdf5;
+      background: var(--success-bg);
       color: #065f46;
       padding: 0.35rem 0.85rem;
-      border-radius: 9999px;
+      border-radius: var(--radius-badge);
       font-size: 0.8rem;
       font-weight: 600;
-      border: 1px solid #a7f3d0;
+      border: 1px solid var(--success-border);
     }
 
     .status-dot {
@@ -92,18 +104,34 @@
 
     .main-container {
       flex: 1;
-      max-width: 1100px;
-      margin: 2.5rem auto;
+      max-width: 1200px;
+      margin: 2rem auto;
       padding: 0 1.5rem;
       width: 100%;
+    }
+
+    /* VISTA CU01 */
+    .view-cu01 {
       display: grid;
       grid-template-columns: 1.1fr 1fr;
       gap: 2.5rem;
       align-items: start;
     }
 
-    .hero-info {
-      padding-top: 1rem;
+    .hero-info h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-info p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 1.75rem;
     }
 
     .hero-tag {
@@ -117,22 +145,6 @@
       padding: 0.3rem 0.75rem;
       border-radius: 6px;
       margin-bottom: 1rem;
-    }
-
-    .hero-info h1 {
-      font-size: 2.75rem;
-      font-weight: 800;
-      line-height: 1.15;
-      color: #0f172a;
-      margin-bottom: 1rem;
-      letter-spacing: -0.02em;
-    }
-
-    .hero-info p {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      line-height: 1.6;
-      margin-bottom: 1.75rem;
     }
 
     .features-list {
@@ -168,8 +180,8 @@
       background: var(--card-bg);
       backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.8);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
       padding: 2.25rem;
     }
 
@@ -231,7 +243,7 @@
       transition: all 0.2s;
     }
 
-    input:focus {
+    input:focus, select:focus {
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
@@ -243,19 +255,18 @@
       background: linear-gradient(135deg, var(--primary), var(--primary-hover));
       color: #ffffff;
       border: none;
-      border-radius: 10px;
+      border-radius: var(--radius-btn);
       font-family: inherit;
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+      box-shadow: var(--shadow-btn);
       margin-top: 0.5rem;
     }
 
     .btn-submit:hover {
       transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
     }
 
     .alert-box {
@@ -267,20 +278,137 @@
     }
 
     .alert-success {
-      background: #ecfdf5;
+      background: var(--success-bg);
       color: #065f46;
-      border: 1px solid #a7f3d0;
+      border: 1px solid var(--success-border);
     }
 
     .alert-danger {
-      background: #fef2f2;
+      background: var(--danger-bg);
       color: #991b1b;
-      border: 1px solid #fecaca;
+      border: 1px solid var(--danger-border);
+    }
+
+    /* VISTA CU02: GESTIÓN DE USUARIOS Y ROLES */
+    .view-cu02 {
+      display: none;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .admin-header h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .card-panel {
+      background: #ffffff;
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-card);
+      padding: 1.5rem;
+    }
+
+    .card-panel h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text-main);
+    }
+
+    .filters-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-body);
+    }
+
+    tr:hover td {
+      background: #f8fafc;
+    }
+
+    .badge-rol {
+      display: inline-block;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-badge);
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .badge-estado {
+      display: inline-block;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-badge);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge-activo {
+      background: var(--success-bg);
+      color: #065f46;
+    }
+
+    .badge-inactivo {
+      background: var(--danger-bg);
+      color: #991b1b;
+    }
+
+    .action-btn {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: #f1f5f9;
+      border-color: var(--primary);
+      color: var(--primary);
     }
 
     .user-profile-panel {
       display: none;
-      animation: fadeIn 0.3s ease;
     }
 
     .profile-header {
@@ -322,16 +450,6 @@
       border-bottom: none;
     }
 
-    .info-label {
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .info-val {
-      color: var(--text-main);
-      font-weight: 700;
-    }
-
     .btn-logout {
       width: 100%;
       padding: 0.75rem;
@@ -344,13 +462,8 @@
       cursor: pointer;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     @media (max-width: 900px) {
-      .main-container {
+      .view-cu01, .admin-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -361,152 +474,267 @@
     <a href="#" class="brand">
       👗 <span>FashionStore</span>
     </a>
+
+    <nav class="nav-links">
+      <button class="nav-btn active" id="navBtnAuth" onclick="cambiarVista('auth')">🛍️ Tienda & Mi Cuenta</button>
+      <button class="nav-btn" id="navBtnAdmin" onclick="cambiarVista('admin')">⚙️ Gestión de Usuarios (CU02)</button>
+    </nav>
+
     <div class="status-badge">
       <span class="status-dot"></span>
-      Backend API: 127.0.0.1:8000 (Activo)
+      Backend API: 127.0.0.1:8000
     </div>
   </header>
 
   <main class="main-container">
-    <section class="hero-info">
-      <div class="hero-tag">Ciclo 1 • Fundamentos & Catálogo</div>
-      <h1>Tu Moda, Tu Talla, en Todas las Sucursales.</h1>
-      <p>
-        Plataforma omnicanal con catálogo centralizado, inventario por sucursales en tiempo real, vestidor virtual y gestión de reservas en tienda física.
-      </p>
+    <!-- ==================== VISTA CU01 ==================== -->
+    <div id="vistaAuth" class="view-cu01">
+      <section class="hero-info">
+        <div class="hero-tag">Ciclo 1 • Fundamentos & Catálogo</div>
+        <h1>Tu Moda, Tu Talla, en Todas las Sucursales.</h1>
+        <p>
+          Plataforma omnicanal con catálogo centralizado, inventario por sucursales en tiempo real, vestidor virtual y gestión de reservas en tienda física.
+        </p>
 
-      <div class="features-list">
-        <div class="feature-item">
-          <div class="feature-icon">🛍️</div>
-          <div>
-            <strong>Catálogo Unificado & Stock Distribuido</strong>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Consulta disponibilidad exacta por talla, color y sucursal en Santa Cruz.</p>
+        <div class="features-list">
+          <div class="feature-item">
+            <div class="feature-icon">🛍️</div>
+            <div>
+              <strong>Catálogo Unificado & Stock Distribuido</strong>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Consulta disponibilidad exacta por talla, color y sucursal en Santa Cruz.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">✨</div>
+            <div>
+              <strong>Vestidor Virtual & Probador</strong>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Prueba prendas superpuestas mediante detección de pose y segmentación.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">📦</div>
+            <div>
+              <strong>Kardex & Costos Valorizados</strong>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Control de costo promedio ponderado y último costo por lote de recepción.</p>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div class="feature-item">
-          <div class="feature-icon">✨</div>
-          <div>
-            <strong>Vestidor Virtual & Probador</strong>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Prueba prendas superpuestas mediante detección de pose y segmentación.</p>
+      <section class="card-auth">
+        <div id="authForms">
+          <div class="tabs">
+            <button class="tab-btn active" id="tabLogin" onclick="mostrarTab('login')">Iniciar Sesión</button>
+            <button class="tab-btn" id="tabRegistro" onclick="mostrarTab('registro')">Registrarse</button>
           </div>
+
+          <div id="alertBoxAuth" class="alert-box"></div>
+
+          <!-- FORMULARIO LOGIN -->
+          <form id="formLogin" onsubmit="ejecutarLogin(event)">
+            <div class="form-group">
+              <label for="loginCorreo">Correo Electrónico</label>
+              <input type="email" id="loginCorreo" placeholder="admin@fashionstore.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="loginClave">Contraseña</label>
+              <input type="password" id="loginClave" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btnLoginSubmit">Ingresar a la Plataforma</button>
+          </form>
+
+          <!-- FORMULARIO REGISTRO -->
+          <form id="formRegistro" style="display: none;" onsubmit="ejecutarRegistro(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regNombres">Nombres *</label>
+                <input type="text" id="regNombres" placeholder="Ej. Carlos" required>
+              </div>
+              <div class="form-group">
+                <label for="regApellidos">Apellidos *</label>
+                <input type="text" id="regApellidos" placeholder="Ej. Santistevan" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regCorreo">Correo Electrónico *</label>
+              <input type="email" id="regCorreo" placeholder="carlos@example.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="regClave">Contraseña * (mínimo 6 caracteres)</label>
+              <input type="password" id="regClave" placeholder="••••••••" required minlength="6">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regTelefono">Teléfono / Celular</label>
+                <input type="tel" id="regTelefono" placeholder="+591 70000000">
+              </div>
+              <div class="form-group">
+                <label for="regFechaNac">Fecha de Nacimiento</label>
+                <input type="date" id="regFechaNac">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regDireccion">Dirección de Referencia</label>
+              <input type="text" id="regDireccion" placeholder="Av. San Martín 3er Anillo">
+            </div>
+
+            <button type="submit" class="btn-submit" id="btnRegSubmit">Crear Cuenta de Cliente</button>
+          </form>
         </div>
 
-        <div class="feature-item">
-          <div class="feature-icon">📦</div>
-          <div>
-            <strong>Kardex & Costos Valorizados</strong>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Control de costo promedio ponderado y último costo por lote de recepción.</p>
+        <!-- PANEL DE PERFIL -->
+        <div id="userProfile" class="user-profile-panel">
+          <div class="profile-header">
+            <div class="profile-avatar" id="avatarLetra">U</div>
+            <h2 id="perfilNombre">Nombre Usuario</h2>
+            <p id="perfilCorreo" style="color: var(--text-muted); font-size: 0.9rem;">correo@example.com</p>
+          </div>
+
+          <div class="profile-info">
+            <div class="info-row">
+              <span class="info-label">Rol Asignado:</span>
+              <span class="info-val" id="perfilRol" style="color: var(--primary);">CLIENTE</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Estado de Cuenta:</span>
+              <span class="info-val" id="perfilEstado" style="color: var(--success);">ACTIVO</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Teléfono:</span>
+              <span class="info-val" id="perfilTelefono">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Dirección:</span>
+              <span class="info-val" id="perfilDireccion">-</span>
+            </div>
+          </div>
+
+          <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== VISTA CU02: GESTIÓN DE USUARIOS ==================== -->
+    <div id="vistaAdmin" class="view-cu02">
+      <div class="admin-header">
+        <div>
+          <h2>Gestión de Usuarios y Roles</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">CU02 / RF02: Control de acceso con rol único por usuario</p>
+        </div>
+      </div>
+
+      <div id="alertBoxAdmin" class="alert-box"></div>
+
+      <div class="admin-grid">
+        <!-- FORMULARIO CREAR USUARIO -->
+        <div class="card-panel">
+          <h3>Crear Usuario</h3>
+          <form id="formCrearUsuario" onsubmit="ejecutarCrearUsuario(event)">
+            <div class="form-group">
+              <label for="admRol">Rol Asignado * (Rol Único)</label>
+              <select id="admRol" required>
+                <option value="">Cargando roles...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="admNombres">Nombres *</label>
+              <input type="text" id="admNombres" placeholder="Ej. Roberto" required>
+            </div>
+
+            <div class="form-group">
+              <label for="admApellidos">Apellidos *</label>
+              <input type="text" id="admApellidos" placeholder="Ej. Gómez" required>
+            </div>
+
+            <div class="form-group">
+              <label for="admCorreo">Correo Electrónico *</label>
+              <input type="email" id="admCorreo" placeholder="roberto@fashionstore.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="admClave">Contraseña *</label>
+              <input type="password" id="admClave" placeholder="••••••••" required minlength="6">
+            </div>
+
+            <div class="form-group">
+              <label for="admTelefono">Teléfono</label>
+              <input type="tel" id="admTelefono" placeholder="+591 70011223">
+            </div>
+
+            <button type="submit" class="btn-submit" id="btnCrearUsuarioSubmit">Registrar Usuario</button>
+          </form>
+        </div>
+
+        <!-- TABLA DE USUARIOS -->
+        <div class="card-panel">
+          <div class="filters-bar">
+            <div style="flex: 1;">
+              <label for="filtroRol">Filtrar por Rol</label>
+              <select id="filtroRol" onchange="cargarListaUsuarios()">
+                <option value="">Todos los roles</option>
+              </select>
+            </div>
+            <div style="flex: 1;">
+              <label for="filtroEstado">Filtrar por Estado</label>
+              <select id="filtroEstado" onchange="cargarListaUsuarios()">
+                <option value="">Todos los estados</option>
+                <option value="ACTIVO">ACTIVO</option>
+                <option value="INACTIVO">INACTIVO</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Correo</th>
+                  <th>Rol Único</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tablaUsuariosBody">
+                <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Cargando usuarios...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </section>
-
-    <section class="card-auth">
-      <!-- PANEL DE FORMULARIO -->
-      <div id="authForms">
-        <div class="tabs">
-          <button class="tab-btn active" id="tabLogin" onclick="mostrarTab('login')">Iniciar Sesión</button>
-          <button class="tab-btn" id="tabRegistro" onclick="mostrarTab('registro')">Registrarse</button>
-        </div>
-
-        <div id="alertBox" class="alert-box"></div>
-
-        <!-- FORMULARIO LOGIN -->
-        <form id="formLogin" onsubmit="ejecutarLogin(event)">
-          <div class="form-group">
-            <label for="loginCorreo">Correo Electrónico</label>
-            <input type="email" id="loginCorreo" placeholder="admin@fashionstore.com" required>
-          </div>
-
-          <div class="form-group">
-            <label for="loginClave">Contraseña</label>
-            <input type="password" id="loginClave" placeholder="••••••••" required>
-          </div>
-
-          <button type="submit" class="btn-submit" id="btnLoginSubmit">Ingresar a la Plataforma</button>
-        </form>
-
-        <!-- FORMULARIO REGISTRO -->
-        <form id="formRegistro" style="display: none;" onsubmit="ejecutarRegistro(event)">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="regNombres">Nombres *</label>
-              <input type="text" id="regNombres" placeholder="Ej. Carlos" required>
-            </div>
-            <div class="form-group">
-              <label for="regApellidos">Apellidos *</label>
-              <input type="text" id="regApellidos" placeholder="Ej. Santistevan" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="regCorreo">Correo Electrónico *</label>
-            <input type="email" id="regCorreo" placeholder="carlos@example.com" required>
-          </div>
-
-          <div class="form-group">
-            <label for="regClave">Contraseña * (mínimo 6 caracteres)</label>
-            <input type="password" id="regClave" placeholder="••••••••" required minlength="6">
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="regTelefono">Teléfono / Celular</label>
-              <input type="tel" id="regTelefono" placeholder="+591 70000000">
-            </div>
-            <div class="form-group">
-              <label for="regFechaNac">Fecha de Nacimiento</label>
-              <input type="date" id="regFechaNac">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="regDireccion">Dirección de Referencia</label>
-            <input type="text" id="regDireccion" placeholder="Av. San Martín 3er Anillo">
-          </div>
-
-          <button type="submit" class="btn-submit" id="btnRegSubmit">Crear Cuenta de Cliente</button>
-        </form>
-      </div>
-
-      <!-- PANEL DE PERFIL DE USUARIO AUTENTICADO -->
-      <div id="userProfile" class="user-profile-panel">
-        <div class="profile-header">
-          <div class="profile-avatar" id="avatarLetra">U</div>
-          <h2 id="perfilNombre">Nombre Usuario</h2>
-          <p id="perfilCorreo" style="color: var(--text-muted); font-size: 0.9rem;">correo@example.com</p>
-        </div>
-
-        <div class="profile-info">
-          <div class="info-row">
-            <span class="info-label">Rol Asignado:</span>
-            <span class="info-val" id="perfilRol" style="color: var(--primary);">CLIENTE</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Estado de Cuenta:</span>
-            <span class="info-val" id="perfilEstado" style="color: var(--success);">ACTIVO</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Teléfono:</span>
-            <span class="info-val" id="perfilTelefono">-</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Dirección:</span>
-            <span class="info-val" id="perfilDireccion">-</span>
-          </div>
-        </div>
-
-        <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
-      </div>
-    </section>
+    </div>
   </main>
 
   <script>
     const API_BASE = 'http://127.0.0.1:8000/api/v1';
+    let listaRolesCache = [];
+
+    function cambiarVista(vista) {
+      if (vista === 'auth') {
+        document.getElementById('vistaAuth').style.display = 'grid';
+        document.getElementById('vistaAdmin').style.display = 'none';
+        document.getElementById('navBtnAuth').classList.add('active');
+        document.getElementById('navBtnAdmin').classList.remove('active');
+      } else {
+        document.getElementById('vistaAuth').style.display = 'none';
+        document.getElementById('vistaAdmin').style.display = 'block';
+        document.getElementById('navBtnAdmin').classList.add('active');
+        document.getElementById('navBtnAuth').classList.remove('active');
+        inicializarAdmin();
+      }
+    }
 
     function mostrarTab(tab) {
-      ocultarAlerta();
+      ocultarAlerta('Auth');
       if (tab === 'login') {
         document.getElementById('formLogin').style.display = 'block';
         document.getElementById('formRegistro').style.display = 'none';
@@ -520,20 +748,21 @@
       }
     }
 
-    function mostrarAlerta(mensaje, tipo = 'success') {
-      const box = document.getElementById('alertBox');
+    function mostrarAlerta(mensaje, tipo = 'success', contexto = 'Auth') {
+      const box = document.getElementById(`alertBox${contexto}`);
       box.textContent = mensaje;
       box.className = `alert-box alert-${tipo}`;
       box.style.display = 'block';
     }
 
-    function ocultarAlerta() {
-      document.getElementById('alertBox').style.display = 'none';
+    function ocultarAlerta(contexto = 'Auth') {
+      const box = document.getElementById(`alertBox${contexto}`);
+      if (box) box.style.display = 'none';
     }
 
     async function ejecutarLogin(e) {
       e.preventDefault();
-      ocultarAlerta();
+      ocultarAlerta('Auth');
       const btn = document.getElementById('btnLoginSubmit');
       btn.disabled = true;
       btn.textContent = 'Verificando...';
@@ -550,13 +779,13 @@
 
         const data = await resp.json();
         if (resp.ok) {
-          mostrarAlerta('¡Inicio de sesión exitoso!', 'success');
+          mostrarAlerta('¡Inicio de sesión exitoso!', 'success', 'Auth');
           guardarSesion(data);
         } else {
-          mostrarAlerta(data.detail || 'Credenciales incorrectas.', 'danger');
+          mostrarAlerta(data.detail || 'Credenciales incorrectas.', 'danger', 'Auth');
         }
       } catch (err) {
-        mostrarAlerta('No se pudo conectar con el servidor backend (127.0.0.1:8000).', 'danger');
+        mostrarAlerta('No se pudo conectar con el servidor backend (127.0.0.1:8000).', 'danger', 'Auth');
       } finally {
         btn.disabled = false;
         btn.textContent = 'Ingresar a la Plataforma';
@@ -565,7 +794,7 @@
 
     async function ejecutarRegistro(e) {
       e.preventDefault();
-      ocultarAlerta();
+      ocultarAlerta('Auth');
       const btn = document.getElementById('btnRegSubmit');
       btn.disabled = true;
       btn.textContent = 'Procesando registro...';
@@ -590,17 +819,17 @@
 
         const data = await resp.json();
         if (resp.status === 201) {
-          mostrarAlerta(`¡Cuenta creada para ${data.nombre_completo}! Ahora puedes iniciar sesión.`, 'success');
+          mostrarAlerta(`¡Cuenta creada para ${data.nombre_completo}! Ahora puedes iniciar sesión.`, 'success', 'Auth');
           document.getElementById('formRegistro').reset();
           setTimeout(() => {
             mostrarTab('login');
             document.getElementById('loginCorreo').value = data.correo_electronico;
           }, 1500);
         } else {
-          mostrarAlerta(data.detail || 'Error al registrar cliente.', 'danger');
+          mostrarAlerta(data.detail || 'Error al registrar cliente.', 'danger', 'Auth');
         }
       } catch (err) {
-        mostrarAlerta('Error de conexión con el backend.', 'danger');
+        mostrarAlerta('Error de conexión con el backend.', 'danger', 'Auth');
       } finally {
         btn.disabled = false;
         btn.textContent = 'Crear Cuenta de Cliente';
@@ -634,7 +863,173 @@
       mostrarTab('login');
     }
 
-    // Cargar sesión previa si existe
+    /* === FUNCIONES CU02: GESTIÓN DE USUARIOS Y ROLES === */
+    async function inicializarAdmin() {
+      await cargarRoles();
+      await cargarListaUsuarios();
+    }
+
+    async function cargarRoles() {
+      try {
+        const resp = await fetch(`${API_BASE}/roles`);
+        if (resp.ok) {
+          listaRolesCache = await resp.json();
+          const selectForm = document.getElementById('admRol');
+          const selectFiltro = document.getElementById('filtroRol');
+
+          selectForm.innerHTML = '<option value="">Seleccione un rol...</option>';
+          selectFiltro.innerHTML = '<option value="">Todos los roles</option>';
+
+          listaRolesCache.forEach(r => {
+            selectForm.innerHTML += `<option value="${r.id}">${r.nombre}</option>`;
+            selectFiltro.innerHTML += `<option value="${r.id}">${r.nombre}</option>`;
+          });
+        }
+      } catch (err) {
+        console.error('Error al cargar roles', err);
+      }
+    }
+
+    async function cargarListaUsuarios() {
+      const rolId = document.getElementById('filtroRol').value;
+      const estado = document.getElementById('filtroEstado').value;
+
+      let url = `${API_BASE}/usuarios?`;
+      if (rolId) url += `rol_id=${rolId}&`;
+      if (estado) url += `estado=${estado}&`;
+
+      try {
+        const resp = await fetch(url);
+        const tbody = document.getElementById('tablaUsuariosBody');
+
+        if (resp.ok) {
+          const usuarios = await resp.json();
+          if (usuarios.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No se encontraron usuarios</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = usuarios.map(u => `
+            <tr>
+              <td>
+                <strong>${u.nombre_completo}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${u.telefono || 'Sin teléfono'}</div>
+              </td>
+              <td>${u.correo_electronico}</td>
+              <td>
+                <span class="badge-rol">${u.rol_nombre}</span>
+              </td>
+              <td>
+                <span class="badge-estado ${u.estado === 'ACTIVO' ? 'badge-activo' : 'badge-inactivo'}">${u.estado}</span>
+              </td>
+              <td>
+                <button class="action-btn" onclick="solicitarCambioRol('${u.id}', '${u.nombre_completo}', '${u.rol_id}')">Cambiar Rol</button>
+                <button class="action-btn" onclick="alternarEstadoUsuario('${u.id}', '${u.estado}')">
+                  ${u.estado === 'ACTIVO' ? 'Desactivar' : 'Activar'}
+                </button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        mostrarAlerta('Error al cargar lista de usuarios.', 'danger', 'Admin');
+      }
+    }
+
+    async function ejecutarCrearUsuario(e) {
+      e.preventDefault();
+      ocultarAlerta('Admin');
+      const btn = document.getElementById('btnCrearUsuarioSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Guardando...';
+
+      const payload = {
+        rol_id: document.getElementById('admRol').value,
+        nombres: document.getElementById('admNombres').value.trim(),
+        apellidos: document.getElementById('admApellidos').value.trim(),
+        correo_electronico: document.getElementById('admCorreo').value.trim(),
+        contrasenia: document.getElementById('admClave').value,
+        telefono: document.getElementById('admTelefono').value.trim() || null
+      };
+
+      try {
+        const resp = await fetch(`${API_BASE}/usuarios`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+        if (resp.status === 201) {
+          mostrarAlerta(`¡Usuario ${data.nombre_completo} creado con rol ${data.rol_nombre}!`, 'success', 'Admin');
+          document.getElementById('formCrearUsuario').reset();
+          cargarListaUsuarios();
+        } else {
+          mostrarAlerta(data.detail || 'Error al crear usuario.', 'danger', 'Admin');
+        }
+      } catch (err) {
+        mostrarAlerta('Error de conexión con el backend.', 'danger', 'Admin');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Registrar Usuario';
+      }
+    }
+
+    async function solicitarCambioRol(usuarioId, nombre, rolActualId) {
+      const opcionesRoles = listaRolesCache.map(r => `${r.nombre}: ${r.id}`).join('\n');
+      const nuevoRolNombre = prompt(`Cambiar rol de ${nombre}.\nRoles disponibles:\n- ADMINISTRADOR\n- ENCARGADO\n- CAJERO\n- PROVEEDOR\n- CLIENTE\n\nEscribe el nombre exacto del nuevo rol:`);
+      
+      if (!nuevoRolNombre) return;
+
+      const rolEncontrado = listaRolesCache.find(r => r.nombre.toUpperCase() === nuevoRolNombre.trim().toUpperCase());
+      if (!rolEncontrado) {
+        alert('Rol no válido.');
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API_BASE}/usuarios/${usuarioId}/rol`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rol_id: rolEncontrado.id })
+        });
+
+        if (resp.ok) {
+          mostrarAlerta(`Rol de ${nombre} actualizado a ${rolEncontrado.nombre}.`, 'success', 'Admin');
+          cargarListaUsuarios();
+        } else {
+          const err = await resp.json();
+          mostrarAlerta(err.detail || 'Error al actualizar rol.', 'danger', 'Admin');
+        }
+      } catch (e) {
+        mostrarAlerta('Error de conexión.', 'danger', 'Admin');
+      }
+    }
+
+    async function alternarEstadoUsuario(usuarioId, estadoActual) {
+      const nuevoEstado = estadoActual === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+      const endpoint = nuevoEstado === 'INACTIVO' 
+        ? `${API_BASE}/usuarios/${usuarioId}/desactivar`
+        : `${API_BASE}/usuarios/${usuarioId}/estado`;
+
+      try {
+        const options = nuevoEstado === 'INACTIVO' 
+          ? { method: 'PATCH' }
+          : { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: 'ACTIVO' }) };
+
+        const resp = await fetch(endpoint, options);
+        if (resp.ok) {
+          mostrarAlerta(`Estado de usuario actualizado a ${nuevoEstado}.`, 'success', 'Admin');
+          cargarListaUsuarios();
+        } else {
+          mostrarAlerta('Error al cambiar estado.', 'danger', 'Admin');
+        }
+      } catch (e) {
+        mostrarAlerta('Error de conexión.', 'danger', 'Admin');
+      }
+    }
+
+    // Inicialización al cargar
     window.addEventListener('DOMContentLoaded', () => {
       const u = localStorage.getItem('fs_usuario');
       if (u) {
