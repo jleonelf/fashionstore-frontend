@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ClientePerfil } from '../../core/models/auth.models';
 
@@ -14,7 +14,10 @@ import { ClientePerfil } from '../../core/models/auth.models';
 export class ShellComponent implements OnInit {
   usuarioActual: ClientePerfil | null = null;
 
-  constructor(public authService: AuthService) {}
+  constructor(
+    public authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.authService.usuario$.subscribe((u) => {
@@ -22,7 +25,16 @@ export class ShellComponent implements OnInit {
     });
   }
 
+  esAdmin(): boolean {
+    return this.usuarioActual?.rol === 'ADMINISTRADOR';
+  }
+
+  esAdminOEncargado(): boolean {
+    return this.usuarioActual?.rol === 'ADMINISTRADOR' || this.usuarioActual?.rol === 'ENCARGADO';
+  }
+
   cerrarSesion(): void {
     this.authService.cerrarSesion();
+    this.router.navigate(['/auth/login']);
   }
 }

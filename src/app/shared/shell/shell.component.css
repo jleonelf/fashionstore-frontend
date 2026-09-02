@@ -102,21 +102,23 @@
 
 .btn-logout {
   background: #f1f5f9;
-  border: none;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  font-size: 0.7rem;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-muted, #64748b);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0.25rem;
+  margin-left: 0.35rem;
+  transition: all 0.2s;
 }
 
 .btn-logout:hover {
   background: #fee2e2;
+  border-color: #fca5a5;
   color: #ef4444;
 }
 

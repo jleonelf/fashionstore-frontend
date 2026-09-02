@@ -3,31 +3,41 @@
     👗 <span>FashionStore</span>
   </a>
 
+  <!-- NAVEGACIÓN BASADA EN SESIÓN Y ROL ÚNICO -->
   <nav class="nav-links">
-    <a routerLink="/auth/login" routerLinkActive="active" *ngIf="!usuarioActual" class="nav-item">
-      🔑 Iniciar Sesión
+    <!-- PÚBLICO (Sin Sesión) -->
+    <ng-container *ngIf="!usuarioActual">
+      <a routerLink="/auth/login" routerLinkActive="active" class="nav-item">
+        🔑 Iniciar Sesión
+      </a>
+      <a routerLink="/auth/registro" routerLinkActive="active" class="nav-item">
+        📝 Registrarse
+      </a>
+    </ng-container>
+
+    <!-- PRIVADO / ROL ADMINISTRADOR (CU02) -->
+    <a routerLink="/usuarios" routerLinkActive="active" *ngIf="esAdmin()" class="nav-item">
+      👥 Gestión de Usuarios
     </a>
-    <a routerLink="/auth/registro" routerLinkActive="active" *ngIf="!usuarioActual" class="nav-item">
-      📝 Registro Cliente
-    </a>
-    <a routerLink="/usuarios" routerLinkActive="active" class="nav-item">
-      👥 Usuarios (CU02)
-    </a>
-    <a routerLink="/sucursales" routerLinkActive="active" class="nav-item">
-      📍 Sucursales & Delivery (CU03)
+
+    <!-- PRIVADO / ROL ADMINISTRADOR Y ENCARGADO (CU03) -->
+    <a routerLink="/sucursales" routerLinkActive="active" *ngIf="esAdminOEncargado()" class="nav-item">
+      📍 Sucursales & Delivery
     </a>
   </nav>
 
   <div class="header-right">
+    <!-- USUARIO AUTENTICADO -->
     <div *ngIf="usuarioActual" class="user-pill">
       <div class="avatar-circle">{{ (usuarioActual.nombres || 'U')[0].toUpperCase() }}</div>
       <div class="user-details">
         <span class="user-fullname">{{ usuarioActual.nombre_completo }}</span>
         <span class="user-role">{{ usuarioActual.rol }}</span>
       </div>
-      <button class="btn-logout" (click)="cerrarSesion()" title="Cerrar Sesión">✕</button>
+      <button class="btn-logout" (click)="cerrarSesion()" title="Cerrar Sesión">Salir ✕</button>
     </div>
 
+    <!-- ESTADO DE CONEXIÓN CUANDO NO HAY SESIÓN -->
     <div class="status-badge" *ngIf="!usuarioActual">
       <span class="status-dot"></span>
       API: 127.0.0.1:8000

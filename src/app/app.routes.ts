@@ -3,6 +3,7 @@ import { LoginComponent } from './features/auth/login/login.component';
 import { RegistroComponent } from './features/auth/registro/registro.component';
 import { UsuariosComponent } from './features/usuarios/usuarios.component';
 import { SucursalesComponent } from './features/sucursales/sucursales.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -23,12 +24,16 @@ export const routes: Routes = [
   {
     path: 'usuarios',
     component: UsuariosComponent,
-    title: 'Gestión de Usuarios — FashionStore'
+    canActivate: [authGuard],
+    data: { roles: ['ADMINISTRADOR'] },
+    title: 'Gestión de Usuarios (CU02) — FashionStore'
   },
   {
     path: 'sucursales',
     component: SucursalesComponent,
-    title: 'Sucursales y Delivery — FashionStore'
+    canActivate: [authGuard],
+    data: { roles: ['ADMINISTRADOR', 'ENCARGADO'] },
+    title: 'Sucursales y Delivery (CU03) — FashionStore'
   },
   {
     path: '**',
