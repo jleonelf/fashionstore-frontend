@@ -1,0 +1,165 @@
+<div class="module-container">
+  <div class="module-header">
+    <div>
+      <div class="badge-tag">Seguridad & Acceso</div>
+      <h2>Gestión de Usuarios y Roles (CU02)</h2>
+      <p>Administración de usuarios internos y asignación de rol único (RF02)</p>
+    </div>
+  </div>
+
+  <div *ngIf="mensajeError" class="alert-box alert-danger">
+    {{ mensajeError }}
+  </div>
+
+  <div *ngIf="mensajeExito" class="alert-box alert-success">
+    {{ mensajeExito }}
+  </div>
+
+  <div class="module-grid">
+    <!-- PANEL FORMULARIO CREAR -->
+    <div class="card-panel">
+      <h3>Crear Nuevo Usuario</h3>
+      <form (ngSubmit)="crearUsuario()">
+        <div class="form-group">
+          <label for="rolId">Rol Asignado * (Rol Único)</label>
+          <select id="rolId" name="rolId" [(ngModel)]="nuevoUsuario.rol_id" required>
+            <option value="">Seleccione un rol...</option>
+            <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="nombres">Nombres *</label>
+          <input
+            type="text"
+            id="nombres"
+            name="nombres"
+            [(ngModel)]="nuevoUsuario.nombres"
+            placeholder="Ej. Roberto"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="apellidos">Apellidos *</label>
+          <input
+            type="text"
+            id="apellidos"
+            name="apellidos"
+            [(ngModel)]="nuevoUsuario.apellidos"
+            placeholder="Ej. Gómez"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="correo">Correo Electrónico *</label>
+          <input
+            type="email"
+            id="correo"
+            name="correo"
+            [(ngModel)]="nuevoUsuario.correo_electronico"
+            placeholder="roberto@fashionstore.com"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="clave">Contraseña * (mínimo 6 caracteres)</label>
+          <input
+            type="password"
+            id="clave"
+            name="clave"
+            [(ngModel)]="nuevoUsuario.contrasenia"
+            placeholder="••••••••"
+            minlength="6"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono</label>
+          <input
+            type="tel"
+            id="telefono"
+            name="telefono"
+            [(ngModel)]="nuevoUsuario.telefono"
+            placeholder="+591 70011223"
+          />
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="guardando">
+          <span *ngIf="!guardando">Registrar Usuario</span>
+          <span *ngIf="guardando">Guardando usuario...</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- PANEL LISTADO Y FILTROS -->
+    <div class="card-panel">
+      <div class="filters-bar">
+        <div class="filter-item">
+          <label for="filtroRol">Filtrar por Rol</label>
+          <select id="filtroRol" [(ngModel)]="filtroRolId" (change)="cargarUsuarios()">
+            <option value="">Todos los roles</option>
+            <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="filtroEstado">Filtrar por Estado</label>
+          <select id="filtroEstado" [(ngModel)]="filtroEstado" (change)="cargarUsuarios()">
+            <option value="">Todos los estados</option>
+            <option value="ACTIVO">ACTIVO</option>
+            <option value="INACTIVO">INACTIVO</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Correo</th>
+              <th>Rol Único</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="cargando">
+              <td colspan="5" class="table-empty">Cargando lista de usuarios...</td>
+            </tr>
+            <tr *ngIf="!cargando && usuarios.length === 0">
+              <td colspan="5" class="table-empty">No se encontraron usuarios registrados</td>
+            </tr>
+            <tr *ngFor="let u of usuarios">
+              <td>
+                <div class="user-name">{{ u.nombre_completo }}</div>
+                <div class="user-sub">{{ u.telefono || 'Sin teléfono' }}</div>
+              </td>
+              <td>{{ u.correo_electronico }}</td>
+              <td>
+                <span class="badge-rol">{{ u.rol_nombre }}</span>
+              </td>
+              <td>
+                <span class="badge-status" [ngClass]="u.estado === 'ACTIVO' ? 'status-activo' : 'status-inactivo'">
+                  {{ u.estado }}
+                </span>
+              </td>
+              <td>
+                <div class="actions-group">
+                  <button class="btn-action" (click)="cambiarRol(u)">Cambiar Rol</button>
+                  <button class="btn-action" (click)="alternarEstado(u)">
+                    {{ u.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

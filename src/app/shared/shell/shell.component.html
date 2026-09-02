@@ -1,0 +1,40 @@
+<header class="app-header">
+  <a routerLink="/" class="brand">
+    👗 <span>FashionStore</span>
+  </a>
+
+  <nav class="nav-links">
+    <a routerLink="/auth/login" routerLinkActive="active" *ngIf="!usuarioActual" class="nav-item">
+      🔑 Iniciar Sesión
+    </a>
+    <a routerLink="/auth/registro" routerLinkActive="active" *ngIf="!usuarioActual" class="nav-item">
+      📝 Registro Cliente
+    </a>
+    <a routerLink="/usuarios" routerLinkActive="active" class="nav-item">
+      👥 Usuarios (CU02)
+    </a>
+    <a routerLink="/sucursales" routerLinkActive="active" class="nav-item">
+      📍 Sucursales & Delivery (CU03)
+    </a>
+  </nav>
+
+  <div class="header-right">
+    <div *ngIf="usuarioActual" class="user-pill">
+      <div class="avatar-circle">{{ (usuarioActual.nombres || 'U')[0].toUpperCase() }}</div>
+      <div class="user-details">
+        <span class="user-fullname">{{ usuarioActual.nombre_completo }}</span>
+        <span class="user-role">{{ usuarioActual.rol }}</span>
+      </div>
+      <button class="btn-logout" (click)="cerrarSesion()" title="Cerrar Sesión">✕</button>
+    </div>
+
+    <div class="status-badge" *ngIf="!usuarioActual">
+      <span class="status-dot"></span>
+      API: 127.0.0.1:8000
+    </div>
+  </div>
+</header>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>

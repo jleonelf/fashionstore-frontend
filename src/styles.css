@@ -1,0 +1,14 @@
+@import './styles/design-tokens.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg-gradient, #f8fafc);
+  color: var(--text-body, #1e293b);
+  min-height: 100vh;
+}

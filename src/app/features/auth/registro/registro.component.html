@@ -1,0 +1,112 @@
+<div class="auth-card">
+  <div class="auth-header">
+    <div class="badge-tag">Registro de Cliente (CU01)</div>
+    <h2>Crear Cuenta</h2>
+    <p>Únete a FashionStore para acceder al vestidor virtual y reservar prendas</p>
+  </div>
+
+  <div *ngIf="mensajeError" class="alert-box alert-danger">
+    {{ mensajeError }}
+  </div>
+
+  <div *ngIf="mensajeExito" class="alert-box alert-success">
+    {{ mensajeExito }}
+  </div>
+
+  <form (ngSubmit)="registrarCliente()">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="nombres">Nombres *</label>
+        <input
+          type="text"
+          id="nombres"
+          name="nombres"
+          [(ngModel)]="datosRegistro.nombres"
+          placeholder="Ej. Carlos"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="apellidos">Apellidos *</label>
+        <input
+          type="text"
+          id="apellidos"
+          name="apellidos"
+          [(ngModel)]="datosRegistro.apellidos"
+          placeholder="Ej. Santistevan"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="regCorreo">Correo Electrónico *</label>
+      <input
+        type="email"
+        id="regCorreo"
+        name="regCorreo"
+        [(ngModel)]="datosRegistro.correo_electronico"
+        placeholder="carlos@example.com"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="regClave">Contraseña * (mínimo 6 caracteres)</label>
+      <input
+        type="password"
+        id="regClave"
+        name="regClave"
+        [(ngModel)]="datosRegistro.contrasenia"
+        placeholder="••••••••"
+        minlength="6"
+        required
+      />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="telefono">Teléfono / Celular</label>
+        <input
+          type="tel"
+          id="telefono"
+          name="telefono"
+          [(ngModel)]="datosRegistro.telefono"
+          placeholder="+591 70000000"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="fechaNac">Fecha de Nacimiento</label>
+        <input
+          type="date"
+          id="fechaNac"
+          name="fechaNac"
+          [(ngModel)]="datosRegistro.fecha_nacimiento"
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="direccion">Dirección de Referencia</label>
+      <input
+        type="text"
+        id="direccion"
+        name="direccion"
+        [(ngModel)]="datosRegistro.direccion_referencia"
+        placeholder="Av. San Martín 3er Anillo"
+      />
+    </div>
+
+    <button type="submit" class="btn-primary" [disabled]="cargando">
+      <span *ngIf="!cargando">Crear Cuenta de Cliente</span>
+      <span *ngIf="cargando">Procesando registro...</span>
+    </button>
+  </form>
+
+  <div class="auth-footer">
+    <span>¿Ya tienes una cuenta registrada?</span>
+    <a routerLink="/auth/login" class="link-action">Iniciar Sesión</a>
+  </div>
+</div>

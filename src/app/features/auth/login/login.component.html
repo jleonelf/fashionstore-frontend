@@ -1,0 +1,51 @@
+<div class="auth-card">
+  <div class="auth-header">
+    <div class="badge-tag">Acceso al Sistema</div>
+    <h2>Iniciar Sesión</h2>
+    <p>Ingresa tus credenciales para acceder a la plataforma omnicanal</p>
+  </div>
+
+  <div *ngIf="mensajeError" class="alert-box alert-danger">
+    {{ mensajeError }}
+  </div>
+
+  <div *ngIf="mensajeExito" class="alert-box alert-success">
+    {{ mensajeExito }}
+  </div>
+
+  <form (ngSubmit)="iniciarSesion()">
+    <div class="form-group">
+      <label for="correo">Correo Electrónico *</label>
+      <input
+        type="email"
+        id="correo"
+        name="correo"
+        [(ngModel)]="credenciales.correo_electronico"
+        placeholder="admin@fashionstore.com"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="clave">Contraseña *</label>
+      <input
+        type="password"
+        id="clave"
+        name="clave"
+        [(ngModel)]="credenciales.contrasenia"
+        placeholder="••••••••"
+        required
+      />
+    </div>
+
+    <button type="submit" class="btn-primary" [disabled]="cargando">
+      <span *ngIf="!cargando">Ingresar a la Plataforma</span>
+      <span *ngIf="cargando">Verificando credenciales...</span>
+    </button>
+  </form>
+
+  <div class="auth-footer">
+    <span>¿No tienes una cuenta aún?</span>
+    <a routerLink="/auth/registro" class="link-action">Registrarme como Cliente</a>
+  </div>
+</div>
