@@ -6,7 +6,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
 
 :root {
-  /* Marca e Interacción Principal */
+  /* Atelier — papel cálido + latón (storefront) + ink (editorial) */
+  --paper: #f8f6f3;
+  --ink: #0f172a;
+  --brass: #c5a880;
+  --brass-strong: #a68b6a;
+  /* Marca e Interacción Principal (tech/CTA) */
   --primary: #4f46e5;
   --primary-hover: #4338ca;
   --primary-light: #eef2ff;
@@ -15,10 +20,10 @@
   --accent: #06b6d4;
   --accent-light: #ecfeff;
   
-  /* Fondos y Superficies */
-  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #eef2f6 50%, #e0e7ff 100%);
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --card-glass: rgba(255, 255, 255, 0.85);
+  /* Fondos y Superficies — atelier paper */
+  --bg-gradient: linear-gradient(180deg, #f8f6f3 0%, #fdfcfa 55%, #f1f5f9 100%);
+  --card-bg: #ffffff;
+  --card-glass: rgba(255, 255, 255, 0.88);
   
   /* Textos y Jerarquía */
   --text-main: #0f172a;

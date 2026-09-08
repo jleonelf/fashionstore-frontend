@@ -13,6 +13,8 @@ export interface UsuarioCrearDTO {
   correo_electronico: string;
   contrasenia: string;
   telefono?: string;
+  sucursal_id?: string | null;
+  cargo?: string | null;
 }
 
 export interface AsignarRolDTO {
@@ -35,4 +37,7 @@ export interface UsuarioListadoDTO {
   estado: 'ACTIVO' | 'INACTIVO';
   creado_en: string;
   actualizado_en: string;
+  sucursal_id?: string | null;
+  sucursal_nombre?: string | null;
+  cargo?: string | null;
 }

@@ -68,6 +68,10 @@ export class AuthService {
     return this.usuarioSubject.value;
   }
 
+  get usuarioActualValue(): ClientePerfil | null {
+    return this.usuarioSubject.value;
+  }
+
   private cargarSesionAlmacenada(): void {
     const usuarioGuardado = localStorage.getItem('fs_usuario');
     if (usuarioGuardado) {

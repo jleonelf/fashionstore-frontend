@@ -1,51 +1,51 @@
-<div class="auth-card">
-  <div class="auth-header">
-    <div class="badge-tag">Acceso al Sistema</div>
-    <h2>Iniciar Sesión</h2>
-    <p>Ingresa tus credenciales para acceder a la plataforma omnicanal</p>
-  </div>
-
-  <div *ngIf="mensajeError" class="alert-box alert-danger">
-    {{ mensajeError }}
-  </div>
-
-  <div *ngIf="mensajeExito" class="alert-box alert-success">
-    {{ mensajeExito }}
-  </div>
-
-  <form (ngSubmit)="iniciarSesion()">
-    <div class="form-group">
-      <label for="correo">Correo Electrónico *</label>
-      <input
-        type="email"
-        id="correo"
-        name="correo"
-        [(ngModel)]="credenciales.correo_electronico"
-        placeholder="admin@fashionstore.com"
-        required
-      />
+<div class="auth-split">
+  <div class="auth-editorial" aria-hidden="true">
+    <div class="tape" aria-hidden="true"><span *ngFor="let i of [0,1,2,3,4,5,6,7,8,9,10,11]">{{i*10}}</span></div>
+    <div class="ed-img">
+      <img src="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?w=900&auto=format&fit=crop&q=60" alt="" />
+      <div class="ed-overlay">
+        <p class="eyebrow">Atelier · Santa Cruz</p>
+        <h2>Probá antes.<br>Reservá sin pagar.</h2>
+        <p>Stock real por sucursal · Traslados 72h · Delivery por anillos.</p>
+        <div class="ed-dots"><span></span><span class="on"></span><span></span></div>
+      </div>
     </div>
-
-    <div class="form-group">
-      <label for="clave">Contraseña *</label>
-      <input
-        type="password"
-        id="clave"
-        name="clave"
-        [(ngModel)]="credenciales.contrasenia"
-        placeholder="••••••••"
-        required
-      />
+    <div class="ed-quote">
+      <p>“Cada variante es <b>talla + color + SKU</b>. Lo que ves, está colgado.”</p>
     </div>
+  </div>
 
-    <button type="submit" class="btn-primary" [disabled]="cargando">
-      <span *ngIf="!cargando">Ingresar a la Plataforma</span>
-      <span *ngIf="cargando">Verificando credenciales...</span>
-    </button>
-  </form>
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <div class="auth-header">
+        <p class="eyebrow">Bienvenido de vuelta</p>
+        <h2>Iniciar sesión</h2>
+        <p>Ingresá y gestioná reservas, probador IA y compras.</p>
+      </div>
 
-  <div class="auth-footer">
-    <span>¿No tienes una cuenta aún?</span>
-    <a routerLink="/auth/registro" class="link-action">Registrarme como Cliente</a>
+      <div *ngIf="mensajeError" class="alert-box alert-danger">{{ mensajeError }}</div>
+      <div *ngIf="mensajeExito" class="alert-box alert-success">{{ mensajeExito }}</div>
+
+      <form (ngSubmit)="iniciarSesion()">
+        <div class="form-group">
+          <label for="correo">Correo electrónico *</label>
+          <input type="email" id="correo" name="correo" [(ngModel)]="credenciales.correo_electronico" placeholder="tu@correo.com" required />
+        </div>
+        <div class="form-group">
+          <label for="clave">Contraseña *</label>
+          <input type="password" id="clave" name="clave" [(ngModel)]="credenciales.contrasenia" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-primary" [disabled]="cargando">
+          <span *ngIf="!cargando">Ingresar a la plataforma</span>
+          <span *ngIf="cargando">Verificando…</span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <span>¿No tenés cuenta?</span>
+        <a routerLink="/auth/registro" class="link-action">Crear cuenta →</a>
+        <a routerLink="/" class="link-muted">← Volver al catálogo sin iniciar sesión</a>
+      </div>
+    </div>
   </div>
 </div>

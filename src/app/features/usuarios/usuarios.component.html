@@ -88,6 +88,20 @@
           />
         </div>
 
+        <div class="form-group" *ngIf="rolRequiereSucursal()">
+          <label for="sucursal">Sucursal Asignada *</label>
+          <select id="sucursal" name="sucursal" [(ngModel)]="nuevoUsuario.sucursal_id" required>
+            <option [ngValue]="null">Seleccione sucursal...</option>
+            <option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }} — {{ s.ciudad_nombre || '' }}</option>
+          </select>
+          <small style="opacity:.7">Obligatoria para ENCARGADO/CAJERO (tabla empleados)</small>
+        </div>
+
+        <div class="form-group" *ngIf="rolRequiereSucursal()">
+          <label for="cargo">Cargo</label>
+          <input type="text" id="cargo" name="cargo" [(ngModel)]="nuevoUsuario.cargo" placeholder="Ej. Encargado de Sucursal" />
+        </div>
+
         <button type="submit" class="btn-primary" [disabled]="guardando">
           <span *ngIf="!guardando">Registrar Usuario</span>
           <span *ngIf="guardando">Guardando usuario...</span>
@@ -123,16 +137,17 @@
               <th>Usuario</th>
               <th>Correo</th>
               <th>Rol Único</th>
+              <th>Sucursal</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="cargando">
-              <td colspan="5" class="table-empty">Cargando lista de usuarios...</td>
+              <td colspan="6" class="table-empty">Cargando lista de usuarios...</td>
             </tr>
             <tr *ngIf="!cargando && usuarios.length === 0">
-              <td colspan="5" class="table-empty">No se encontraron usuarios registrados</td>
+              <td colspan="6" class="table-empty">No se encontraron usuarios registrados</td>
             </tr>
             <tr *ngFor="let u of usuarios">
               <td>
@@ -142,6 +157,11 @@
               <td>{{ u.correo_electronico }}</td>
               <td>
                 <span class="badge-rol">{{ u.rol_nombre }}</span>
+              </td>
+              <td>
+                <span *ngIf="u.sucursal_nombre">{{ u.sucursal_nombre }}</span>
+                <span *ngIf="!u.sucursal_nombre" style="opacity:.5">—</span>
+                <div *ngIf="u.cargo" style="font-size:.8em;opacity:.6">{{ u.cargo }}</div>
               </td>
               <td>
                 <span class="badge-status" [ngClass]="u.estado === 'ACTIVO' ? 'status-activo' : 'status-inactivo'">

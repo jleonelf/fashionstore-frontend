@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuarioService } from '../../core/services/usuario.service';
+import { OrganizacionService } from '../../core/services/organizacion.service';
 import { UsuarioListadoDTO, UsuarioCrearDTO, RolDTO } from '../../core/models/usuario.models';
+import { SucursalDTO } from '../../core/models/organizacion.models';
 
 @Component({
   selector: 'app-usuarios',
@@ -14,6 +16,7 @@ import { UsuarioListadoDTO, UsuarioCrearDTO, RolDTO } from '../../core/models/us
 export class UsuariosComponent implements OnInit {
   usuarios: UsuarioListadoDTO[] = [];
   roles: RolDTO[] = [];
+  sucursales: SucursalDTO[] = [];
   
   filtroRolId = '';
   filtroEstado = '';
@@ -24,7 +27,9 @@ export class UsuariosComponent implements OnInit {
     apellidos: '',
     correo_electronico: '',
     contrasenia: '',
-    telefono: ''
+    telefono: '',
+    sucursal_id: null,
+    cargo: null
   };
 
   cargando = false;
@@ -32,17 +37,33 @@ export class UsuariosComponent implements OnInit {
   mensajeError: string | null = null;
   mensajeExito: string | null = null;
 
-  constructor(private usuarioService: UsuarioService) {}
+  constructor(private usuarioService: UsuarioService, private organizacionService: OrganizacionService) {}
 
   ngOnInit(): void {
     this.cargarRoles();
+    this.cargarSucursales();
     this.cargarUsuarios();
+  }
+
+  sucursalesFiltradas(): SucursalDTO[] { return this.sucursales; }
+
+  rolRequiereSucursal(): boolean {
+    const rol = this.roles.find(r => r.id === this.nuevoUsuario.rol_id);
+    if (!rol) return false;
+    return ['ENCARGADO','CAJERO'].includes(rol.nombre.toUpperCase());
   }
 
   cargarRoles(): void {
     this.usuarioService.listarRoles().subscribe({
       next: (data) => (this.roles = data),
       error: () => (this.mensajeError = 'Error al cargar lista de roles.')
+    });
+  }
+
+  cargarSucursales(): void {
+    this.organizacionService.gestionarSucursales().subscribe({
+      next: (data) => (this.sucursales = data),
+      error: () => (this.sucursales = [])
     });
   }
 
@@ -65,27 +86,43 @@ export class UsuariosComponent implements OnInit {
       this.mensajeError = 'Por favor complete todos los campos obligatorios (*)';
       return;
     }
+    if (this.rolRequiereSucursal() && !this.nuevoUsuario.sucursal_id) {
+      this.mensajeError = 'Para el rol ENCARGADO/CAJERO debe seleccionar la sucursal asignada.';
+      return;
+    }
+
+    // preparar payload: limpiar sucursal_id si no requiere
+    const payload: UsuarioCrearDTO = { ...this.nuevoUsuario };
+    if (!this.rolRequiereSucursal()) {
+      payload.sucursal_id = null;
+      payload.cargo = null;
+    }
+    if (payload.sucursal_id === '') payload.sucursal_id = null;
+    if (payload.cargo === '') payload.cargo = null;
 
     this.guardando = true;
     this.mensajeError = null;
 
-    this.usuarioService.crearUsuario(this.nuevoUsuario).subscribe({
+    this.usuarioService.crearUsuario(payload).subscribe({
       next: (u) => {
         this.guardando = false;
-        this.mensajeExito = `Usuario ${u.nombre_completo} registrado exitosamente con rol ${u.rol_nombre}.`;
+        const sucInfo = u.sucursal_nombre ? ` → ${u.sucursal_nombre}` : '';
+        this.mensajeExito = `Usuario ${u.nombre_completo} registrado exitosamente con rol ${u.rol_nombre}${sucInfo}.`;
         this.nuevoUsuario = {
           rol_id: '',
           nombres: '',
           apellidos: '',
           correo_electronico: '',
           contrasenia: '',
-          telefono: ''
+          telefono: '',
+          sucursal_id: null,
+          cargo: null
         };
         this.cargarUsuarios();
       },
       error: (err) => {
         this.guardando = false;
-        this.mensajeError = err.error?.detail || 'Error al crear usuario.';
+        this.mensajeError = err.error?.detail || JSON.stringify(err.error) || 'Error al crear usuario.';
       }
     });
   }

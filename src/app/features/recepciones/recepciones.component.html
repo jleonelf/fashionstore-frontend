@@ -1,0 +1,131 @@
+<div class="page-container">
+  <div class="hero-header">
+    <div class="hero-badge">Ciclo 1 · CU04 · RF06 · RF26 · RN-09</div>
+    <h1>Recepción de Lotes & Proveedores</h1>
+    <p class="hero-sub">Costo promedio ponderado por variante global — <code>(previa × promedio + recibida × costo) / (previa + recibida)</code> — Kardex <b>RECEPCION_PROVEEDOR</b> en transacción única</p>
+  </div>
+
+  <div *ngIf="mensajeExito" class="alert-box alert-success">{{ mensajeExito }}</div>
+  <div *ngIf="mensajeError" class="alert-box alert-danger">{{ mensajeError }}</div>
+
+  <div class="tabs">
+    <button [class.active]="tab==='lotes'" (click)="tab='lotes'">📦 Registrar Lote</button>
+    <button [class.active]="tab==='proveedores'" (click)="tab='proveedores'">🏢 Proveedores</button>
+  </div>
+
+  <!-- LOTE -->
+  <div *ngIf="tab==='lotes'" class="grid-2">
+    <div class="card glass">
+      <h3>Registrar Lote de Recepción</h3>
+      <p class="card-desc">Ingresa mercadería a una sucursal: incrementa <b>disponible</b>, recalcula <b>costo_promedio / costo_ultimo</b> por variante y genera movimiento Kardex.</p>
+
+      <div class="form-group">
+        <label>Proveedor *</label>
+        <select [(ngModel)]="loteForm.proveedor_id">
+          <option value="">— Seleccione —</option>
+          <option *ngFor="let p of proveedores" [value]="p.id">{{ p.razon_social }} {{ p.nit ? '('+p.nit+')' : '' }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Sucursal destino *</label>
+        <select [(ngModel)]="loteForm.sucursal_id">
+          <option value="">— Seleccione —</option>
+          <option *ngFor="let s of sucursales" [value]="s.id">{{ sucursalLabel(s) }}</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="form-group flex1">
+          <label>N° Documento / Factura</label>
+          <input [(ngModel)]="loteForm.numero_documento" placeholder="FAC-00123" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Observación</label>
+        <input [(ngModel)]="loteForm.observacion" placeholder="Ej. Lote temporada Primavera-Verano" />
+      </div>
+
+      <div class="detalle-box">
+        <div class="detalle-header">
+          <span>Detalles (variante + cantidad + costo) *</span>
+          <button class="btn-add" (click)="agregarDetalle()">+ Agregar variante</button>
+        </div>
+
+        <div *ngFor="let d of loteForm.detalles; let i = index" class="detalle-row">
+          <select [(ngModel)]="d.variante_id" class="sel-variante">
+            <option value="">— variante —</option>
+            <option *ngFor="let v of variantes" [value]="v.id">{{ varianteLabel(v) }}</option>
+          </select>
+          <input type="number" [(ngModel)]="d.cantidad" min="1" placeholder="Cant." class="inp-cant" />
+          <input type="number" [(ngModel)]="d.costo_unitario" min="0" step="0.01" placeholder="Costo Bs." class="inp-costo" />
+          <button class="btn-icon" (click)="quitarDetalle(i)" *ngIf="loteForm.detalles.length > 1">✕</button>
+        </div>
+      </div>
+
+      <button class="btn-primary" (click)="registrarLote()" [disabled]="guardandoLote">
+        {{ guardandoLote ? 'Procesando...' : 'Registrar Lote → disponible + y Kardex' }}
+      </button>
+      <p class="hint">Transacción única: Lote + Detalles + update variante (costos) + inventario_sucursal + movimientos_inventario</p>
+    </div>
+
+    <div class="card glass">
+      <h3>Últimos Lotes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fecha</th><th>Proveedor</th><th>Sucursal</th><th>Doc</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let l of lotes.slice(0, 8)">
+              <td class="mono">{{ l.fecha_recepcion | date:'short' }}</td>
+              <td>{{ l.proveedor_id.slice(0, 8) }}…</td>
+              <td>{{ l.sucursal_id.slice(0, 8) }}…</td>
+              <td>{{ l.numero_documento || '—' }}</td>
+              <td><span class="pill">{{ l.detalles.length }} var.</span></td>
+            </tr>
+            <tr *ngIf="lotes.length === 0"><td colspan="5" class="empty">Sin lotes — registra el primero</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="cost-formula">
+        <strong>RN-09:</strong> Si existencia previa = 0 ⇒ promedio = costo compra. Si no, <em>promedio = (previa × prom_previo + recibida × costo) / (previa + recibida)</em> y <em>costo_ultimo = costo_compra</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROVEEDORES -->
+  <div *ngIf="tab==='proveedores'" class="grid-2">
+    <div class="card glass">
+      <h3>Nuevo Proveedor</h3>
+      <div class="form-group"><label>Razón social *</label><input [(ngModel)]="nuevoProveedor.razon_social" placeholder="Textil Andina S.A." /></div>
+      <div class="row">
+        <div class="form-group flex1"><label>NIT</label><input [(ngModel)]="nuevoProveedor.nit" placeholder="123456789" /></div>
+        <div class="form-group flex1"><label>Contacto</label><input [(ngModel)]="nuevoProveedor.contacto" placeholder="Juan Pérez" /></div>
+      </div>
+      <div class="row">
+        <div class="form-group flex1"><label>Teléfono</label><input [(ngModel)]="nuevoProveedor.telefono" placeholder="77654321" /></div>
+        <div class="form-group flex1"><label>Correo</label><input [(ngModel)]="nuevoProveedor.correo_electronico" placeholder="contacto@proveedor.bo" /></div>
+      </div>
+      <div class="form-group"><label>Dirección</label><input [(ngModel)]="nuevoProveedor.direccion" /></div>
+      <button class="btn-primary" (click)="crearProveedor()" [disabled]="guardandoProv">{{ guardandoProv ? 'Guardando…' : 'Crear Proveedor' }}</button>
+    </div>
+
+    <div class="card glass">
+      <h3>Proveedores Registrados</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Razón Social</th><th>NIT</th><th>Contacto</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let p of proveedores">
+              <td class="strong">{{ p.razon_social }}</td>
+              <td class="mono">{{ p.nit || '—' }}</td>
+              <td>{{ p.contacto || '—' }}</td>
+              <td><span class="badge" [class.ok]="p.activo" [class.off]="!p.activo">{{ p.activo ? 'Activo' : 'Inactivo' }}</span></td>
+            </tr>
+            <tr *ngIf="proveedores.length===0"><td colspan="4" class="empty">Sin proveedores</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

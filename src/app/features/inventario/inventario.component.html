@@ -1,0 +1,93 @@
+<div class="page">
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Auditoría inmutable · Kardex</p>
+      <h1>Kardex & Inventario Valorizado</h1>
+      <p>Auditoría por variante + sucursal · <b>costo_unitario</b> por movimiento · <b>Σ existencia × costo_promedio</b> · margen <b>precio − costo_promedio</b></p>
+    </div>
+    <div class="hero-cards">
+      <div class="hcard"><div class="hnum">{{ totalExistencia }}</div><div class="hl">unidades</div></div>
+      <div class="hcard accent"><div class="hnum">Bs {{ totalValorizacion | number:'1.2-2' }}</div><div class="hl">valorización</div></div>
+    </div>
+  </div>
+
+  <div class="filters card">
+    <div class="row">
+      <div class="f"><label>Sucursal</label><select [(ngModel)]="filtroSucursal"><option value="">Todas</option><option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</option></select></div>
+      <div class="f"><label>Variante</label><select [(ngModel)]="filtroVariante"><option value="">Todas</option><option *ngFor="let v of variantes" [value]="v.id">{{ v.sku }}</option></select></div>
+      <div class="f"><label>Tipo Kardex</label><select [(ngModel)]="filtroTipo"><option value="">Todos</option><option *ngFor="let t of tipos" [value]="t">{{ t }}</option></select></div>
+      <div class="btns"><button class="btn-primary" (click)="aplicarFiltros()">Aplicar</button><button class="btn-ghost" (click)="limpiar()">Limpiar</button></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button [class.on]="tab==='kardex'" (click)="tab='kardex'">Kardex</button>
+    <button [class.on]="tab==='existencias'" (click)="tab='existencias'">Existencias</button>
+    <button [class.on]="tab==='valorizacion'" (click)="tab='valorizacion'">Valorización</button>
+  </div>
+
+  <div *ngIf="mensajeError" class="alert err">{{ mensajeError }}</div>
+
+  <!-- KARDEX -->
+  <div *ngIf="tab==='kardex'" class="card">
+    <h3>Movimientos de Inventario</h3>
+    <p class="desc">Orden cronológico <b>fecha_hora DESC</b> con costo_unitario — cada variación genera exactamente 1 movimiento Kardex</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Fecha</th><th>Variante</th><th>Tipo</th><th>Cant.</th><th>Costo unit.</th><th>Origen → Destino</th><th>Referencia</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let m of kardex.slice(0, 50)">
+            <td class="mono">{{ m.fecha_hora | date:'short' }}</td>
+            <td class="mono">{{ m.variante_id.slice(0,8) }}…</td>
+            <td><span class="type" [ngClass]="tipoClass(m.tipo)">{{ m.tipo }}</span></td>
+            <td class="num strong">{{ m.cantidad }}</td>
+            <td class="num">Bs {{ m.costo_unitario | number:'1.2-2' }}</td>
+            <td class="mono muted">{{ (m.sucursal_origen_id?.slice(0,6) || '—') }} → {{ (m.sucursal_destino_id?.slice(0,6) || '—') }}</td>
+            <td class="mono muted">{{ m.referencia_tipo || '—' }}</td>
+          </tr>
+          <tr *ngIf="kardex.length===0"><td colspan="7" class="empty">Sin movimientos — registra un lote en Recepciones para generar Kardex RECEPCION_PROVEEDOR</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EXISTENCIAS -->
+  <div *ngIf="tab==='existencias'" class="card">
+    <h3>Existencias Separadas</h3>
+    <p class="desc">Ninguna sucursal vende stock de otra sin traslado aprobado · <b>disponible | reservado | comprometido_traslado | en_transito</b></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>SKU</th><th>Producto</th><th>Sucursal</th><th>Disponible</th><th>Reservado</th><th>Comprometido</th><th>En tránsito</th><th>Valorización</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let e of existencias.slice(0, 50)">
+            <td class="mono strong">{{ e.sku }}</td>
+            <td>{{ e.producto_nombre }} <span class="muted">({{ e.talla_nombre }}·{{ e.color_nombre }})</span></td>
+            <td>{{ e.sucursal_nombre }} <span class="muted">{{ e.ciudad_nombre }}</span></td>
+            <td class="num ok">{{ e.disponible }}</td>
+            <td class="num">{{ e.reservado }}</td>
+            <td class="num">{{ e.comprometido_traslado }}</td>
+            <td class="num">{{ e.en_transito }}</td>
+            <td class="num strong">Bs {{ e.valorizacion | number:'1.2-2' }}</td>
+          </tr>
+          <tr *ngIf="existencias.length===0"><td colspan="8" class="empty">Sin existencias — registra lotes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- VALORIZACION -->
+  <div *ngIf="tab==='valorizacion'" class="card">
+    <h3>Valorización de Inventario</h3>
+    <p class="desc">Fórmula: <code>Σ existencia_total × costo_promedio</code> por sucursal · global = suma por sucursal</p>
+    <div class="val-grid">
+      <div *ngFor="let v of valorizacion" class="val-card">
+        <div class="val-city">{{ v.ciudad_nombre }}</div>
+        <div class="val-name">{{ v.sucursal_nombre }}</div>
+        <div class="val-num">Bs {{ v.valorizacion | number:'1.2-2' }}</div>
+        <div class="val-sub">{{ v.total_existencia }} unidades · costo promedio</div>
+      </div>
+      <div *ngIf="valorizacion.length===0" class="empty">Sin valorización</div>
+    </div>
+    <div class="total-bar">Total global: <b>Bs {{ totalValorizacion | number:'1.2-2' }}</b> · {{ totalExistencia }} unidades · Margen bruto por producto: <b>precio − costo_promedio</b></div>
+  </div>
+</div>

@@ -1,14 +1,16 @@
 @import './styles/design-tokens.css';
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scrollbar-gutter: stable; }
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  background: var(--bg-gradient, #f8fafc);
+  background: var(--bg-gradient);
   color: var(--text-body, #1e293b);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
+:focus-visible { outline: 2px solid var(--ink,#0f172a); outline-offset: 2px; border-radius: 6px; }
+::selection { background: #0f172a; color: #fff; }
+a { color: inherit; }
+img { display: block; max-width: 100%; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

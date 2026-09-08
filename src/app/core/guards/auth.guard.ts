@@ -16,8 +16,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   if (rolesPermitidos && rolesPermitidos.length > 0) {
     const usuario = authService.obtenerUsuarioActual();
     if (!usuario || !rolesPermitidos.includes(usuario.rol)) {
-      alert(`Acceso denegado: Esta sección requiere rol (${rolesPermitidos.join(', ')}). Tu rol actual es: ${usuario?.rol || 'NINGUNO'}`);
-      router.navigate(['/']);
+      router.navigate(['/'], { queryParams: { denegado: '1' } });
       return false;
     }
   }

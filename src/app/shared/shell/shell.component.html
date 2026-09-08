@@ -1,46 +1,38 @@
 <header class="app-header">
-  <a routerLink="/" class="brand">
-    👗 <span>FashionStore</span>
+  <a routerLink="/" class="brand" aria-label="FashionStore inicio">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span>FashionStore</span>
   </a>
 
-  <!-- NAVEGACIÓN BASADA EN SESIÓN Y ROL ÚNICO -->
-  <nav class="nav-links">
-    <!-- PÚBLICO (Sin Sesión) -->
-    <ng-container *ngIf="!usuarioActual">
-      <a routerLink="/auth/login" routerLinkActive="active" class="nav-item">
-        🔑 Iniciar Sesión
-      </a>
-      <a routerLink="/auth/registro" routerLinkActive="active" class="nav-item">
-        📝 Registrarse
-      </a>
-    </ng-container>
+  <!-- NAV pública vs operativa — sin emojis, tipografía UI -->
+  <nav class="nav-links" aria-label="Navegación principal">
+    <!-- Siempre visible: descubrimiento -->
+    <a routerLink="/catalogo" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}" class="nav-item">Catálogo</a>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-item">Inicio</a>
 
-    <!-- PRIVADO / ROL ADMINISTRADOR (CU02) -->
-    <a routerLink="/usuarios" routerLinkActive="active" *ngIf="esAdmin()" class="nav-item">
-      👥 Gestión de Usuarios
-    </a>
-
-    <!-- PRIVADO / ROL ADMINISTRADOR Y ENCARGADO (CU03) -->
-    <a routerLink="/sucursales" routerLinkActive="active" *ngIf="esAdminOEncargado()" class="nav-item">
-      📍 Sucursales & Delivery
-    </a>
+    <!-- Operativo solo con sesión — RBAC Ciclo 1 -->
+    <a routerLink="/sucursales" routerLinkActive="active" *ngIf="puedeVerSucursales()" class="nav-item">Sucursales</a>
+    <a routerLink="/recepciones" routerLinkActive="active" *ngIf="puedeVerRecepciones()" class="nav-item">Recepciones</a>
+    <a routerLink="/productos" routerLinkActive="active" *ngIf="puedeVerProductos()" class="nav-item">Productos</a>
+    <a routerLink="/inventario" routerLinkActive="active" *ngIf="puedeVerInventario()" class="nav-item">Kardex</a>
+    <a routerLink="/usuarios" routerLinkActive="active" *ngIf="esAdmin()" class="nav-item">Usuarios</a>
   </nav>
 
   <div class="header-right">
-    <!-- USUARIO AUTENTICADO -->
+    <!-- Guest CTA -->
+    <ng-container *ngIf="!usuarioActual">
+      <a routerLink="/auth/login" class="btn-ghost sm">Ingresar</a>
+      <a routerLink="/catalogo" class="btn-primary sm">Ver catálogo</a>
+    </ng-container>
+
+    <!-- Autenticado -->
     <div *ngIf="usuarioActual" class="user-pill">
       <div class="avatar-circle">{{ (usuarioActual.nombres || 'U')[0].toUpperCase() }}</div>
       <div class="user-details">
         <span class="user-fullname">{{ usuarioActual.nombre_completo }}</span>
-        <span class="user-role">{{ usuarioActual.rol }}</span>
+        <span class="user-role">{{ usuarioActual.rol }}<span *ngIf="usuarioActual.sucursal_nombre"> — {{ usuarioActual.sucursal_nombre }}</span><span *ngIf="usuarioActual.cargo"> ({{ usuarioActual.cargo }})</span></span>
       </div>
-      <button class="btn-logout" (click)="cerrarSesion()" title="Cerrar Sesión">Salir ✕</button>
-    </div>
-
-    <!-- ESTADO DE CONEXIÓN CUANDO NO HAY SESIÓN -->
-    <div class="status-badge" *ngIf="!usuarioActual">
-      <span class="status-dot"></span>
-      API: 127.0.0.1:8000
+      <button class="btn-logout" (click)="cerrarSesion()" title="Cerrar sesión">Salir</button>
     </div>
   </div>
 </header>

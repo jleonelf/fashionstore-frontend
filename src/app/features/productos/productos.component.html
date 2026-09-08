@@ -1,0 +1,130 @@
+<div class="page">
+  <div class="hero">
+    <p class="eyebrow">Catálogo maestro · SKU único</p>
+    <h1>Productos, Variantes & Maestros</h1>
+    <p>Variante = <b>producto + talla + color</b> con SKU único — unidad vendible. Maestros: tallas, colores, categorías, temporadas, colecciones.</p>
+  </div>
+
+  <div *ngIf="mensajeExito" class="alert ok">{{ mensajeExito }}</div>
+  <div *ngIf="mensajeError" class="alert err">{{ mensajeError }}</div>
+
+  <div class="tabs">
+    <button [class.on]="activeTab==='productos'" (click)="activeTab='productos'">Productos</button>
+    <button [class.on]="activeTab==='variantes'" (click)="activeTab='variantes'">Variantes (SKU)</button>
+    <button [class.on]="activeTab==='maestros'" (click)="activeTab='maestros'">Maestros</button>
+  </div>
+
+  <!-- PRODUCTOS -->
+  <div *ngIf="activeTab==='productos'" class="grid2">
+    <div class="card">
+      <h3>Nuevo Producto</h3>
+      <div class="f"><label>Nombre *</label><input [(ngModel)]="productoForm.nombre" placeholder="Blusa Sedosa Premium" /></div>
+      <div class="f"><label>Descripción</label><input [(ngModel)]="productoForm.descripcion" placeholder="Fibras naturales..." /></div>
+      <div class="row">
+        <div class="f flex1"><label>Categoría</label>
+          <select [(ngModel)]="productoForm.categoria_id"><option value="">—</option><option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</option></select>
+        </div>
+        <div class="f flex1"><label>Género</label>
+          <select [(ngModel)]="productoForm.genero"><option value="">—</option><option value="MUJER">MUJER</option><option value="HOMBRE">HOMBRE</option><option value="UNISEX">UNISEX</option><option value="NIÑO">NIÑO</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="f flex1"><label>Marca</label><input [(ngModel)]="productoForm.marca" placeholder="FashionStore" /></div>
+        <div class="f flex1"><label>Precio base * Bs. *</label><input type="number" [(ngModel)]="productoForm.precio_base" min="0" step="0.01" /></div>
+      </div>
+      <button class="btn" (click)="crearProducto()" [disabled]="guardandoProd">{{ guardandoProd ? 'Guardando…' : 'Crear Producto' }}</button>
+      <p class="hint">Luego asocia temporadas/colecciones e imágenes desde detalle</p>
+    </div>
+
+    <div class="card">
+      <h3>Catálogo Maestro ({{ productos.length }})</h3>
+      <div class="list">
+        <div *ngFor="let p of productos.slice(0, 20)" class="item">
+          <div class="item-title">{{ p.nombre }} <span class="muted">{{ p.marca || '' }}</span></div>
+          <div class="item-sub">Bs {{ p.precio_base }} · {{ p.genero || '—' }} · <span class="pill" [class.pill-on]="p.activo">{{ p.activo ? 'Activo' : 'Inactivo' }}</span></div>
+        </div>
+        <div *ngIf="productos.length===0" class="empty">Sin productos — crea el primero</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VARIANTES -->
+  <div *ngIf="activeTab==='variantes'" class="grid2">
+    <div class="card">
+      <h3>Nueva Variante</h3>
+      <p class="desc">SKU único + UQ <b>producto+talla+color</b> → 409 si duplica</p>
+      <div class="f"><label>Producto *</label>
+        <select [(ngModel)]="varianteForm.producto_id"><option value="">— Seleccione —</option><option *ngFor="let p of productos" [value]="p.id">{{ p.nombre }} (Bs {{ p.precio_base }})</option></select>
+      </div>
+      <div class="row">
+        <div class="f flex1"><label>Talla *</label>
+          <select [(ngModel)]="varianteForm.talla_id"><option value="">—</option><option *ngFor="let t of tallas" [value]="t.id">{{ t.nombre }}</option></select>
+        </div>
+        <div class="f flex1"><label>Color *</label>
+          <select [(ngModel)]="varianteForm.color_id"><option value="">—</option><option *ngFor="let c of colores" [value]="c.id">{{ c.nombre }} {{ c.codigo_hex || '' }}</option></select>
+        </div>
+      </div>
+      <div class="f"><label>SKU *</label><input [(ngModel)]="varianteForm.sku" placeholder="BLU-001-M-AZU" style="font-family:monospace" /></div>
+      <div class="row">
+        <div class="f flex1"><label>Código barras</label><input [(ngModel)]="varianteForm.codigo_barras" placeholder="7501234..." /></div>
+        <div class="f flex1"><label>Precio variante * Bs.</label><input type="number" [(ngModel)]="varianteForm.precio" min="0" step="0.01" /></div>
+      </div>
+      <div class="f"><label>Peso gramos</label><input type="number" [(ngModel)]="varianteForm.peso_gramos" min="1" /></div>
+      <button class="btn" (click)="crearVariante()" [disabled]="guardandoVar">{{ guardandoVar ? 'Guardando…' : 'Crear Variante (SKU único)' }}</button>
+    </div>
+
+    <div class="card">
+      <h3>Variantes ({{ variantes.length }})</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>SKU</th><th>Producto</th><th>Talla</th><th>Color</th><th>Precio</th><th>Costo</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let v of variantes.slice(0, 18)">
+              <td class="mono strong">{{ v.sku }}</td>
+              <td>{{ productoNombre(v.producto_id) }}</td>
+              <td><span class="badge">{{ tallaNombre(v.talla_id) }}</span></td>
+              <td>
+                <span class="color-dot" [style.background]="colorObj(v.color_id)?.codigo_hex || '#e2e8f0'"></span>
+                {{ colorObj(v.color_id)?.nombre || '—' }} <span class="mono muted">{{ colorObj(v.color_id)?.codigo_hex || '' }}</span>
+              </td>
+              <td class="num">Bs {{ v.precio }}</td>
+              <td class="num muted">/{{ v.costo_promedio }} ({{ v.costo_ultimo }})</td>
+            </tr>
+            <tr *ngIf="variantes.length===0"><td colspan="6" class="empty">Sin variantes</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAESTROS -->
+  <div *ngIf="activeTab==='maestros'" class="maestros-grid">
+    <div class="card sm">
+      <h4>Tallas</h4>
+      <div class="inline"><input [(ngModel)]="nuevo.talla" placeholder="XL" /> <button class="btn-sm" (click)="crearTalla()">Crear</button></div>
+      <div class="chips"><span *ngFor="let t of tallas" class="chip">{{ t.nombre }}</span><span *ngIf="tallas.length===0" class="muted">Sin tallas</span></div>
+    </div>
+    <div class="card sm">
+      <h4>Colores</h4>
+      <div class="inline"><input [(ngModel)]="nuevo.color" placeholder="Azul Marino" /> <input type="color" [(ngModel)]="nuevo.colorHex" class="colorpick" /> <button class="btn-sm" (click)="crearColor()">Crear</button></div>
+      <div class="chips">
+        <span *ngFor="let c of colores" class="chip color-chip"><span class="dot" [style.background]="c.codigo_hex || '#ccc'"></span>{{ c.nombre }} <span class="mono muted">{{ c.codigo_hex || '' }}</span></span>
+      </div>
+    </div>
+    <div class="card sm">
+      <h4>Categorías</h4>
+      <div class="inline"><input [(ngModel)]="nuevo.categoria" placeholder="Blusas" /> <button class="btn-sm" (click)="crearCategoria()">Crear</button></div>
+      <div class="chips"><span *ngFor="let c of categorias" class="chip">{{ c.nombre }}</span></div>
+    </div>
+    <div class="card sm">
+      <h4>Temporadas</h4>
+      <div class="inline"><input [(ngModel)]="nuevo.temporada" placeholder="Primavera-Verano 2026" /> <button class="btn-sm" (click)="crearTemporada()">Crear</button></div>
+      <div class="chips"><span *ngFor="let t of temporadas" class="chip warn">{{ t.nombre }}</span></div>
+    </div>
+    <div class="card sm">
+      <h4>Colecciones</h4>
+      <div class="inline"><input [(ngModel)]="nuevo.coleccion" placeholder="Urban Chic" /> <button class="btn-sm" (click)="crearColeccion()">Crear</button></div>
+      <div class="chips"><span *ngFor="let c of colecciones" class="chip accent">{{ c.nombre }}</span></div>
+    </div>
+  </div>
+</div>

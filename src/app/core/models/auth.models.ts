@@ -28,6 +28,9 @@ export interface ClientePerfil {
   fecha_nacimiento?: string;
   preferencias: Record<string, any>;
   creado_en: string;
+  sucursal_id?: string | null;
+  sucursal_nombre?: string | null;
+  cargo?: string | null;
 }
 
 export interface TokenRespuesta {

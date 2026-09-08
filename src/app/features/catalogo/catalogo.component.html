@@ -1,0 +1,180 @@
+<div class="page">
+  <!-- cinta -->
+  <div class="tape" aria-hidden="true"><div class="tape-marks"><span *ngFor="let i of [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]">{{i*10}}</span></div></div>
+
+  <div class="plp-head">
+    <div>
+      <p class="eyebrow">Catálogo unificado · Stock por sucursal</p>
+      <h1>Perchero completo</h1>
+      <p class="sub">Cada prenda muestra disponibilidad real por tienda. Filtrá con precisión de atelier: talla, color con herraje, colección y precio.</p>
+    </div>
+    <div class="head-stat">
+      <div class="stat-num">{{ productos.length }}</div>
+      <div class="stat-label">prendas activas</div>
+      <div class="stat-hint" *ngIf="countFiltros">{{ countFiltros }} filtros</div>
+    </div>
+  </div>
+
+  <!-- búsqueda + chips activos -->
+  <div class="search-row card">
+    <div class="search">
+      <span class="search-ico" aria-hidden="true">⌕</span>
+      <input [(ngModel)]="filtros.texto" placeholder="Buscar: blusa seda, Urban, verde..." (keyup.enter)="filtrar()" aria-label="Buscar en catálogo" />
+      <button class="btn-ink" (click)="filtrar()" [disabled]="cargando">{{ cargando ? 'Buscando…' : 'Buscar' }}</button>
+    </div>
+    <div class="active-chips" *ngIf="filtrosActivos.length">
+      <span *ngFor="let f of filtrosActivos" class="active-chip">
+        {{ f.label }}: {{ f.display }}
+        <button (click)="quitarFiltro(f.key)" aria-label="Quitar filtro">×</button>
+      </span>
+      <button class="link-clear" (click)="limpiar()">Limpiar todo</button>
+    </div>
+  </div>
+
+  <div *ngIf="mensajeError" class="alert err">{{ mensajeError }}</div>
+
+  <div class="plp">
+    <!-- FACETS -->
+    <aside class="facets" [class.open]="filtrosAbiertos">
+      <div class="facets-head">
+        <h2>Filtros</h2>
+        <button class="icon-btn" (click)="filtrosAbiertos = !filtrosAbiertos" [attr.aria-expanded]="filtrosAbiertos">{{ filtrosAbiertos ? '—' : '+' }}</button>
+      </div>
+
+      <div class="facet-body" *ngIf="filtrosAbiertos">
+        <div class="facet">
+          <label>Categoría</label>
+          <select [(ngModel)]="filtros.categoria_id" (change)="filtrar()">
+            <option value="">Todas</option>
+            <option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</option>
+          </select>
+        </div>
+
+        <div class="facet">
+          <label>Talla</label>
+          <div class="swatch-row">
+            <button *ngFor="let t of tallas" class="swatch-pill" [class.on]="filtros.talla_id===t.id" (click)="seleccionarTalla(t.id)">{{ t.nombre }}</button>
+            <span *ngIf="tallas.length===0" class="muted sm">Sin tallas</span>
+          </div>
+        </div>
+
+        <div class="facet">
+          <label>Color · herraje</label>
+          <div class="color-row">
+            <button *ngFor="let c of colores" class="color-btn" [class.on]="filtros.color_id===c.id" (click)="seleccionarColor(c.id)" [title]="c.nombre">
+              <span class="dot" [style.background]="c.codigo_hex || '#e2e8f0'"></span>
+              <span class="cname">{{ c.nombre }}</span>
+            </button>
+            <span *ngIf="colores.length===0" class="muted sm">Sin colores</span>
+          </div>
+        </div>
+
+        <div class="facet">
+          <label>Género</label>
+          <div class="swatch-row">
+            <button class="swatch-pill" [class.on]="filtros.genero==='MUJER'" (click)="seleccionarGenero('MUJER')">Mujer</button>
+            <button class="swatch-pill" [class.on]="filtros.genero==='HOMBRE'" (click)="seleccionarGenero('HOMBRE')">Hombre</button>
+            <button class="swatch-pill" [class.on]="filtros.genero==='UNISEX'" (click)="seleccionarGenero('UNISEX')">Unisex</button>
+          </div>
+        </div>
+
+        <div class="facet">
+          <label>Temporada</label>
+          <select [(ngModel)]="filtros.temporada_id" (change)="filtrar()">
+            <option value="">Todas</option>
+            <option *ngFor="let t of temporadas" [value]="t.id">{{ t.nombre }}</option>
+          </select>
+        </div>
+
+        <div class="facet">
+          <label>Colección</label>
+          <select [(ngModel)]="filtros.coleccion_id" (change)="filtrar()">
+            <option value="">Todas</option>
+            <option *ngFor="let c of colecciones" [value]="c.id">{{ c.nombre }}</option>
+          </select>
+        </div>
+
+        <div class="facet">
+          <label>Precio Bs.</label>
+          <div class="price-row">
+            <input type="number" [(ngModel)]="filtros.precio_min" placeholder="Min" min="0" />
+            <span>—</span>
+            <input type="number" [(ngModel)]="filtros.precio_max" placeholder="Max" min="0" />
+          </div>
+          <button class="btn-ghost full" (click)="filtrar()">Aplicar precio</button>
+        </div>
+
+        <button class="btn-ghost full muted-btn" (click)="limpiar()">Limpiar filtros</button>
+        <p class="hint facets-hint">Stock ≠ global. Tocá la prenda para ver <b>disponible por sucursal</b> y tiempo de reserva.</p>
+      </div>
+    </aside>
+
+    <!-- GRID -->
+    <section class="products">
+      <div class="products-bar">
+        <span class="muted sm">{{ productos.length }} resultados</span>
+        <button class="btn-ghost sm show-filters" (click)="filtrosAbiertos = !filtrosAbiertos">{{ filtrosAbiertos ? 'Ocultar filtros' : 'Mostrar filtros' }}</button>
+      </div>
+
+      <div *ngIf="cargando" class="loading"><span class="shimmer"></span> Cargando perchero…</div>
+
+      <div class="grid" *ngIf="!cargando">
+        <article *ngFor="let p of productos" class="product-card" (click)="verDisponibilidad(p)">
+          <div class="img-wrap">
+            <img [src]="imagen(p)" [alt]="p.nombre" loading="lazy" />
+            <span class="price">Bs {{ p.precio_base }}</span>
+            <span class="stock" [class.on]="p.activo">{{ p.activo ? 'Disponible' : 'No disponible' }}</span>
+            <div class="hover-bar">
+              <span class="hb-ia">Probador IA</span>
+              <span class="hb-stock">Ver sucursales →</span>
+            </div>
+          </div>
+          <div class="body">
+            <h3>{{ p.nombre }}</h3>
+            <p class="muted desc">{{ p.descripcion || 'Fibra seleccionada · Corte atelier' }}</p>
+            <div class="meta">
+              <span class="chip">{{ p.genero || '—' }}</span>
+              <span class="chip brass">{{ p.marca || 'FashionStore' }}</span>
+              <span class="chip muted-chip">{{ p.imagenes.length }} img</span>
+            </div>
+          </div>
+        </article>
+
+        <div *ngIf="productos.length===0 && !cargando" class="empty">
+          <div class="empty-ill" aria-hidden="true">∅</div>
+          <h3>Sin coincidencias en el perchero</h3>
+          <p>Probá con menos filtros o con otra búsqueda. Cada variante es <span class="mono">producto + talla + color</span> con SKU único.</p>
+          <button class="btn-ink" (click)="limpiar()">Limpiar filtros</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODAL disponibilidad -->
+  <div *ngIf="varSeleccionada" class="modal-overlay" (click)="varSeleccionada=null">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <p class="eyebrow">Disponibilidad por sucursal</p>
+        <h3>{{ varSeleccionada.nombre || varSeleccionada.sku }}</h3>
+        <p class="muted">Sólo sucursales con <b>disponible &gt; 0</b>. Cada sucursal es stock separado.</p>
+      </div>
+      <div *ngIf="cargandoDisp" class="loading">Consultando inventario…</div>
+      <table *ngIf="!cargandoDisp && disponibilidad.length>0">
+        <thead><tr><th>Sucursal</th><th>Ciudad</th><th>Disponible</th><th>Reservado</th><th>Comprometido</th><th>En tránsito</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let d of disponibilidad">
+            <td class="strong">{{ d.sucursal_nombre }}</td><td>{{ d.ciudad_nombre }}</td>
+            <td class="num ok">{{ d.disponible }}</td><td class="num">{{ d.reservado }}</td><td class="num">{{ d.comprometido_traslado }}</td><td class="num">{{ d.en_transito }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!cargandoDisp && disponibilidad.length===0" class="empty sm">
+        <p>Sin disponibilidad &gt;0 para esta prenda. Probá con otra talla/color o consultá traslados.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-ghost" (click)="varSeleccionada=null">Cerrar</button>
+        <span class="hint">RF08 · stock separado por sucursal</span>
+      </div>
+    </div>
+  </div>
+</div>

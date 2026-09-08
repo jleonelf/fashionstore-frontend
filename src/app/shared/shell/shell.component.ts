@@ -29,12 +29,25 @@ export class ShellComponent implements OnInit {
     return this.usuarioActual?.rol === 'ADMINISTRADOR';
   }
 
-  esAdminOEncargado(): boolean {
-    return this.usuarioActual?.rol === 'ADMINISTRADOR' || this.usuarioActual?.rol === 'ENCARGADO';
+  esEncargado(): boolean {
+    return this.usuarioActual?.rol === 'ENCARGADO';
   }
+
+  esCajero(): boolean {
+    return this.usuarioActual?.rol === 'CAJERO';
+  }
+
+  esAdminOEncargado(): boolean {
+    return this.usuarioActual?.rol === 'ADMINISTRADOR' || this.usuarioActual?.rol === 'ENCARGADO' || this.usuarioActual?.rol === 'CAJERO';
+  }
+
+  puedeVerSucursales(): boolean { return this.esAdmin(); }
+  puedeVerProductos(): boolean { return this.esAdmin(); }
+  puedeVerRecepciones(): boolean { return this.esAdmin(); }
+  puedeVerInventario(): boolean { return ['ADMINISTRADOR','ENCARGADO','CAJERO'].includes(this.usuarioActual?.rol || ''); }
 
   cerrarSesion(): void {
     this.authService.cerrarSesion();
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/']);
   }
 }
