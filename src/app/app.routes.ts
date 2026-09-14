@@ -31,40 +31,40 @@ export const routes: Routes = [
     component: UsuariosComponent,
     canActivate: [authGuard],
     data: { roles: ['ADMINISTRADOR'] },
-    title: 'Gestión de Usuarios (CU02) — FashionStore'
+    title: 'Gestión de usuarios — FashionStore'
   },
   {
     path: 'sucursales',
     component: SucursalesComponent,
     canActivate: [authGuard],
     data: { roles: ['ADMINISTRADOR'] },
-    title: 'Sucursales y Delivery (CU03) — FashionStore'
+    title: 'Sucursales y delivery — FashionStore'
   },
   {
     path: 'recepciones',
     component: RecepcionesComponent,
     canActivate: [authGuard],
     data: { roles: ['ADMINISTRADOR'] },
-    title: 'Recepción de Lotes (CU04) — FashionStore'
+    title: 'Recepción de lotes — FashionStore'
   },
   {
     path: 'productos',
     component: ProductosComponent,
     canActivate: [authGuard],
     data: { roles: ['ADMINISTRADOR'] },
-    title: 'Productos y Variantes (CU05) — FashionStore'
+    title: 'Productos y variantes — FashionStore'
   },
   {
     path: 'catalogo',
     component: CatalogoComponent,
-    title: 'Catálogo (CU06) — FashionStore'
+    title: 'Catálogo — FashionStore'
   },
   {
     path: 'inventario',
     component: InventarioComponent,
     canActivate: [authGuard],
     data: { roles: ['ADMINISTRADOR', 'ENCARGADO', 'CAJERO'] },
-    title: 'Kardex e Inventario (CU07) — FashionStore'
+    title: 'Kardex e inventario — FashionStore'
   },
   {
     path: '**',

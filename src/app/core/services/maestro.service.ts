@@ -9,7 +9,7 @@ export class MaestroService {
   private api = environment.apiUrl;
   constructor(private http: HttpClient) {}
 
-  // gestionarMaestros() - CU05 RF04/RF05/RF23
+  // Datos maestros del catálogo
   // Tallas
   gestionarTallas(): Observable<TallaDTO[]> { return this.http.get<TallaDTO[]>(`${this.api}/tallas`); }
   crearTalla(dto: Partial<TallaDTO>): Observable<TallaDTO> { return this.http.post<TallaDTO>(`${this.api}/tallas`, dto); }

@@ -63,7 +63,7 @@ export class RecepcionesComponent implements OnInit {
     this.guardandoProv = true; this.mensajeError = null;
     this.recepcionService.registrarProveedor(this.nuevoProveedor).subscribe({
       next: p => {
-        this.mensajeExito = `Proveedor "${p.razon_social}" registrado — RN-09 listo para recepción`;
+        this.mensajeExito = `Proveedor "${p.razon_social}" registrado correctamente.`;
         this.nuevoProveedor = { razon_social: '', nit: '', contacto: '', telefono: '', correo_electronico: '', direccion: '' };
         this.guardandoProv = false; this.cargarProveedores();
       },

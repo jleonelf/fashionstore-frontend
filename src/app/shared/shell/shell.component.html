@@ -1,16 +1,14 @@
-<header class="app-header">
-  <a routerLink="/" class="brand" aria-label="FashionStore inicio">
+<header class="app-header" [class.menu-activo]="menuAbierto">
+  <a routerLink="/" class="brand" aria-label="FashionStore inicio" (click)="cerrarMenu()">
     <span class="brand-mark" aria-hidden="true"></span>
     <span>FashionStore</span>
   </a>
 
-  <!-- NAV pública vs operativa — sin emojis, tipografía UI -->
   <nav class="nav-links" aria-label="Navegación principal">
-    <!-- Siempre visible: descubrimiento -->
-    <a routerLink="/catalogo" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}" class="nav-item">Catálogo</a>
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-item">Inicio</a>
+    <a routerLink="/catalogo" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}" class="nav-item">Catálogo</a>
 
-    <!-- Operativo solo con sesión — RBAC Ciclo 1 -->
+    <!-- Navegación operativa según el rol de la sesión -->
     <a routerLink="/sucursales" routerLinkActive="active" *ngIf="puedeVerSucursales()" class="nav-item">Sucursales</a>
     <a routerLink="/recepciones" routerLinkActive="active" *ngIf="puedeVerRecepciones()" class="nav-item">Recepciones</a>
     <a routerLink="/productos" routerLinkActive="active" *ngIf="puedeVerProductos()" class="nav-item">Productos</a>
@@ -19,23 +17,105 @@
   </nav>
 
   <div class="header-right">
-    <!-- Guest CTA -->
     <ng-container *ngIf="!usuarioActual">
-      <a routerLink="/auth/login" class="btn-ghost sm">Ingresar</a>
-      <a routerLink="/catalogo" class="btn-primary sm">Ver catálogo</a>
+      <a routerLink="/auth/login" class="btn-ghost sm desktop-only">Ingresar</a>
+      <a routerLink="/catalogo" class="btn-primary sm desktop-only">Ver catálogo</a>
     </ng-container>
 
-    <!-- Autenticado -->
-    <div *ngIf="usuarioActual" class="user-pill">
+    <div *ngIf="usuarioActual" class="user-pill desktop-only">
       <div class="avatar-circle">{{ (usuarioActual.nombres || 'U')[0].toUpperCase() }}</div>
       <div class="user-details">
         <span class="user-fullname">{{ usuarioActual.nombre_completo }}</span>
-        <span class="user-role">{{ usuarioActual.rol }}<span *ngIf="usuarioActual.sucursal_nombre"> — {{ usuarioActual.sucursal_nombre }}</span><span *ngIf="usuarioActual.cargo"> ({{ usuarioActual.cargo }})</span></span>
+        <span class="user-role">{{ usuarioActual.rol }}<span *ngIf="usuarioActual.sucursal_nombre"> — {{ usuarioActual.sucursal_nombre }}</span></span>
       </div>
-      <button class="btn-logout" (click)="cerrarSesion()" title="Cerrar sesión">Salir</button>
+      <button type="button" class="btn-logout" (click)="cerrarSesion()" title="Cerrar sesión">Salir</button>
     </div>
+
+    <button
+      #menuButton
+      type="button"
+      class="hamburger-btn"
+      (click)="alternarMenu()"
+      [attr.aria-expanded]="menuAbierto"
+      aria-controls="mobile-navigation"
+      [attr.aria-label]="menuAbierto ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'"
+      title="Menú de navegación"
+    >
+      <span class="hamburger-bar bar-1"></span>
+      <span class="hamburger-bar bar-2"></span>
+      <span class="hamburger-bar bar-3"></span>
+    </button>
   </div>
 </header>
+
+<div
+  class="mobile-backdrop"
+  [class.active]="menuAbierto"
+  (click)="cerrarMenu()"
+  aria-hidden="true"
+></div>
+
+<aside
+  id="mobile-navigation"
+  class="mobile-drawer"
+  [class.open]="menuAbierto"
+  [attr.aria-hidden]="!menuAbierto"
+  aria-label="Menú de navegación"
+>
+  <div class="drawer-header">
+    <a routerLink="/" class="brand drawer-brand" (click)="cerrarMenu()">
+      <span class="brand-mark drawer-brand-mark"></span>
+      <span>FashionStore</span>
+    </a>
+    <button #closeButton type="button" class="btn-close-drawer" (click)="cerrarMenu()" aria-label="Cerrar menú">&times;</button>
+  </div>
+
+  <div class="drawer-body">
+    <div class="drawer-section">
+      <div class="drawer-section-title">Tienda</div>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="cerrarMenu()" class="drawer-link">
+        <span>Inicio</span>
+      </a>
+      <a routerLink="/catalogo" routerLinkActive="active" (click)="cerrarMenu()" class="drawer-link"><span>Catálogo</span></a>
+    </div>
+
+    <div class="drawer-section" *ngIf="usuarioActual">
+      <div class="drawer-section-title">Gestión</div>
+      <a routerLink="/sucursales" routerLinkActive="active" *ngIf="puedeVerSucursales()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Sucursales y delivery</span>
+      </a>
+      <a routerLink="/recepciones" routerLinkActive="active" *ngIf="puedeVerRecepciones()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Recepción de lotes</span>
+      </a>
+      <a routerLink="/productos" routerLinkActive="active" *ngIf="puedeVerProductos()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Productos y variantes</span>
+      </a>
+      <a routerLink="/inventario" routerLinkActive="active" *ngIf="puedeVerInventario()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Inventario</span>
+      </a>
+      <a routerLink="/usuarios" routerLinkActive="active" *ngIf="esAdmin()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Usuarios y roles</span>
+      </a>
+    </div>
+
+    <div class="drawer-section" *ngIf="!usuarioActual">
+      <div class="drawer-section-title">Cuenta</div>
+      <a routerLink="/auth/login" (click)="cerrarMenu()" class="drawer-link-btn primary">Iniciar sesión</a>
+      <a routerLink="/auth/registro" (click)="cerrarMenu()" class="drawer-link-btn ghost">Crear una cuenta</a>
+    </div>
+  </div>
+
+  <div class="drawer-footer" *ngIf="usuarioActual">
+    <div class="drawer-user-info">
+      <div class="avatar-circle">{{ (usuarioActual.nombres || 'U')[0].toUpperCase() }}</div>
+      <div class="user-details">
+        <span class="user-fullname">{{ usuarioActual.nombre_completo }}</span>
+        <span class="user-role">{{ usuarioActual.rol }}<span *ngIf="usuarioActual.sucursal_nombre"> — {{ usuarioActual.sucursal_nombre }}</span></span>
+      </div>
+    </div>
+    <button type="button" class="btn-drawer-logout" (click)="cerrarSesion(); cerrarMenu()">Cerrar sesión</button>
+  </div>
+</aside>
 
 <main class="main-content">
   <router-outlet></router-outlet>

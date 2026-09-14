@@ -38,6 +38,7 @@
   gap: 1.5rem;
   align-items: start;
 }
+.module-grid > .card-panel { min-width: 0; }
 
 .card-panel {
   background: var(--card-bg, #ffffff);
@@ -243,3 +244,11 @@ tr:hover td {
     grid-template-columns: 1fr;
   }
 }
+@media (max-width:640px){.module-container{padding-top:.25rem}.module-grid{gap:1rem}.filters-bar{flex-direction:column;align-items:stretch}.filter-item{width:100%}.actions-group{flex-direction:column;align-items:stretch}.btn-action{min-height:40px}table{min-width:780px}.field-help{display:block;margin-top:.35rem;color:var(--text-muted);font-size:.76rem;line-height:1.4}}
+.dialog-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(23,32,42,.52);display:grid;place-items:center;padding:1rem}
+.dialog-card{width:min(440px,100%);background:var(--surface);border-radius:var(--radius-card);padding:1.35rem;box-shadow:var(--shadow-float);color:var(--text-body)}
+.dialog-card h3{font-size:1.2rem;margin:.15rem 0 .4rem;color:var(--ink)}.dialog-card p{font-size:.88rem;color:var(--text-muted)}
+.dialog-card label{display:block;font-size:.78rem;font-weight:700;margin:.9rem 0 .35rem}.dialog-card select{width:100%;padding:.65rem .8rem}
+.dialog-kicker{color:var(--brass-strong)!important;font-weight:750}.dialog-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.25rem}
+.dialog-actions button{min-height:42px;padding:.6rem .9rem;border-radius:var(--radius-control);font-weight:700;cursor:pointer}
+.dialog-secondary{background:var(--surface);border:1px solid var(--border)}.dialog-primary{background:var(--ink);color:#fff;border:1px solid var(--ink)}.dialog-primary.danger{background:var(--danger);border-color:var(--danger)}

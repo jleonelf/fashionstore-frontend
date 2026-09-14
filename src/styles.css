@@ -1,16 +1,92 @@
 @import './styles/design-tokens.css';
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scrollbar-gutter: stable; }
+*, *::before, *::after { box-sizing: border-box; }
+html { scrollbar-gutter: stable; scroll-behavior: smooth; }
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background: var(--bg-gradient);
-  color: var(--text-body, #1e293b);
+  margin: 0;
+  min-width: 320px;
   min-height: 100vh;
+  color: var(--text-body);
+  background: var(--bg-gradient);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
-:focus-visible { outline: 2px solid var(--ink,#0f172a); outline-offset: 2px; border-radius: 6px; }
-::selection { background: #0f172a; color: #fff; }
+body.menu-open { overflow: hidden; }
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { color: inherit; }
 a { color: inherit; }
 img { display: block; max-width: 100%; }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+h1, h2, h3, h4, p { margin-top: 0; }
+h1, h2 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+:focus-visible {
+  outline: 3px solid rgba(168, 135, 91, .45);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+::selection { background: var(--brass-soft); color: var(--ink); }
+
+input:not([type='checkbox']):not([type='radio']):not([type='color']),
+select,
+textarea {
+  min-height: 44px;
+  color: var(--text-main);
+  background: var(--surface);
+  border-color: var(--border) !important;
+  border-radius: var(--radius-control) !important;
+}
+input::placeholder, textarea::placeholder { color: #98a2b3; }
+input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  border-color: var(--brass) !important;
+  box-shadow: 0 0 0 4px rgba(168, 135, 91, .14) !important;
+}
+button:disabled { cursor: not-allowed !important; opacity: .55 !important; }
+
+.alert, .alert-box { border-radius: var(--radius-control) !important; }
+.alert-success, .alert.ok { color: #126146 !important; background: var(--success-bg) !important; border-color: var(--success-border) !important; }
+.alert-danger, .alert.err { color: #922c38 !important; background: var(--danger-bg) !important; border-color: var(--danger-border) !important; }
+
+.table-wrap, .table-container {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+}
+table { font-variant-numeric: tabular-nums; }
+
+/* A grid item defaults to min-width:auto. Wide tables would otherwise use
+   their intrinsic width to expand the entire page instead of scrolling only
+   inside their own wrapper. */
+.module-grid > *,
+.grid-2 > *,
+.grid2 > *,
+.plp > *,
+.main-content {
+  min-width: 0;
+}
+.main-content { width: 100%; overflow-x: clip; }
+
+@media (max-width: 640px) {
+  body { font-size: 15px; }
+  .main-content { padding-top: .75rem !important; }
+  .page, .page-container, .module-container, .landing { padding-inline: .85rem !important; }
+  .card, .card-panel, .card.glass { padding: 1rem !important; }
+  .hero h1, .hero-header h1, .module-header h2 { font-size: clamp(1.55rem, 7vw, 2rem) !important; }
+  .row, .form-row, .detalle-row { flex-direction: column; align-items: stretch !important; }
+  .row > *, .form-row > *, .detalle-row > * { width: 100%; max-width: none !important; }
+  .tabs { overflow-x: auto; flex-wrap: nowrap !important; padding-bottom: .35rem; scrollbar-width: none; }
+  .tabs button { flex: 0 0 auto; min-height: 44px; }
+  .btn-primary, .btn, button[type='submit'] { min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

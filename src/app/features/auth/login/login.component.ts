@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoginDTO } from '../../../core/models/auth.models';
 
@@ -24,7 +24,8 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   iniciarSesion(): void {
@@ -39,10 +40,9 @@ export class LoginComponent {
     this.authService.iniciarSesion(this.credenciales).subscribe({
       next: (resp) => {
         this.cargando = false;
-        this.mensajeExito = `¡Bienvenido ${resp.usuario.nombre_completo}! Redirigiendo...`;
-        setTimeout(() => {
-          this.router.navigate(['/']);
-        }, 1200);
+        this.mensajeExito = `¡Bienvenido, ${resp.usuario.nombre_completo}!`;
+        const redirectUrl = this.route.snapshot.queryParamMap.get('redirectUrl');
+        this.router.navigateByUrl(redirectUrl?.startsWith('/') ? redirectUrl : '/');
       },
       error: (err) => {
         this.cargando = false;

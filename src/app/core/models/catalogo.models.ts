@@ -107,7 +107,7 @@ export interface VarianteDTO {
   activa: boolean;
 }
 
-// Catálogo CU06
+// Catálogo público
 export interface CatalogoFiltroParams {
   texto?: string;
   categoria_id?: string;
@@ -134,7 +134,7 @@ export interface DisponibilidadItem {
   actualizado_en: string;
 }
 
-// CU07
+// Inventario y Kardex
 export interface MovimientoKardexDTO {
   id: string;
   variante_id: string;

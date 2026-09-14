@@ -1,64 +1,48 @@
-/* ==========================================================================
-   FashionStore - Global Design Tokens
-   Fuente de verdad para la estética visual web (Angular / HTML)
-   ========================================================================== */
-
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
-
+/* FashionStore design system — boutique urbana */
 :root {
-  /* Atelier — papel cálido + latón (storefront) + ink (editorial) */
-  --paper: #f8f6f3;
-  --ink: #0f172a;
-  --brass: #c5a880;
-  --brass-strong: #a68b6a;
-  /* Marca e Interacción Principal (tech/CTA) */
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --primary-light: #eef2ff;
-  
-  /* Acento Tecnológico / IA / Probador */
-  --accent: #06b6d4;
-  --accent-light: #ecfeff;
-  
-  /* Fondos y Superficies — atelier paper */
-  --bg-gradient: linear-gradient(180deg, #f8f6f3 0%, #fdfcfa 55%, #f1f5f9 100%);
-  --card-bg: #ffffff;
-  --card-glass: rgba(255, 255, 255, 0.88);
-  
-  /* Textos y Jerarquía */
-  --text-main: #0f172a;
-  --text-body: #1e293b;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  
-  /* Estados */
-  --success: #10b981;
-  --success-bg: #ecfdf5;
-  --success-border: #a7f3d0;
-  
-  --warning: #f59e0b;
-  --warning-bg: #fffbeb;
-  --warning-border: #fde68a;
-  
-  --danger: #ef4444;
-  --danger-bg: #fef2f2;
-  --danger-border: #fecaca;
-
-  /* Elevación y Radios */
-  --radius-card: 16px;
-  --radius-btn: 10px;
-  --radius-badge: 9999px;
-  --shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(0, 0, 0, 0.04);
-  --shadow-btn: 0 4px 12px rgba(79, 70, 229, 0.25);
-}
-
-body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  color: var(--text-body);
-  background: var(--bg-gradient);
-}
-
-h1, h2, h3, .brand-title {
-  font-family: 'Space Grotesk', sans-serif;
-  color: var(--text-main);
+  --ink: #17202a;
+  --ink-soft: #273440;
+  --paper: #f7f5f2;
+  --canvas: #fbfaf8;
+  --surface: #ffffff;
+  --brass: #a8875b;
+  --brass-strong: #80633f;
+  --brass-soft: #f1e9dd;
+  --primary: var(--ink);
+  --primary-hover: #2c3945;
+  --primary-light: #edf0f2;
+  --accent: var(--brass);
+  --accent-light: var(--brass-soft);
+  --bg-gradient: linear-gradient(180deg, var(--canvas) 0%, var(--paper) 100%);
+  --card-bg: var(--surface);
+  --card-glass: rgba(255, 255, 255, .94);
+  --text-main: var(--ink);
+  --text-body: #344054;
+  --text-muted: #667085;
+  --border: #e4e1dc;
+  --border-strong: #cec8bf;
+  --success: #16805d;
+  --success-bg: #edf8f3;
+  --success-border: #a9ddc8;
+  --warning: #a15c10;
+  --warning-bg: #fff8e8;
+  --warning-border: #efd494;
+  --danger: #c43d4b;
+  --danger-bg: #fff1f2;
+  --danger-border: #f2b8bf;
+  --radius-sm: 8px;
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(23, 32, 42, .04), 0 12px 32px rgba(23, 32, 42, .055);
+  --shadow-float: 0 24px 64px rgba(23, 32, 42, .18);
+  --shadow-btn: none;
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --content-wide: 1280px;
+  --content-admin: 1200px;
 }

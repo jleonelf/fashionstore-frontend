@@ -36,6 +36,9 @@ export class UsuariosComponent implements OnInit {
   guardando = false;
   mensajeError: string | null = null;
   mensajeExito: string | null = null;
+  usuarioCambioRol: UsuarioListadoDTO | null = null;
+  nuevoRolId = '';
+  usuarioCambioEstado: UsuarioListadoDTO | null = null;
 
   constructor(private usuarioService: UsuarioService, private organizacionService: OrganizacionService) {}
 
@@ -128,37 +131,54 @@ export class UsuariosComponent implements OnInit {
   }
 
   cambiarRol(usuario: UsuarioListadoDTO): void {
-    const rolActual = this.roles.find(r => r.id === usuario.rol_id)?.nombre;
-    const nombresRoles = this.roles.map(r => r.nombre).join(', ');
-    const nuevoNombre = prompt(`Cambiar rol de ${usuario.nombre_completo} (Actual: ${rolActual}).\nRoles válidos: ${nombresRoles}\n\nIngresa el nombre del nuevo rol:`);
+    this.usuarioCambioRol = usuario;
+    this.nuevoRolId = usuario.rol_id;
+  }
 
-    if (!nuevoNombre) return;
+  cerrarCambioRol(): void {
+    this.usuarioCambioRol = null;
+    this.nuevoRolId = '';
+  }
 
-    const rolDestino = this.roles.find(r => r.nombre.toUpperCase() === nuevoNombre.trim().toUpperCase());
-    if (!rolDestino) {
-      alert('Rol no válido.');
-      return;
-    }
-
-    this.usuarioService.asignarRol(usuario.id, rolDestino.id).subscribe({
+  confirmarCambioRol(): void {
+    if (!this.usuarioCambioRol || !this.nuevoRolId) return;
+    this.guardando = true;
+    this.usuarioService.asignarRol(this.usuarioCambioRol.id, this.nuevoRolId).subscribe({
       next: (u) => {
+        this.guardando = false;
         this.mensajeExito = `Rol de ${u.nombre_completo} actualizado a ${u.rol_nombre}.`;
+        this.cerrarCambioRol();
         this.cargarUsuarios();
       },
       error: (err) => {
+        this.guardando = false;
         this.mensajeError = err.error?.detail || 'Error al cambiar rol.';
       }
     });
   }
 
   alternarEstado(usuario: UsuarioListadoDTO): void {
+    this.usuarioCambioEstado = usuario;
+  }
+
+  cerrarCambioEstado(): void {
+    this.usuarioCambioEstado = null;
+  }
+
+  confirmarCambioEstado(): void {
+    if (!this.usuarioCambioEstado) return;
+    const usuario = this.usuarioCambioEstado;
     const nuevoEstado = usuario.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+    this.guardando = true;
     this.usuarioService.actualizarEstadoUsuario(usuario.id, nuevoEstado).subscribe({
       next: (u) => {
+        this.guardando = false;
         this.mensajeExito = `Estado de ${u.nombre_completo} cambiado a ${u.estado}.`;
+        this.cerrarCambioEstado();
         this.cargarUsuarios();
       },
       error: () => {
+        this.guardando = false;
         this.mensajeError = 'Error al actualizar estado del usuario.';
       }
     });

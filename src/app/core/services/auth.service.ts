@@ -17,14 +17,14 @@ export class AuthService {
   }
 
   /**
-   * CU01 / RF01: Registro de nuevo cliente
+   * Registro de un nuevo cliente
    */
   registrarCliente(datos: RegistroClienteDTO): Observable<ClientePerfil> {
     return this.http.post<ClientePerfil>(`${this.apiUrl}/clientes`, datos);
   }
 
   /**
-   * CU01 / RF01: Iniciar sesión y guardar token JWT
+   * Iniciar sesión y conservar la sesión local
    */
   iniciarSesion(credenciales: LoginDTO): Observable<TokenRespuesta> {
     return this.http.post<TokenRespuesta>(`${this.apiUrl}/sesion`, credenciales).pipe(
@@ -48,7 +48,7 @@ export class AuthService {
   }
 
   /**
-   * Obtener token JWT actual
+   * Obtener el token de la sesión actual
    */
   obtenerToken(): string | null {
     return localStorage.getItem('fs_token');

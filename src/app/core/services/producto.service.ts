@@ -9,7 +9,7 @@ export class ProductoService {
   private api = environment.apiUrl;
   constructor(private http: HttpClient) {}
 
-  // CU05 - gestionarProductos() / gestionarVariantes()
+  // Productos y variantes
   gestionarProductos(): Observable<ProductoDTO[]> { return this.http.get<ProductoDTO[]>(`${this.api}/productos`); }
   crearProducto(dto: any): Observable<ProductoDTO> { return this.http.post<ProductoDTO>(`${this.api}/productos`, dto); }
   actualizarProducto(id: string, dto: any): Observable<ProductoDTO> { return this.http.put<ProductoDTO>(`${this.api}/productos/${id}`, dto); }

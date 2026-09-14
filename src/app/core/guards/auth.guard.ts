@@ -7,8 +7,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (!authService.estaAutenticado()) {
-    router.navigate(['/auth/login'], { queryParams: { redirectUrl: state.url } });
-    return false;
+    return router.createUrlTree(['/auth/login'], { queryParams: { redirectUrl: state.url } });
   }
 
   // Si la ruta define roles permitidos en data: { roles: ['ADMINISTRADOR', ...] }
@@ -16,8 +15,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   if (rolesPermitidos && rolesPermitidos.length > 0) {
     const usuario = authService.obtenerUsuarioActual();
     if (!usuario || !rolesPermitidos.includes(usuario.rol)) {
-      router.navigate(['/'], { queryParams: { denegado: '1' } });
-      return false;
+      return router.createUrlTree(['/'], { queryParams: { denegado: '1' } });
     }
   }
 

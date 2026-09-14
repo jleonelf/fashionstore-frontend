@@ -47,4 +47,4 @@ td.muted{color:var(--text-muted)}
 .val-sub{font-size:.78rem;color:var(--text-muted)}
 .total-bar{margin-top:1rem;background:#0f172a;color:#fff;border-radius:9999px;padding:.7rem 1rem;text-align:center;font-size:.85rem}
 @media(max-width:900px){.val-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){.val-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.val-grid{grid-template-columns:1fr}.hero-cards{width:100%;display:grid;grid-template-columns:1fr 1fr}.hcard{min-width:0;padding:.8rem}.btns{width:100%}.btns button{flex:1;min-height:44px}table{min-width:760px}.total-bar{border-radius:12px}}

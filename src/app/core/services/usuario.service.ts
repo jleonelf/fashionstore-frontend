@@ -19,7 +19,7 @@ export class UsuarioService {
   constructor(private http: HttpClient) {}
 
   /**
-   * CU02 / RF02: Listar usuarios con filtros opcionales
+   * Listar usuarios con filtros opcionales
    */
   gestionarUsuarios(rolId?: string, estado?: string): Observable<UsuarioListadoDTO[]> {
     let params = new HttpParams();
@@ -29,14 +29,14 @@ export class UsuarioService {
   }
 
   /**
-   * CU02 / RF02: Crear usuario con rol único
+   * Crear usuario con rol único
    */
   crearUsuario(datos: UsuarioCrearDTO): Observable<UsuarioListadoDTO> {
     return this.http.post<UsuarioListadoDTO>(`${this.apiUrl}/usuarios`, datos);
   }
 
   /**
-   * CU02 / RF02: Asignar o cambiar rol único de un usuario
+   * Asignar o cambiar el rol de un usuario
    */
   asignarRol(usuarioId: string, rolId: string): Observable<UsuarioListadoDTO> {
     const payload: AsignarRolDTO = { rol_id: rolId };
@@ -44,14 +44,14 @@ export class UsuarioService {
   }
 
   /**
-   * CU02 / RF02: Desactivar usuario
+   * Desactivar usuario
    */
   desactivarUsuario(usuarioId: string): Observable<UsuarioListadoDTO> {
     return this.http.patch<UsuarioListadoDTO>(`${this.apiUrl}/usuarios/${usuarioId}/desactivar`, {});
   }
 
   /**
-   * CU02 / RF02: Actualizar estado de usuario
+   * Actualizar estado de usuario
    */
   actualizarEstadoUsuario(usuarioId: string, estado: 'ACTIVO' | 'INACTIVO'): Observable<UsuarioListadoDTO> {
     const payload: ActualizarEstadoDTO = { estado };
@@ -59,7 +59,7 @@ export class UsuarioService {
   }
 
   /**
-   * CU02 / RF02: Listar roles activos
+   * Listar roles activos
    */
   listarRoles(): Observable<RolDTO[]> {
     return this.http.get<RolDTO[]>(`${this.apiUrl}/roles`);

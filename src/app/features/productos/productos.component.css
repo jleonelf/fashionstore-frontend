@@ -54,3 +54,4 @@ td.muted{color:var(--text-muted)}
 .muted{color:var(--text-muted);font-size:.8rem}
 .empty{text-align:center;color:var(--text-muted);padding:1.2rem;font-size:.85rem}
 @media(max-width:960px){.grid2{grid-template-columns:1fr}.maestros-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.hero{margin-top:.2rem}.grid2{gap:.85rem}.card{border-radius:12px}.inline{flex-wrap:wrap}.inline input{min-width:0}.btn-sm{min-height:44px}table{min-width:680px}.list{max-height:none}}

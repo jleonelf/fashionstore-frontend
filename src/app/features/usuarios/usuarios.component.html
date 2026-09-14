@@ -1,17 +1,17 @@
 <div class="module-container">
   <div class="module-header">
     <div>
-      <div class="badge-tag">Seguridad & Acceso</div>
-      <h2>Gestión de Usuarios y Roles (CU02)</h2>
-      <p>Administración de usuarios internos y asignación de rol único (RF02)</p>
+      <div class="badge-tag">Seguridad y acceso</div>
+      <h2>Gestión de usuarios y roles</h2>
+      <p>Administra el acceso del equipo y asigna sus responsabilidades.</p>
     </div>
   </div>
 
-  <div *ngIf="mensajeError" class="alert-box alert-danger">
+  <div *ngIf="mensajeError" class="alert-box alert-danger" role="alert">
     {{ mensajeError }}
   </div>
 
-  <div *ngIf="mensajeExito" class="alert-box alert-success">
+  <div *ngIf="mensajeExito" class="alert-box alert-success" role="status">
     {{ mensajeExito }}
   </div>
 
@@ -94,7 +94,7 @@
             <option [ngValue]="null">Seleccione sucursal...</option>
             <option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }} — {{ s.ciudad_nombre || '' }}</option>
           </select>
-          <small style="opacity:.7">Obligatoria para ENCARGADO/CAJERO (tabla empleados)</small>
+          <small class="field-help">Necesaria para encargados y personal de caja.</small>
         </div>
 
         <div class="form-group" *ngIf="rolRequiereSucursal()">
@@ -170,8 +170,8 @@
               </td>
               <td>
                 <div class="actions-group">
-                  <button class="btn-action" (click)="cambiarRol(u)">Cambiar Rol</button>
-                  <button class="btn-action" (click)="alternarEstado(u)">
+                  <button type="button" class="btn-action" (click)="cambiarRol(u)">Cambiar rol</button>
+                  <button type="button" class="btn-action" (click)="alternarEstado(u)">
                     {{ u.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
                   </button>
                 </div>
@@ -182,4 +182,32 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="dialog-backdrop" *ngIf="usuarioCambioRol" (click)="cerrarCambioRol()">
+  <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="role-dialog-title" (click)="$event.stopPropagation()">
+    <p class="dialog-kicker">Permisos de acceso</p>
+    <h3 id="role-dialog-title">Cambiar rol de {{ usuarioCambioRol.nombre_completo }}</h3>
+    <p>Selecciona el nivel de acceso que tendrá esta persona.</p>
+    <label for="nuevoRol">Nuevo rol</label>
+    <select id="nuevoRol" [(ngModel)]="nuevoRolId">
+      <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
+    </select>
+    <div class="dialog-actions">
+      <button type="button" class="dialog-secondary" (click)="cerrarCambioRol()">Cancelar</button>
+      <button type="button" class="dialog-primary" [disabled]="guardando || !nuevoRolId" (click)="confirmarCambioRol()">{{ guardando ? 'Guardando…' : 'Guardar cambio' }}</button>
+    </div>
+  </section>
+</div>
+
+<div class="dialog-backdrop" *ngIf="usuarioCambioEstado" (click)="cerrarCambioEstado()">
+  <section class="dialog-card" role="alertdialog" aria-modal="true" aria-labelledby="state-dialog-title" (click)="$event.stopPropagation()">
+    <p class="dialog-kicker">Confirmar acción</p>
+    <h3 id="state-dialog-title">{{ usuarioCambioEstado.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }} usuario</h3>
+    <p>{{ usuarioCambioEstado.nombre_completo }} {{ usuarioCambioEstado.estado === 'ACTIVO' ? 'perderá el acceso hasta que vuelvas a activarlo.' : 'recuperará el acceso a la plataforma.' }}</p>
+    <div class="dialog-actions">
+      <button type="button" class="dialog-secondary" (click)="cerrarCambioEstado()">Cancelar</button>
+      <button type="button" class="dialog-primary" [class.danger]="usuarioCambioEstado.estado === 'ACTIVO'" [disabled]="guardando" (click)="confirmarCambioEstado()">{{ guardando ? 'Guardando…' : 'Confirmar' }}</button>
+    </div>
+  </section>
 </div>

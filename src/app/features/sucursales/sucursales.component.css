@@ -39,6 +39,7 @@
   gap: 1.5rem;
   align-items: start;
 }
+.module-grid > .card-panel { min-width: 0; }
 
 .forms-col {
   display: flex;
@@ -245,3 +246,10 @@ tr:hover td {
     grid-template-columns: 1fr;
   }
 }
+@media (max-width:640px){.module-container{padding-top:.25rem}.module-grid{gap:1rem}.form-row{grid-template-columns:1fr}.filters-bar{flex-direction:column;align-items:stretch}.filter-item{width:100%}table{min-width:720px}.btn-action{min-height:40px}}
+.dialog-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(23,32,42,.52);display:grid;place-items:center;padding:1rem}
+.dialog-card{width:min(500px,100%);background:var(--surface);border-radius:var(--radius-card);padding:1.35rem;box-shadow:var(--shadow-float);color:var(--text-body)}
+.dialog-card h3{font-size:1.2rem;margin:.15rem 0 .4rem;color:var(--ink)}.dialog-card>p{font-size:.88rem;color:var(--text-muted)}
+.dialog-kicker{color:var(--brass-strong)!important;font-weight:750}.dialog-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:.5rem}
+.dialog-actions button{min-height:42px;padding:.6rem .9rem;border-radius:var(--radius-control);font-weight:700;cursor:pointer}
+.dialog-secondary{background:var(--surface);border:1px solid var(--border)}.dialog-primary{background:var(--ink);color:#fff;border:1px solid var(--ink)}

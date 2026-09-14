@@ -19,14 +19,14 @@ export class OrganizacionService {
   constructor(private http: HttpClient) {}
 
   /**
-   * CU03 / RF03: Listar ciudades
+   * Listar ciudades
    */
   gestionarCiudades(soloActivas: boolean = true): Observable<CiudadDTO[]> {
     return this.http.get<CiudadDTO[]>(`${this.apiUrl}/ciudades?solo_activas=${soloActivas}`);
   }
 
   /**
-   * CU03 / RF03: Registrar nueva ciudad
+   * Registrar nueva ciudad
    */
   registrarCiudad(nombre: string): Observable<CiudadDTO> {
     const payload: CiudadCrearDTO = { nombre };
@@ -34,7 +34,7 @@ export class OrganizacionService {
   }
 
   /**
-   * CU03 / RF03: Listar sucursales con filtro opcional de ciudad
+   * Listar sucursales con filtro opcional de ciudad
    */
   gestionarSucursales(ciudadId?: string): Observable<SucursalDTO[]> {
     let params = new HttpParams();
@@ -43,14 +43,14 @@ export class OrganizacionService {
   }
 
   /**
-   * CU03 / RF03: Registrar sucursal con parámetros de delivery
+   * Registrar sucursal con parámetros de delivery
    */
   registrarSucursal(datos: SucursalCrearDTO): Observable<SucursalDTO> {
     return this.http.post<SucursalDTO>(`${this.apiUrl}/sucursales`, datos);
   }
 
   /**
-   * CU03 / RF03: Configurar tarifas y anillos de delivery de una sucursal
+   * Configurar tarifas y anillos de delivery de una sucursal
    */
   configurarTarifasDelivery(sucursalId: string, datos: ConfigurarTarifasDeliveryDTO): Observable<SucursalDTO> {
     return this.http.patch<SucursalDTO>(`${this.apiUrl}/sucursales/${sucursalId}/tarifas`, datos);

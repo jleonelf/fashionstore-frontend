@@ -42,8 +42,8 @@
 .color-btn.on{border-color:#0f172a;background:#f8f6f3}
 .color-btn .dot{width:16px;height:16px;border-radius:50%;border:1px solid #e2e8f0;flex:0 0 16px}
 .cname{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.price-row{display:flex;gap:.4rem;align-items:center}
-.price-row input{flex:1;padding:.6rem .7rem;border:1px solid #e2e8f0;border-radius:10px;font-size:.88rem}
+.price-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:.4rem;align-items:center;width:100%}
+.price-row input{width:100%;min-width:0;padding:.6rem .7rem;border:1px solid #e2e8f0;border-radius:10px;font-size:.88rem}
 .price-row span{color:#94a3b8}
 .btn-ghost{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:.6rem .9rem;font-weight:700;cursor:pointer;color:#0f172a;font-size:.82rem}
 .btn-ghost.full{width:100%;justify-content:center;display:flex;margin-top:.5rem}
@@ -104,3 +104,4 @@ td.ok{color:#065f46;font-weight:700}
 }
 @media(max-width:520px){.grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.shimmer,.product-card{animation:none;transition:none}}
+@media(max-width:640px){.plp-head{align-items:flex-start}.head-stat{min-width:0;padding:.6rem .8rem;border-radius:10px}.search{flex-wrap:wrap}.search input{min-width:0;width:calc(100% - 2rem)}.search .btn-ink{width:100%;min-height:44px}.facets{padding:.85rem}.products-bar{gap:.75rem}.product-card{border-radius:12px}.hover-bar{display:none}.modal-overlay{align-items:flex-end;padding:0}.modal{max-height:90dvh;border-radius:18px 18px 0 0;padding:1rem}.modal table{min-width:560px}.modal-actions{align-items:flex-start;gap:.75rem;flex-direction:column-reverse}}

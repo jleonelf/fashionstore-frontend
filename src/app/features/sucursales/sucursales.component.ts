@@ -36,6 +36,9 @@ export class SucursalesComponent implements OnInit {
   guardandoSucursal = false;
   mensajeError: string | null = null;
   mensajeExito: string | null = null;
+  sucursalTarifas: SucursalDTO | null = null;
+  tarifaBaseEdicion = 0;
+  incrementoEdicion = 0;
 
   constructor(private orgService: OrganizacionService) {}
 
@@ -123,21 +126,30 @@ export class SucursalesComponent implements OnInit {
   }
 
   ajustarTarifas(sucursal: SucursalDTO): void {
-    const base = prompt(`Tarifa base de delivery para '${sucursal.nombre}' (Bs):`, sucursal.tarifa_base_delivery.toString());
-    if (base === null) return;
+    this.sucursalTarifas = sucursal;
+    this.tarifaBaseEdicion = Number(sucursal.tarifa_base_delivery);
+    this.incrementoEdicion = Number(sucursal.incremento_anillo_delivery);
+  }
 
-    const inc = prompt(`Incremento por anillo para '${sucursal.nombre}' (Bs):`, sucursal.incremento_anillo_delivery.toString());
-    if (inc === null) return;
+  cerrarTarifas(): void {
+    this.sucursalTarifas = null;
+  }
 
-    this.orgService.configurarTarifasDelivery(sucursal.id, {
-      tarifa_base_delivery: parseFloat(base) || 0,
-      incremento_anillo_delivery: parseFloat(inc) || 0
+  guardarTarifas(): void {
+    if (!this.sucursalTarifas || this.tarifaBaseEdicion < 0 || this.incrementoEdicion < 0) return;
+    this.guardandoSucursal = true;
+    this.orgService.configurarTarifasDelivery(this.sucursalTarifas.id, {
+      tarifa_base_delivery: this.tarifaBaseEdicion,
+      incremento_anillo_delivery: this.incrementoEdicion
     }).subscribe({
       next: (s) => {
+        this.guardandoSucursal = false;
         this.mensajeExito = `Tarifas de '${s.nombre}' actualizadas a Base: Bs. ${s.tarifa_base_delivery} / Inc: Bs. ${s.incremento_anillo_delivery}.`;
+        this.cerrarTarifas();
         this.cargarSucursales();
       },
       error: (err) => {
+        this.guardandoSucursal = false;
         this.mensajeError = err.error?.detail || 'Error al ajustar tarifas.';
       }
     });

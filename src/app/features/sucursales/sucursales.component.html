@@ -2,16 +2,16 @@
   <div class="module-header">
     <div>
       <div class="badge-tag">Organización & Cobertura</div>
-      <h2>Ciudades, Sucursales y Delivery (CU03)</h2>
-      <p>Gestión de puntos de venta físicos y parametrización de tarifas de delivery por anillos (RF03)</p>
+      <h2>Ciudades, sucursales y delivery</h2>
+      <p>Administra los puntos de venta y sus tarifas de entrega por zona.</p>
     </div>
   </div>
 
-  <div *ngIf="mensajeError" class="alert-box alert-danger">
+  <div *ngIf="mensajeError" class="alert-box alert-danger" role="alert">
     {{ mensajeError }}
   </div>
 
-  <div *ngIf="mensajeExito" class="alert-box alert-success">
+  <div *ngIf="mensajeExito" class="alert-box alert-success" role="status">
     {{ mensajeExito }}
   </div>
 
@@ -180,7 +180,7 @@
                 <div class="tarifa-sub">+Bs. {{ s.incremento_anillo_delivery }}/anillo</div>
               </td>
               <td>
-                <button class="btn-action" (click)="ajustarTarifas(s)">Ajustar Tarifas</button>
+                <button type="button" class="btn-action" (click)="ajustarTarifas(s)">Ajustar tarifas</button>
               </td>
             </tr>
           </tbody>
@@ -188,4 +188,26 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="dialog-backdrop" *ngIf="sucursalTarifas" (click)="cerrarTarifas()">
+  <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="rates-dialog-title" (click)="$event.stopPropagation()">
+    <p class="dialog-kicker">Configuración de delivery</p>
+    <h3 id="rates-dialog-title">Tarifas de {{ sucursalTarifas.nombre }}</h3>
+    <p>Define el costo inicial y el incremento aplicado por cada anillo.</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="tarifaEdicion">Tarifa base (Bs)</label>
+        <input id="tarifaEdicion" type="number" min="0" step="0.5" [(ngModel)]="tarifaBaseEdicion" />
+      </div>
+      <div class="form-group">
+        <label for="incrementoEdicion">Incremento por anillo (Bs)</label>
+        <input id="incrementoEdicion" type="number" min="0" step="0.5" [(ngModel)]="incrementoEdicion" />
+      </div>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="dialog-secondary" (click)="cerrarTarifas()">Cancelar</button>
+      <button type="button" class="dialog-primary" [disabled]="guardandoSucursal || tarifaBaseEdicion < 0 || incrementoEdicion < 0" (click)="guardarTarifas()">{{ guardandoSucursal ? 'Guardando…' : 'Guardar tarifas' }}</button>
+    </div>
+  </section>
 </div>

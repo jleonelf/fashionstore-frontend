@@ -1,6 +1,6 @@
 <div class="page-container">
   <div class="hero-header">
-    <div class="hero-badge">Ciclo 1 · CU04 · RF06 · RF26 · RN-09</div>
+    <div class="hero-badge">Abastecimiento e inventario</div>
     <h1>Recepción de Lotes & Proveedores</h1>
     <p class="hero-sub">Costo promedio ponderado por variante global — <code>(previa × promedio + recibida × costo) / (previa + recibida)</code> — Kardex <b>RECEPCION_PROVEEDOR</b> en transacción única</p>
   </div>
@@ -88,7 +88,7 @@
         </table>
       </div>
       <div class="cost-formula">
-        <strong>RN-09:</strong> Si existencia previa = 0 ⇒ promedio = costo compra. Si no, <em>promedio = (previa × prom_previo + recibida × costo) / (previa + recibida)</em> y <em>costo_ultimo = costo_compra</em>
+        <strong>Cálculo automático:</strong> el costo promedio se actualiza al registrar cada lote según la existencia previa y el costo de compra.
       </div>
     </div>
   </div>

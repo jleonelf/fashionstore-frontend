@@ -12,7 +12,7 @@ export class RecepcionService {
   private api = environment.apiUrl;
   constructor(private http: HttpClient) {}
 
-  // CU04 - Presentación gestionarProveedores()
+  // Gestión de proveedores
   gestionarProveedores(soloActivos = false): Observable<ProveedorDTO[]> {
     let p = new HttpParams();
     if (soloActivos) p = p.set('solo_activos', 'true');
@@ -23,7 +23,7 @@ export class RecepcionService {
     return this.http.post<ProveedorDTO>(`${this.api}/proveedores`, dto);
   }
 
-  // CU04 - Presentación registrarLoteRecepcion()
+  // Registro de recepción
   registrarLoteRecepcion(dto: LoteRecepcionCrearDTO): Observable<LoteRecepcionDTO> {
     return this.http.post<LoteRecepcionDTO>(`${this.api}/recepciones`, dto);
   }
