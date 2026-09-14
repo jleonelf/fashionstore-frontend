@@ -76,6 +76,11 @@ export class ShellComponent implements OnInit {
   puedeVerProductos(): boolean { return this.esAdmin(); }
   puedeVerRecepciones(): boolean { return this.esAdmin(); }
   puedeVerInventario(): boolean { return ['ADMINISTRADOR','ENCARGADO','CAJERO'].includes(this.usuarioActual?.rol || ''); }
+  puedeVerReservas(): boolean { return !!this.usuarioActual; }
+  puedeVerTraslados(): boolean { return ['ADMINISTRADOR','ENCARGADO'].includes(this.usuarioActual?.rol || ''); }
+  puedeVerCaja(): boolean { return ['ADMINISTRADOR','CAJERO'].includes(this.usuarioActual?.rol || ''); }
+  puedeVerOperaciones(): boolean { return ['ADMINISTRADOR','ENCARGADO'].includes(this.usuarioActual?.rol || ''); }
+  puedeVerHistorial(): boolean { return this.usuarioActual?.rol === 'CLIENTE'; }
 
   cerrarSesion(): void {
     this.authService.cerrarSesion();

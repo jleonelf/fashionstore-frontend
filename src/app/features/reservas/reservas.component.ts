@@ -1,0 +1,52 @@
+import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { forkJoin, interval, Subscription } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
+import { Ciclo2Service } from '../../core/services/ciclo2.service';
+import { OrganizacionService } from '../../core/services/organizacion.service';
+import { ProductoService } from '../../core/services/producto.service';
+import { EstadoReserva, MetodoCaja, Reserva } from '../../core/models/ciclo2.models';
+import { SucursalDTO } from '../../core/models/organizacion.models';
+import { VarianteDTO } from '../../core/models/catalogo.models';
+
+@Component({ selector: 'app-reservas', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './reservas.component.html', styleUrls: ['./reservas.component.css'] })
+export class ReservasComponent implements OnInit, OnDestroy {
+  reservas: Reserva[] = []; sucursales: SucursalDTO[] = []; variantes: VarianteDTO[] = [];
+  cargando = false; procesando = ''; error = ''; exito = ''; filtroEstado = '';
+  modal: 'crear'|'cancelar'|'adelanto'|null = null; seleccionada?: Reserva;
+  destino = ''; fechaVisita = ''; observacion = ''; nuevaVariante = ''; nuevaCantidad = 1; nuevoOrigen = '';
+  lineas: { variante_id: string; cantidad: number; sucursal_origen_id?: string }[] = [];
+  metodo: MetodoCaja = 'EFECTIVO'; private polling?: Subscription;
+  readonly estados: EstadoReserva[] = ['PENDIENTE_TRASLADO','PENDIENTE','PREPARADA','ATENDIDA','COMPLETADA','CANCELADA','VENCIDA'];
+  constructor(public auth: AuthService, private api: Ciclo2Service, private org: OrganizacionService, private productos: ProductoService) {}
+  ngOnInit(): void {
+    forkJoin([this.org.gestionarSucursales(), this.productos.gestionarVariantes()]).subscribe({ next: ([s, v]) => { this.sucursales = s; this.variantes = v; }, error: () => this.error = 'No pudimos cargar las opciones para gestionar reservas.' });
+    this.cargar();
+    if (this.esPersonal) this.polling = interval(30000).subscribe(() => { if (!document.hidden && !this.modal) this.cargar(false); });
+  }
+  ngOnDestroy(): void { this.polling?.unsubscribe(); }
+  get usuario() { return this.auth.obtenerUsuarioActual(); }
+  get esCliente(): boolean { return this.usuario?.rol === 'CLIENTE'; }
+  get esPersonal(): boolean { return ['ADMINISTRADOR','ENCARGADO','CAJERO'].includes(this.usuario?.rol || ''); }
+  get puedePreparar(): boolean { return ['ADMINISTRADOR','ENCARGADO'].includes(this.usuario?.rol || ''); }
+  cargar(mostrar = true): void {
+    if (!this.usuario) return;
+    if (mostrar) this.cargando = true; this.error = '';
+    const req = this.esCliente ? this.api.listarReservas({ estado: this.filtroEstado }) : this.api.panelReservas(this.usuario.sucursal_id || this.destino, this.filtroEstado);
+    if (!this.esCliente && !this.usuario.sucursal_id && !this.destino) { this.cargando = false; return; }
+    req.subscribe({ next: p => { this.reservas = p.items; this.cargando = false; }, error: e => { this.error = this.mensaje(e); this.cargando = false; } });
+  }
+  agregarLinea(): void { if (!this.nuevaVariante || this.nuevaCantidad < 1) return; const existente = this.lineas.find(x => x.variante_id === this.nuevaVariante); if (existente) existente.cantidad += this.nuevaCantidad; else this.lineas.push({ variante_id: this.nuevaVariante, cantidad: this.nuevaCantidad, sucursal_origen_id: this.nuevoOrigen || undefined }); this.nuevaVariante=''; this.nuevaCantidad=1; this.nuevoOrigen=''; }
+  quitarLinea(i: number): void { this.lineas.splice(i, 1); }
+  crear(): void { if (!this.destino || !this.lineas.length || this.procesando) return; this.procesando='crear'; this.api.crearReserva({ sucursal_destino_id: this.destino, fecha_visita: this.fechaVisita ? new Date(this.fechaVisita).toISOString() : undefined, observacion: this.observacion || undefined, lineas: this.lineas }).subscribe({ next: r => { this.procesando=''; this.modal=null; this.lineas=[]; this.exito=`Reserva ${r.codigo} confirmada.`; this.cargar(); }, error: e => { this.procesando=''; this.error=this.mensaje(e); } }); }
+  abrirAccion(tipo: 'cancelar'|'adelanto', r: Reserva): void { this.seleccionada=r; this.modal=tipo; this.error=''; }
+  confirmarCancelacion(): void { if (!this.seleccionada || this.procesando) return; this.procesando='cancelar'; this.api.cancelarReserva(this.seleccionada.id).subscribe({ next: () => { this.procesando=''; this.modal=null; this.exito='La reserva fue cancelada y el inventario se actualizó.'; this.cargar(); }, error:e => { this.procesando=''; this.error=this.mensaje(e); } }); }
+  registrarAdelanto(): void { if (!this.seleccionada || this.procesando) return; this.procesando='adelanto'; this.api.registrarAdelanto(this.seleccionada.id, this.metodo).subscribe({ next:p => { this.procesando=''; this.modal=null; this.exito=`Adelanto de Bs ${p.monto} registrado.`; this.cargar(); }, error:e => { this.procesando=''; this.error=this.mensaje(e); } }); }
+  transicionar(r: Reserva, accion: 'preparar'|'atender'): void { if (this.procesando) return; this.procesando=r.id; const req=accion==='preparar'?this.api.prepararReserva(r.id):this.api.atenderReserva(r.id); req.subscribe({next:()=>{this.procesando='';this.exito=accion==='preparar'?'Reserva preparada.':'Atención iniciada.';this.cargar();},error:e=>{this.procesando='';this.error=this.mensaje(e);}}); }
+  variante(id: string): string { const v=this.variantes.find(x=>x.id===id); return v ? `${v.sku}` : id.slice(0,8); }
+  sucursal(id: string): string { return this.sucursales.find(x=>x.id===id)?.nombre || id.slice(0,8); }
+  etiqueta(valor: string): string { return valor.toLowerCase().replaceAll('_',' '); }
+  puedeCancelar(r: Reserva): boolean { return ['PENDIENTE_TRASLADO','PENDIENTE','PREPARADA'].includes(r.estado); }
+  private mensaje(e: any): string { return e?.error?.detail || 'No se pudo completar la operación. Intenta nuevamente.'; }
+}

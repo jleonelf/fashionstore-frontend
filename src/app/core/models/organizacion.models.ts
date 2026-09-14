@@ -43,4 +43,7 @@ export interface SucursalDTO {
   anillo_maximo_delivery: number;
   delivery_activo: boolean;
   activa: boolean;
+  adelanto_activo?: boolean;
+  modalidad_adelanto?: 'MONTO_FIJO' | 'PORCENTAJE' | null;
+  valor_adelanto?: number | null;
 }

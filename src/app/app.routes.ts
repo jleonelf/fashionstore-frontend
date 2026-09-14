@@ -8,6 +8,11 @@ import { ProductosComponent } from './features/productos/productos.component';
 import { CatalogoComponent } from './features/catalogo/catalogo.component';
 import { InventarioComponent } from './features/inventario/inventario.component';
 import { LandingComponent } from './features/landing/landing.component';
+import { ReservasComponent } from './features/reservas/reservas.component';
+import { TrasladosComponent } from './features/traslados/traslados.component';
+import { CajaComponent } from './features/caja/caja.component';
+import { OperacionesComponent } from './features/operaciones/operaciones.component';
+import { HistorialComponent } from './features/historial/historial.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -66,6 +71,11 @@ export const routes: Routes = [
     data: { roles: ['ADMINISTRADOR', 'ENCARGADO', 'CAJERO'] },
     title: 'Kardex e inventario — FashionStore'
   },
+  { path: 'reservas', component: ReservasComponent, canActivate: [authGuard], data: { roles: ['CLIENTE', 'ADMINISTRADOR', 'ENCARGADO', 'CAJERO'] }, title: 'Reservas - FashionStore' },
+  { path: 'traslados', component: TrasladosComponent, canActivate: [authGuard], data: { roles: ['ADMINISTRADOR', 'ENCARGADO'] }, title: 'Traslados - FashionStore' },
+  { path: 'caja', component: CajaComponent, canActivate: [authGuard], data: { roles: ['ADMINISTRADOR', 'CAJERO'] }, title: 'Caja - FashionStore' },
+  { path: 'operaciones', component: OperacionesComponent, canActivate: [authGuard], data: { roles: ['ADMINISTRADOR', 'ENCARGADO'] }, title: 'Operaciones de tienda - FashionStore' },
+  { path: 'historial', component: HistorialComponent, canActivate: [authGuard], data: { roles: ['CLIENTE'] }, title: 'Historial de compras - FashionStore' },
   {
     path: '**',
     redirectTo: ''
