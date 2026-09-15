@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://fashionstore-backend-natk.onrender.com/api/v1'
+  production: false,
+  apiUrl: 'http://127.0.0.1:8000/api/v1'
 };
