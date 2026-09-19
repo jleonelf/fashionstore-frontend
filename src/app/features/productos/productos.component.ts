@@ -5,6 +5,7 @@ import { MaestroService } from '../../core/services/maestro.service';
 import { ProductoService } from '../../core/services/producto.service';
 import { OrganizacionService } from '../../core/services/organizacion.service';
 import { TallaDTO, ColorDTO, CategoriaDTO, TemporadaDTO, ColeccionDTO, ProductoDTO, VarianteDTO } from '../../core/models/catalogo.models';
+import { formatearErrorApi } from '../../core/utils/error-handler.util';
 
 @Component({
   selector: 'app-productos',
@@ -44,63 +45,63 @@ export class ProductosComponent implements OnInit {
   cargarVariantes(): void { this.productoService.gestionarVariantes().subscribe(d => this.variantes = d); }
 
   crearTalla(): void {
-    if (!this.nuevo.talla.trim()) { this.mensajeError = 'Nombre talla requerido'; return; }
+    if (!this.nuevo.talla?.trim()) { this.mensajeError = 'Nombre de talla requerido'; return; }
     this.guardandoMaestro = true;
     this.maestroService.crearTalla({ nombre: this.nuevo.talla.trim() }).subscribe({
       next: t => { this.mensajeExito = `Talla "${t.nombre}" creada`; this.nuevo.talla = ''; this.guardandoMaestro = false; this.cargarMaestros(); },
-      error: e => { this.mensajeError = e.error?.detail || 'Error talla'; this.guardandoMaestro = false; }
+      error: e => { this.mensajeError = formatearErrorApi(e, 'Error al crear talla'); this.guardandoMaestro = false; }
     });
   }
   crearColor(): void {
-    if (!this.nuevo.color.trim()) { this.mensajeError = 'Nombre color requerido'; return; }
+    if (!this.nuevo.color?.trim()) { this.mensajeError = 'Nombre de color requerido'; return; }
     this.guardandoMaestro = true;
     this.maestroService.crearColor({ nombre: this.nuevo.color.trim(), codigo_hex: this.nuevo.colorHex }).subscribe({
       next: c => { this.mensajeExito = `Color "${c.nombre}" ${c.codigo_hex} creado`; this.nuevo.color = ''; this.guardandoMaestro = false; this.cargarMaestros(); },
-      error: e => { this.mensajeError = e.error?.detail || 'Error color (hex #RRGGBB)'; this.guardandoMaestro = false; }
+      error: e => { this.mensajeError = formatearErrorApi(e, 'Error al crear color (formato hex #RRGGBB)'); this.guardandoMaestro = false; }
     });
   }
   crearCategoria(): void {
-    if (!this.nuevo.categoria.trim()) { this.mensajeError = 'Categoría requerida'; return; }
+    if (!this.nuevo.categoria?.trim()) { this.mensajeError = 'Categoría requerida'; return; }
     this.maestroService.crearCategoria({ nombre: this.nuevo.categoria.trim() }).subscribe({
       next: c => { this.mensajeExito = `Categoría "${c.nombre}" creada`; this.nuevo.categoria = ''; this.cargarMaestros(); },
-      error: e => this.mensajeError = e.error?.detail || 'Error categoría'
+      error: e => this.mensajeError = formatearErrorApi(e, 'Error al crear categoría')
     });
   }
   crearTemporada(): void {
-    if (!this.nuevo.temporada.trim()) { this.mensajeError = 'Temporada requerida'; return; }
+    if (!this.nuevo.temporada?.trim()) { this.mensajeError = 'Temporada requerida'; return; }
     this.maestroService.crearTemporada({ nombre: this.nuevo.temporada.trim() }).subscribe({
       next: t => { this.mensajeExito = `Temporada "${t.nombre}" creada`; this.nuevo.temporada = ''; this.cargarMaestros(); },
-      error: e => this.mensajeError = e.error?.detail || 'Error temporada'
+      error: e => this.mensajeError = formatearErrorApi(e, 'Error al crear temporada')
     });
   }
   crearColeccion(): void {
-    if (!this.nuevo.coleccion.trim()) { this.mensajeError = 'Colección requerida'; return; }
+    if (!this.nuevo.coleccion?.trim()) { this.mensajeError = 'Colección requerida'; return; }
     this.maestroService.crearColeccion({ nombre: this.nuevo.coleccion.trim() }).subscribe({
       next: c => { this.mensajeExito = `Colección "${c.nombre}" creada`; this.nuevo.coleccion = ''; this.cargarMaestros(); },
-      error: e => this.mensajeError = e.error?.detail || 'Error colección'
+      error: e => this.mensajeError = formatearErrorApi(e, 'Error al crear colección')
     });
   }
 
   crearProducto(): void {
-    if (!this.productoForm.nombre.trim() || this.productoForm.precio_base < 0) { this.mensajeError = 'Nombre y precio ≥0 requeridos'; return; }
+    if (!this.productoForm.nombre?.trim() || this.productoForm.precio_base < 0) { this.mensajeError = 'Nombre y precio ≥ 0 son requeridos'; return; }
     this.guardandoProd = true; this.mensajeError = null;
     const payload: any = { ...this.productoForm, precio_base: Number(this.productoForm.precio_base) };
     if (!payload.categoria_id) delete payload.categoria_id;
     this.productoService.crearProducto(payload).subscribe({
       next: p => { this.mensajeExito = `Producto "${p.nombre}" creado — ahora crea su variante`; this.productoForm = { nombre: '', descripcion: '', categoria_id: '', proveedor_principal_id: '', genero: '', marca: '', precio_base: 0, temporada_ids: [], coleccion_ids: [] }; this.guardandoProd = false; this.cargarProductos(); },
-      error: e => { this.mensajeError = e.error?.detail || JSON.stringify(e.error) || 'Error producto'; this.guardandoProd = false; }
+      error: e => { this.mensajeError = formatearErrorApi(e, 'Error al crear producto'); this.guardandoProd = false; }
     });
   }
 
   crearVariante(): void {
-    if (!this.varianteForm.producto_id || !this.varianteForm.talla_id || !this.varianteForm.color_id || !this.varianteForm.sku.trim() || this.varianteForm.precio < 0) {
-      this.mensajeError = 'Producto, talla, color, SKU y precio ≥0 requeridos (*)'; return;
+    if (!this.varianteForm.producto_id || !this.varianteForm.talla_id || !this.varianteForm.color_id || !this.varianteForm.sku?.trim() || this.varianteForm.precio < 0) {
+      this.mensajeError = 'Producto, talla, color, SKU y precio ≥ 0 requeridos (*)'; return;
     }
     this.guardandoVar = true; this.mensajeError = null;
     const payload = { ...this.varianteForm, precio: Number(this.varianteForm.precio), sku: this.varianteForm.sku.trim(), codigo_barras: this.varianteForm.codigo_barras?.trim() || null };
     this.productoService.crearVariante(payload).subscribe({
-      next: v => { this.mensajeExito = `Variante ${v.sku} creada — UQ producto+talla+color OK`; this.varianteForm = { producto_id: '', talla_id: '', color_id: '', sku: '', codigo_barras: '', precio: 0, peso_gramos: null }; this.guardandoVar = false; this.cargarVariantes(); },
-      error: e => { this.mensajeError = e.error?.detail || JSON.stringify(e.error) || 'Error variante (¿SKU duplicado o UQ?)'; this.guardandoVar = false; }
+      next: v => { this.mensajeExito = `Variante ${v.sku} creada exitosamente.`; this.varianteForm = { producto_id: '', talla_id: '', color_id: '', sku: '', codigo_barras: '', precio: 0, peso_gramos: null }; this.guardandoVar = false; this.cargarVariantes(); },
+      error: e => { this.mensajeError = formatearErrorApi(e, 'Error al crear variante (verifique que el SKU o la combinación no estén duplicados)'); this.guardandoVar = false; }
     });
   }
 

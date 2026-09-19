@@ -65,16 +65,37 @@
         </div>
 
         <div class="form-group">
-          <label for="clave">Contraseña * (mínimo 6 caracteres)</label>
+          <label for="clave">Contraseña *</label>
           <input
             type="password"
             id="clave"
             name="clave"
             [(ngModel)]="nuevoUsuario.contrasenia"
             placeholder="••••••••"
-            minlength="6"
             required
           />
+
+          <!-- Indicador en tiempo real de qué falta mientras escribe -->
+          <div *ngIf="claveUsuarioActual.length > 0" class="password-checklist" aria-live="polite">
+            <div class="checklist-header" [class.valid-all]="contraseniaValidaUsuario">
+              <span *ngIf="!contraseniaValidaUsuario">Falta: <strong>{{ obtenerRequisitosFaltantesUsuario().join(', ') }}</strong></span>
+              <span *ngIf="contraseniaValidaUsuario" class="checklist-ok">✓ Contraseña válida y segura</span>
+            </div>
+            <div class="checklist-grid">
+              <span class="rule-chip" [class.chip-ok]="tieneLongitudMinimaUsuario">
+                <span class="chip-icon">{{ tieneLongitudMinimaUsuario ? '✓' : '•' }}</span> Mín. 6 caracteres
+              </span>
+              <span class="rule-chip" [class.chip-ok]="tieneMinusculaUsuario">
+                <span class="chip-icon">{{ tieneMinusculaUsuario ? '✓' : '•' }}</span> Minúscula
+              </span>
+              <span class="rule-chip" [class.chip-ok]="tieneMayusculaUsuario">
+                <span class="chip-icon">{{ tieneMayusculaUsuario ? '✓' : '•' }}</span> Mayúscula
+              </span>
+              <span class="rule-chip" [class.chip-ok]="tieneNumeroUsuario">
+                <span class="chip-icon">{{ tieneNumeroUsuario ? '✓' : '•' }}</span> Número
+              </span>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">

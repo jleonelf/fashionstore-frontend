@@ -9,6 +9,7 @@ import { ProductoService } from '../../core/services/producto.service';
 import { EstadoReserva, MetodoCaja, Reserva } from '../../core/models/ciclo2.models';
 import { SucursalDTO } from '../../core/models/organizacion.models';
 import { VarianteDTO } from '../../core/models/catalogo.models';
+import { formatearErrorApi } from '../../core/utils/error-handler.util';
 
 @Component({ selector: 'app-reservas', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './reservas.component.html', styleUrls: ['./reservas.component.css'] })
 export class ReservasComponent implements OnInit, OnDestroy {
@@ -18,6 +19,7 @@ export class ReservasComponent implements OnInit, OnDestroy {
   destino = ''; fechaVisita = ''; observacion = ''; nuevaVariante = ''; nuevaCantidad = 1; nuevoOrigen = '';
   lineas: { variante_id: string; cantidad: number; sucursal_origen_id?: string }[] = [];
   metodo: MetodoCaja = 'EFECTIVO'; private polling?: Subscription;
+  errorHorario = '';
   readonly estados: EstadoReserva[] = ['PENDIENTE_TRASLADO','PENDIENTE','PREPARADA','ATENDIDA','COMPLETADA','CANCELADA','VENCIDA'];
   constructor(public auth: AuthService, private api: Ciclo2Service, private org: OrganizacionService, private productos: ProductoService) {}
   ngOnInit(): void {
@@ -28,7 +30,7 @@ export class ReservasComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { this.polling?.unsubscribe(); }
   get usuario() { return this.auth.obtenerUsuarioActual(); }
   get esCliente(): boolean { return this.usuario?.rol === 'CLIENTE'; }
-  get esPersonal(): boolean { return ['ADMINISTRADOR','ENCARGADO','CAJERO'].includes(this.usuario?.rol || ''); }
+  get esPersonal(): boolean { return ['ADMINISTRADOR','ENCARGADO'].includes(this.usuario?.rol || ''); }
   get puedePreparar(): boolean { return ['ADMINISTRADOR','ENCARGADO'].includes(this.usuario?.rol || ''); }
   cargar(mostrar = true): void {
     if (!this.usuario) return;
@@ -37,9 +39,34 @@ export class ReservasComponent implements OnInit, OnDestroy {
     if (!this.esCliente && !this.usuario.sucursal_id && !this.destino) { this.cargando = false; return; }
     req.subscribe({ next: p => { this.reservas = p.items; this.cargando = false; }, error: e => { this.error = this.mensaje(e); this.cargando = false; } });
   }
+  validarHorarioVisita(): void {
+    this.errorHorario = '';
+    if (!this.fechaVisita) return;
+    const d = new Date(this.fechaVisita);
+    if (isNaN(d.getTime())) return;
+    const ahora = new Date();
+    if (d.getTime() < ahora.getTime() - 60000) {
+      this.errorHorario = 'La fecha de visita no puede ser anterior al momento actual.';
+      return;
+    }
+    const horas = d.getHours();
+    const minutos = d.getMinutes();
+    if (horas < 9 || horas > 20 || (horas === 20 && minutos > 0)) {
+      this.errorHorario = 'Hora fuera de horario de atención. El horario de atención es de 09:00 a 20:00.';
+    }
+  }
   agregarLinea(): void { if (!this.nuevaVariante || this.nuevaCantidad < 1) return; const existente = this.lineas.find(x => x.variante_id === this.nuevaVariante); if (existente) existente.cantidad += this.nuevaCantidad; else this.lineas.push({ variante_id: this.nuevaVariante, cantidad: this.nuevaCantidad, sucursal_origen_id: this.nuevoOrigen || undefined }); this.nuevaVariante=''; this.nuevaCantidad=1; this.nuevoOrigen=''; }
   quitarLinea(i: number): void { this.lineas.splice(i, 1); }
-  crear(): void { if (!this.destino || !this.lineas.length || this.procesando) return; this.procesando='crear'; this.api.crearReserva({ sucursal_destino_id: this.destino, fecha_visita: this.fechaVisita ? new Date(this.fechaVisita).toISOString() : undefined, observacion: this.observacion || undefined, lineas: this.lineas }).subscribe({ next: r => { this.procesando=''; this.modal=null; this.lineas=[]; this.exito=`Reserva ${r.codigo} confirmada.`; this.cargar(); }, error: e => { this.procesando=''; this.error=this.mensaje(e); } }); }
+  crear(): void {
+    this.validarHorarioVisita();
+    if (this.errorHorario) {
+      this.error = this.errorHorario;
+      return;
+    }
+    if (!this.destino || !this.lineas.length || this.procesando) return;
+    this.procesando='crear';
+    this.api.crearReserva({ sucursal_destino_id: this.destino, fecha_visita: this.fechaVisita ? new Date(this.fechaVisita).toISOString() : undefined, observacion: this.observacion || undefined, lineas: this.lineas }).subscribe({ next: r => { this.procesando=''; this.modal=null; this.lineas=[]; this.fechaVisita=''; this.observacion=''; this.errorHorario=''; this.exito=`Reserva ${r.codigo} confirmada.`; this.cargar(); }, error: e => { this.procesando=''; this.error=this.mensaje(e); } });
+  }
   abrirAccion(tipo: 'cancelar'|'adelanto', r: Reserva): void { this.seleccionada=r; this.modal=tipo; this.error=''; }
   confirmarCancelacion(): void { if (!this.seleccionada || this.procesando) return; this.procesando='cancelar'; this.api.cancelarReserva(this.seleccionada.id).subscribe({ next: () => { this.procesando=''; this.modal=null; this.exito='La reserva fue cancelada y el inventario se actualizó.'; this.cargar(); }, error:e => { this.procesando=''; this.error=this.mensaje(e); } }); }
   registrarAdelanto(): void { if (!this.seleccionada || this.procesando) return; this.procesando='adelanto'; this.api.registrarAdelanto(this.seleccionada.id, this.metodo).subscribe({ next:p => { this.procesando=''; this.modal=null; this.exito=`Adelanto de Bs ${p.monto} registrado.`; this.cargar(); }, error:e => { this.procesando=''; this.error=this.mensaje(e); } }); }
@@ -48,5 +75,5 @@ export class ReservasComponent implements OnInit, OnDestroy {
   sucursal(id: string): string { return this.sucursales.find(x=>x.id===id)?.nombre || id.slice(0,8); }
   etiqueta(valor: string): string { return valor.toLowerCase().replaceAll('_',' '); }
   puedeCancelar(r: Reserva): boolean { return ['PENDIENTE_TRASLADO','PENDIENTE','PREPARADA'].includes(r.estado); }
-  private mensaje(e: any): string { return e?.error?.detail || 'No se pudo completar la operación. Intenta nuevamente.'; }
+  private mensaje(e: any): string { return formatearErrorApi(e, 'No se pudo completar la operación. Intenta nuevamente.'); }
 }

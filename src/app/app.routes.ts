@@ -71,7 +71,7 @@ export const routes: Routes = [
     data: { roles: ['ADMINISTRADOR', 'ENCARGADO', 'CAJERO'] },
     title: 'Kardex e inventario — FashionStore'
   },
-  { path: 'reservas', component: ReservasComponent, canActivate: [authGuard], data: { roles: ['CLIENTE', 'ADMINISTRADOR', 'ENCARGADO', 'CAJERO'] }, title: 'Reservas - FashionStore' },
+  { path: 'reservas', component: ReservasComponent, canActivate: [authGuard], data: { roles: ['CLIENTE', 'ADMINISTRADOR', 'ENCARGADO'] }, title: 'Reservas - FashionStore' },
   { path: 'traslados', component: TrasladosComponent, canActivate: [authGuard], data: { roles: ['ADMINISTRADOR', 'ENCARGADO'] }, title: 'Traslados - FashionStore' },
   { path: 'caja', component: CajaComponent, canActivate: [authGuard], data: { roles: ['ADMINISTRADOR', 'CAJERO'] }, title: 'Caja - FashionStore' },
   { path: 'operaciones', component: OperacionesComponent, canActivate: [authGuard], data: { roles: ['ADMINISTRADOR', 'ENCARGADO'] }, title: 'Operaciones de tienda - FashionStore' },

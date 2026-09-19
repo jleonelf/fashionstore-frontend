@@ -4,6 +4,16 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { MovimientoKardexDTO, ExistenciaDTO, ValorizacionDTO } from '../models/catalogo.models';
 
+export interface RespuestaValorizacion {
+  por_sucursal: ValorizacionDTO[];
+  global: {
+    total_unidades: number;
+    valorizacion: number;
+    margen_bruto_total?: number;
+    sucursales?: number;
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class InventarioService {
   private api = environment.apiUrl;
@@ -24,9 +34,9 @@ export class InventarioService {
   }
 
   // Valorización de inventario
-  consultarValorizacion(sucursalId?: string): Observable<ValorizacionDTO[]> {
+  consultarValorizacion(sucursalId?: string): Observable<RespuestaValorizacion | ValorizacionDTO[]> {
     let p = new HttpParams();
     if (sucursalId) p = p.set('sucursal_id', sucursalId);
-    return this.http.get<ValorizacionDTO[]>(`${this.api}/inventario/valorizacion`, { params: p });
+    return this.http.get<RespuestaValorizacion | ValorizacionDTO[]>(`${this.api}/inventario/valorizacion`, { params: p });
   }
 }

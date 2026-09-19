@@ -6,6 +6,8 @@ import { OrganizacionService } from '../../core/services/organizacion.service';
 import { UsuarioListadoDTO, UsuarioCrearDTO, RolDTO } from '../../core/models/usuario.models';
 import { SucursalDTO } from '../../core/models/organizacion.models';
 
+import { formatearErrorApi } from '../../core/utils/error-handler.util';
+
 @Component({
   selector: 'app-usuarios',
   standalone: true,
@@ -59,7 +61,7 @@ export class UsuariosComponent implements OnInit {
   cargarRoles(): void {
     this.usuarioService.listarRoles().subscribe({
       next: (data) => (this.roles = data),
-      error: () => (this.mensajeError = 'Error al cargar lista de roles.')
+      error: (err) => (this.mensajeError = formatearErrorApi(err, 'Error al cargar lista de roles.'))
     });
   }
 
@@ -77,16 +79,26 @@ export class UsuariosComponent implements OnInit {
         this.usuarios = data;
         this.cargando = false;
       },
-      error: () => {
-        this.mensajeError = 'Error al consultar la lista de usuarios.';
+      error: (err) => {
+        this.mensajeError = formatearErrorApi(err, 'Error al consultar la lista de usuarios.');
         this.cargando = false;
       }
     });
   }
 
   crearUsuario(): void {
-    if (!this.nuevoUsuario.rol_id || !this.nuevoUsuario.nombres || !this.nuevoUsuario.apellidos || !this.nuevoUsuario.correo_electronico || !this.nuevoUsuario.contrasenia) {
+    if (!this.nuevoUsuario.rol_id || !this.nuevoUsuario.nombres?.trim() || !this.nuevoUsuario.apellidos?.trim() || !this.nuevoUsuario.correo_electronico?.trim() || !this.nuevoUsuario.contrasenia) {
       this.mensajeError = 'Por favor complete todos los campos obligatorios (*)';
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.nuevoUsuario.correo_electronico.trim())) {
+      this.mensajeError = 'Por favor ingrese un correo electrónico válido.';
+      return;
+    }
+    if (!this.contraseniaValidaUsuario) {
+      const faltantes = this.obtenerRequisitosFaltantesUsuario();
+      this.mensajeError = `La contraseña no cumple los requisitos de seguridad. Falta: ${faltantes.join(', ')}.`;
       return;
     }
     if (this.rolRequiereSucursal() && !this.nuevoUsuario.sucursal_id) {
@@ -125,7 +137,7 @@ export class UsuariosComponent implements OnInit {
       },
       error: (err) => {
         this.guardando = false;
-        this.mensajeError = err.error?.detail || JSON.stringify(err.error) || 'Error al crear usuario.';
+        this.mensajeError = formatearErrorApi(err, 'Error al crear usuario.');
       }
     });
   }
@@ -152,7 +164,7 @@ export class UsuariosComponent implements OnInit {
       },
       error: (err) => {
         this.guardando = false;
-        this.mensajeError = err.error?.detail || 'Error al cambiar rol.';
+        this.mensajeError = formatearErrorApi(err, 'Error al cambiar rol.');
       }
     });
   }
@@ -177,10 +189,43 @@ export class UsuariosComponent implements OnInit {
         this.cerrarCambioEstado();
         this.cargarUsuarios();
       },
-      error: () => {
+      error: (err) => {
         this.guardando = false;
-        this.mensajeError = 'Error al actualizar estado del usuario.';
+        this.mensajeError = formatearErrorApi(err, 'Error al actualizar estado del usuario.');
       }
     });
+  }
+
+  get claveUsuarioActual(): string {
+    return this.nuevoUsuario.contrasenia || '';
+  }
+
+  get tieneLongitudMinimaUsuario(): boolean {
+    return this.claveUsuarioActual.length >= 6;
+  }
+
+  get tieneMinusculaUsuario(): boolean {
+    return /[a-z]/.test(this.claveUsuarioActual);
+  }
+
+  get tieneMayusculaUsuario(): boolean {
+    return /[A-Z]/.test(this.claveUsuarioActual);
+  }
+
+  get tieneNumeroUsuario(): boolean {
+    return /[0-9]/.test(this.claveUsuarioActual);
+  }
+
+  get contraseniaValidaUsuario(): boolean {
+    return this.tieneLongitudMinimaUsuario && this.tieneMinusculaUsuario && this.tieneMayusculaUsuario && this.tieneNumeroUsuario;
+  }
+
+  obtenerRequisitosFaltantesUsuario(): string[] {
+    const faltantes: string[] = [];
+    if (!this.tieneLongitudMinimaUsuario) faltantes.push('al menos 6 caracteres');
+    if (!this.tieneMinusculaUsuario) faltantes.push('una minúscula (a-z)');
+    if (!this.tieneMayusculaUsuario) faltantes.push('una mayúscula (A-Z)');
+    if (!this.tieneNumeroUsuario) faltantes.push('un número (0-9)');
+    return faltantes;
   }
 }

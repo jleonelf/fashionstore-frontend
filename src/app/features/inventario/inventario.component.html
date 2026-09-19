@@ -16,14 +16,14 @@
       <div class="f"><label>Sucursal</label><select [(ngModel)]="filtroSucursal"><option value="">Todas</option><option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</option></select></div>
       <div class="f"><label>Variante</label><select [(ngModel)]="filtroVariante"><option value="">Todas</option><option *ngFor="let v of variantes" [value]="v.id">{{ v.sku }}</option></select></div>
       <div class="f"><label>Tipo Kardex</label><select [(ngModel)]="filtroTipo"><option value="">Todos</option><option *ngFor="let t of tipos" [value]="t">{{ t }}</option></select></div>
-      <div class="btns"><button class="btn-primary" (click)="aplicarFiltros()">Aplicar</button><button class="btn-ghost" (click)="limpiar()">Limpiar</button></div>
+      <div class="btns"><button type="button" class="btn-primary" (click)="aplicarFiltros()">Aplicar</button><button type="button" class="btn-ghost" (click)="limpiar()">Limpiar</button></div>
     </div>
   </div>
 
   <div class="tabs">
-    <button [class.on]="tab==='kardex'" (click)="tab='kardex'">Kardex</button>
-    <button [class.on]="tab==='existencias'" (click)="tab='existencias'">Existencias</button>
-    <button [class.on]="tab==='valorizacion'" (click)="tab='valorizacion'">Valorización</button>
+    <button type="button" [class.on]="tab==='kardex'" (click)="tab='kardex'">Kardex</button>
+    <button type="button" [class.on]="tab==='existencias'" (click)="tab='existencias'">Existencias</button>
+    <button type="button" [class.on]="tab==='valorizacion'" (click)="tab='valorizacion'">Valorización</button>
   </div>
 
   <div *ngIf="mensajeError" class="alert err">{{ mensajeError }}</div>

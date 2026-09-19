@@ -252,3 +252,13 @@ tr:hover td {
 .dialog-kicker{color:var(--brass-strong)!important;font-weight:750}.dialog-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.25rem}
 .dialog-actions button{min-height:42px;padding:.6rem .9rem;border-radius:var(--radius-control);font-weight:700;cursor:pointer}
 .dialog-secondary{background:var(--surface);border:1px solid var(--border)}.dialog-primary{background:var(--ink);color:#fff;border:1px solid var(--ink)}.dialog-primary.danger{background:var(--danger);border-color:var(--danger)}
+
+.password-checklist{margin-top:.45rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.55rem .75rem;font-size:.76rem}
+.checklist-header{color:#b45309;font-size:.76rem;margin-bottom:.4rem;line-height:1.3}
+.checklist-header strong{color:#92400e}
+.checklist-header.valid-all{color:#047857}
+.checklist-ok{color:#047857;font-weight:700}
+.checklist-grid{display:flex;flex-wrap:wrap;gap:.35rem}
+.rule-chip{display:inline-flex;align-items:center;gap:.25rem;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:9999px;padding:.2rem .5rem;font-size:.7rem;font-weight:500;transition:all .2s ease}
+.rule-chip.chip-ok{background:#ecfdf5;color:#047857;border-color:#a7f3d0;font-weight:600}
+.chip-icon{font-weight:700}

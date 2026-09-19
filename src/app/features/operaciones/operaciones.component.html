@@ -1,6 +1,236 @@
-<section class="cycle-page"><header class="cycle-hero"><div><p class="cycle-kicker">Control de tienda</p><h1>Operaciones</h1><p>Consulta ventas locales y registra ajustes con trazabilidad.</p></div></header>
-<nav class="cycle-tabs" aria-label="Secciones de operaciones"><button type="button" [class.active]="tab==='ventas'" (click)="tab='ventas'">Ventas</button><button type="button" [class.active]="tab==='devolucion'" (click)="tab='devolucion'">Devolución</button><button type="button" [class.active]="tab==='merma'" (click)="tab='merma'">Merma</button></nav>
-<div *ngIf="error" class="cycle-alert danger" role="alert">{{error}}</div><div *ngIf="exito" class="cycle-alert success" role="status">{{exito}}</div>
-<ng-container *ngIf="tab==='ventas'"><div class="cycle-toolbar"><label><span>Sucursal</span><select [(ngModel)]="sucursal"><option value="">Selecciona</option><option *ngFor="let s of sucursales" [value]="s.id">{{s.nombre}}</option></select></label><label><span>Desde</span><input type="date" [(ngModel)]="desde"></label><label><span>Hasta</span><input type="date" [(ngModel)]="hasta"></label><button type="button" class="cycle-primary" (click)="cargarVentas()">Consultar</button></div><div *ngIf="cargando" class="cycle-state" role="status">Preparando resumen…</div><div class="metric-grid" *ngIf="reporte"><article><span>Ventas</span><strong>{{reporte.resumen.total_ventas}}</strong></article><article><span>Unidades</span><strong>{{reporte.resumen.unidades}}</strong></article><article><span>Total</span><strong>Bs {{reporte.resumen.monto_total|number:'1.2-2'}}</strong></article><article><span>Ticket promedio</span><strong>Bs {{reporte.resumen.ticket_promedio|number:'1.2-2'}}</strong></article></div><div class="table-wrap" *ngIf="reporte"><table class="cycle-table"><thead><tr><th>Venta</th><th>Fecha</th><th>Unidades</th><th>Total</th><th>Estado</th></tr></thead><tbody><tr *ngFor="let v of reporte.items"><td>{{v.numero}}</td><td>{{v.creada_en|date:'short'}}</td><td>{{v.unidades}}</td><td>Bs {{v.total|number:'1.2-2'}}</td><td><span class="status">{{v.estado.toLowerCase().replaceAll('_',' ')}}</span></td></tr></tbody></table></div></ng-container>
-<section class="cycle-card form-card" *ngIf="tab==='devolucion'"><h2>Registrar devolución</h2><p>Usa el identificador de la línea del comprobante. Se admite una devolución parcial hasta la cantidad vendida.</p><div class="cycle-form"><label><span>Identificador de línea de venta</span><input [(ngModel)]="detalleVenta"></label><label><span>Cantidad</span><input type="number" min="1" [(ngModel)]="cantidadDev"></label><label class="span-all"><span>Motivo</span><textarea rows="3" [(ngModel)]="motivo"></textarea></label></div><button type="button" class="cycle-primary" [disabled]="!detalleVenta||procesando" (click)="devolver()">{{procesando?'Registrando…':'Registrar devolución'}}</button></section>
-<section class="cycle-card form-card" *ngIf="tab==='merma'"><h2>Registrar merma</h2><p>Retira unidades dañadas o perdidas e indica una causa verificable.</p><div class="cycle-form"><label><span>Sucursal</span><select [(ngModel)]="sucursal"><option value="">Selecciona</option><option *ngFor="let s of sucursales" [value]="s.id">{{s.nombre}}</option></select></label><label><span>Variante</span><select [(ngModel)]="variante"><option value="">Selecciona</option><option *ngFor="let v of variantes" [value]="v.id">{{v.sku}}</option></select></label><label><span>Cantidad</span><input type="number" min="1" [(ngModel)]="cantidadMerma"></label><label class="span-all"><span>Causa</span><textarea rows="3" [(ngModel)]="causa" required></textarea></label></div><button type="button" class="cycle-danger" [disabled]="!variante||!sucursal||!causa.trim()||procesando" (click)="mermar()">{{procesando?'Registrando…':'Confirmar merma'}}</button></section></section>
+<section class="cycle-page">
+  <header class="cycle-hero">
+    <div>
+      <p class="cycle-kicker">Control de tienda</p>
+      <h1>Operaciones</h1>
+      <p>Consulta ventas locales, procesa devoluciones con búsqueda ágil y registra mermas con trazabilidad.</p>
+    </div>
+  </header>
+
+  <nav class="cycle-tabs" aria-label="Secciones de operaciones">
+    <button type="button" [class.active]="tab==='ventas'" (click)="tab='ventas'">Ventas</button>
+    <button type="button" [class.active]="tab==='devolucion'" (click)="tab='devolucion'">Devolución</button>
+    <button type="button" [class.active]="tab==='merma'" (click)="tab='merma'">Merma</button>
+  </nav>
+
+  <div *ngIf="error" class="cycle-alert danger" role="alert">{{ error }}</div>
+  <div *ngIf="exito" class="cycle-alert success" role="status">{{ exito }}</div>
+
+  <!-- VENTAS -->
+  <ng-container *ngIf="tab==='ventas'">
+    <div class="cycle-toolbar">
+      <label>
+        <span>Sucursal</span>
+        <select [(ngModel)]="sucursal">
+          <option value="">Selecciona</option>
+          <option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</option>
+        </select>
+      </label>
+      <label>
+        <span>Desde</span>
+        <input type="date" [(ngModel)]="desde">
+      </label>
+      <label>
+        <span>Hasta</span>
+        <input type="date" [(ngModel)]="hasta">
+      </label>
+      <button type="button" class="cycle-primary" (click)="cargarVentas()">Consultar</button>
+    </div>
+
+    <div *ngIf="cargando" class="cycle-state" role="status">Preparando resumen…</div>
+
+    <div class="metric-grid" *ngIf="reporte">
+      <article><span>Ventas</span><strong>{{ reporte.resumen.total_ventas }}</strong></article>
+      <article><span>Unidades</span><strong>{{ reporte.resumen.unidades }}</strong></article>
+      <article><span>Total</span><strong>Bs {{ reporte.resumen.monto_total | number:'1.2-2' }}</strong></article>
+      <article><span>Ticket promedio</span><strong>Bs {{ reporte.resumen.ticket_promedio | number:'1.2-2' }}</strong></article>
+    </div>
+
+    <div class="table-wrap" *ngIf="reporte">
+      <table class="cycle-table">
+        <thead>
+          <tr>
+            <th>Venta</th>
+            <th>Fecha</th>
+            <th>Unidades</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of reporte.items">
+            <td class="mono strong">{{ v.numero }}</td>
+            <td>{{ v.creada_en | date:'short' }}</td>
+            <td>{{ v.unidades }}</td>
+            <td class="num strong">Bs {{ v.total | number:'1.2-2' }}</td>
+            <td><span class="status">{{ v.estado.toLowerCase().replaceAll('_',' ') }}</span></td>
+            <td>
+              <button type="button" class="cycle-ghost small" (click)="irADevolucionDesdeVenta(v)">Devolver…</button>
+            </td>
+          </tr>
+          <tr *ngIf="reporte.items.length === 0">
+            <td colspan="6" class="empty">No se encontraron ventas para el período o sucursal seleccionados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  <!-- DEVOLUCION -->
+  <section class="cycle-card form-card" *ngIf="tab==='devolucion'">
+    <h2>Registrar devolución de producto</h2>
+    <p>Busca la venta por número de comprobante o ID para seleccionar la línea exacta y devolver parcial o totalmente.</p>
+
+    <!-- Búsqueda de Comprobante -->
+    <div class="search-box">
+      <label class="search-label">
+        <span>Buscar venta por número de comprobante o ID</span>
+        <div class="search-row">
+          <input
+            type="text"
+            [(ngModel)]="busquedaVenta"
+            placeholder="Ej. VNT-2026-0001 o identificador UUID..."
+            (keyup.enter)="buscarVentaParaDevolucion()"
+          >
+          <button
+            type="button"
+            class="cycle-primary"
+            (click)="buscarVentaParaDevolucion()"
+            [disabled]="buscandoVenta"
+          >
+            {{ buscandoVenta ? 'Buscando…' : 'Buscar venta' }}
+          </button>
+        </div>
+      </label>
+    </div>
+
+    <!-- Vista previa de items de la venta -->
+    <div *ngIf="comprobanteDev" class="comprobante-preview">
+      <div class="preview-header">
+        <div><strong>Venta:</strong> {{ comprobanteDev.numero }}</div>
+        <div><strong>Fecha:</strong> {{ comprobanteDev.creada_en | date:'short' }}</div>
+        <div><strong>Total:</strong> Bs {{ comprobanteDev.total | number:'1.2-2' }}</div>
+        <div><strong>Sucursal:</strong> {{ comprobanteDev.sucursal_nombre || comprobanteDev.sucursal_id }}</div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="cycle-table small-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Producto / SKU</th>
+              <th>Cant. vendida</th>
+              <th>Precio unit.</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let item of comprobanteDev.detalles; let i = index"
+              [class.row-selected]="detalleSeleccionado?.id === item.id"
+            >
+              <td>{{ i + 1 }}</td>
+              <td>{{ obtenerSkuVariante(item.variante_id) }}</td>
+              <td>{{ item.cantidad }}</td>
+              <td>Bs {{ item.precio_unitario | number:'1.2-2' }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="cycle-ghost small"
+                  (click)="seleccionarLineaDevolucion(item)"
+                >
+                  {{ detalleSeleccionado?.id === item.id ? 'Seleccionada ✓' : 'Seleccionar' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Formulario de devolución -->
+    <div class="cycle-form dev-form">
+      <div *ngIf="detalleSeleccionado" class="selected-badge span-all">
+        Línea seleccionada: <strong>{{ obtenerSkuVariante(detalleSeleccionado.variante_id) }}</strong>
+        — Cantidad vendida: <strong>{{ detalleSeleccionado.cantidad }}</strong>
+      </div>
+
+      <label class="span-all">
+        <span>Identificador de línea de venta</span>
+        <input
+          type="text"
+          [(ngModel)]="detalleVenta"
+          placeholder="Selecciona una línea de arriba o ingresa el ID"
+        >
+      </label>
+
+      <label>
+        <span>Cantidad a devolver</span>
+        <input
+          type="number"
+          min="1"
+          [max]="maxCantidadDev"
+          [(ngModel)]="cantidadDev"
+        >
+        <span *ngIf="detalleSeleccionado" class="field-hint">Máximo: {{ maxCantidadDev }} unidades</span>
+      </label>
+
+      <label class="span-all">
+        <span>Motivo de la devolución</span>
+        <textarea
+          rows="3"
+          [(ngModel)]="motivo"
+          placeholder="Indica el motivo de la devolución (ej. cambio de talla, defecto de fábrica, etc.)"
+        ></textarea>
+      </label>
+    </div>
+
+    <button
+      type="button"
+      class="cycle-primary"
+      [disabled]="!detalleVenta || cantidadDev < 1 || procesando"
+      (click)="devolver()"
+    >
+      {{ procesando ? 'Registrando devolución…' : 'Confirmar devolución' }}
+    </button>
+  </section>
+
+  <!-- MERMA -->
+  <section class="cycle-card form-card" *ngIf="tab==='merma'">
+    <h2>Registrar merma</h2>
+    <p>Retira unidades dañadas o perdidas e indica una causa verificable para el registro en Kardex.</p>
+    <div class="cycle-form">
+      <label>
+        <span>Sucursal</span>
+        <select [(ngModel)]="sucursal">
+          <option value="">Selecciona</option>
+          <option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</option>
+        </select>
+      </label>
+      <label>
+        <span>Variante</span>
+        <select [(ngModel)]="variante">
+          <option value="">Selecciona</option>
+          <option *ngFor="let v of variantes" [value]="v.id">{{ v.sku }}</option>
+        </select>
+      </label>
+      <label>
+        <span>Cantidad</span>
+        <input type="number" min="1" [(ngModel)]="cantidadMerma">
+      </label>
+      <label class="span-all">
+        <span>Causa</span>
+        <textarea rows="3" [(ngModel)]="causa" placeholder="Explique la causa de la merma..." required></textarea>
+      </label>
+    </div>
+    <button
+      type="button"
+      class="cycle-danger"
+      [disabled]="!variante || !sucursal || !causa.trim() || procesando"
+      (click)="mermar()"
+    >
+      {{ procesando ? 'Registrando…' : 'Confirmar merma' }}
+    </button>
+  </section>
+</section>

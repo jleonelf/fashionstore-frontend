@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrganizacionService } from '../../core/services/organizacion.service';
 import { CiudadDTO, SucursalDTO, SucursalCrearDTO } from '../../core/models/organizacion.models';
+import { formatearErrorApi } from '../../core/utils/error-handler.util';
 
 @Component({
   selector: 'app-sucursales',
@@ -50,7 +51,7 @@ export class SucursalesComponent implements OnInit {
   cargarCiudades(): void {
     this.orgService.gestionarCiudades().subscribe({
       next: (data) => (this.ciudades = data),
-      error: () => (this.mensajeError = 'Error al cargar lista de ciudades.')
+      error: (err) => (this.mensajeError = formatearErrorApi(err, 'Error al cargar lista de ciudades.'))
     });
   }
 
@@ -61,8 +62,8 @@ export class SucursalesComponent implements OnInit {
         this.sucursales = data;
         this.cargando = false;
       },
-      error: () => {
-        this.mensajeError = 'Error al cargar sucursales.';
+      error: (err) => {
+        this.mensajeError = formatearErrorApi(err, 'Error al cargar sucursales.');
         this.cargando = false;
       }
     });
@@ -86,13 +87,13 @@ export class SucursalesComponent implements OnInit {
       },
       error: (err) => {
         this.guardandoCiudad = false;
-        this.mensajeError = err.error?.detail || 'Error al registrar ciudad.';
+        this.mensajeError = formatearErrorApi(err, 'Error al registrar ciudad.');
       }
     });
   }
 
   crearSucursal(): void {
-    if (!this.nuevaSucursal.ciudad_id || !this.nuevaSucursal.nombre || !this.nuevaSucursal.direccion) {
+    if (!this.nuevaSucursal.ciudad_id || !this.nuevaSucursal.nombre?.trim() || !this.nuevaSucursal.direccion?.trim()) {
       this.mensajeError = 'Complete todos los campos obligatorios (*)';
       return;
     }
@@ -120,7 +121,7 @@ export class SucursalesComponent implements OnInit {
       },
       error: (err) => {
         this.guardandoSucursal = false;
-        this.mensajeError = err.error?.detail || 'Error al registrar sucursal.';
+        this.mensajeError = formatearErrorApi(err, 'Error al registrar sucursal.');
       }
     });
   }
@@ -150,7 +151,7 @@ export class SucursalesComponent implements OnInit {
       },
       error: (err) => {
         this.guardandoSucursal = false;
-        this.mensajeError = err.error?.detail || 'Error al ajustar tarifas.';
+        this.mensajeError = formatearErrorApi(err, 'Error al ajustar tarifas.');
       }
     });
   }

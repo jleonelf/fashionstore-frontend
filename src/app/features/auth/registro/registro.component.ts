@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { RegistroClienteDTO } from '../../../core/models/auth.models';
+import { formatearErrorApi } from '../../../core/utils/error-handler.util';
 
 @Component({
   selector: 'app-registro',
@@ -24,6 +25,7 @@ export class RegistroComponent {
     preferencias: {}
   };
 
+  erroresCampos: Record<string, string> = {};
   cargando = false;
   mensajeError: string | null = null;
   mensajeExito: string | null = null;
@@ -33,16 +35,116 @@ export class RegistroComponent {
     private router: Router
   ) {}
 
+  validarFormulario(): boolean {
+    this.erroresCampos = {};
+
+    const nombres = this.datosRegistro.nombres?.trim() || '';
+    if (!nombres) {
+      this.erroresCampos['nombres'] = 'Los nombres son obligatorios.';
+    } else if (nombres.length < 2) {
+      this.erroresCampos['nombres'] = 'Ingresá al menos 2 caracteres.';
+    }
+
+    const apellidos = this.datosRegistro.apellidos?.trim() || '';
+    if (!apellidos) {
+      this.erroresCampos['apellidos'] = 'Los apellidos son obligatorios.';
+    } else if (apellidos.length < 2) {
+      this.erroresCampos['apellidos'] = 'Ingresá al menos 2 caracteres.';
+    }
+
+    const correo = this.datosRegistro.correo_electronico?.trim() || '';
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!correo) {
+      this.erroresCampos['correo'] = 'El correo electrónico es obligatorio.';
+    } else if (!emailRegex.test(correo)) {
+      this.erroresCampos['correo'] = 'Ingresá un correo electrónico válido (ejemplo: usuario@correo.com).';
+    }
+
+    const clave = this.datosRegistro.contrasenia || '';
+    if (!clave) {
+      this.erroresCampos['contrasenia'] = 'La contraseña es obligatoria.';
+    } else if (!this.contraseniaValida) {
+      const faltantes = this.obtenerRequisitosFaltantes();
+      this.erroresCampos['contrasenia'] = `La contraseña no cumple los requisitos de seguridad. Falta: ${faltantes.join(', ')}.`;
+    }
+
+    if (this.datosRegistro.fecha_nacimiento) {
+      const fecha = new Date(this.datosRegistro.fecha_nacimiento);
+      const hoy = new Date();
+      if (isNaN(fecha.getTime()) || fecha > hoy) {
+        this.erroresCampos['fecha_nacimiento'] = 'La fecha de nacimiento no puede ser una fecha futura.';
+      }
+    }
+
+    return Object.keys(this.erroresCampos).length === 0;
+  }
+
+  get claveActual(): string {
+    return this.datosRegistro.contrasenia || '';
+  }
+
+  get tieneLongitudMinima(): boolean {
+    return this.claveActual.length >= 6;
+  }
+
+  get tieneMinuscula(): boolean {
+    return /[a-z]/.test(this.claveActual);
+  }
+
+  get tieneMayuscula(): boolean {
+    return /[A-Z]/.test(this.claveActual);
+  }
+
+  get tieneNumero(): boolean {
+    return /[0-9]/.test(this.claveActual);
+  }
+
+  get contraseniaValida(): boolean {
+    return this.tieneLongitudMinima && this.tieneMinuscula && this.tieneMayuscula && this.tieneNumero;
+  }
+
+  obtenerRequisitosFaltantes(): string[] {
+    const faltantes: string[] = [];
+    if (!this.tieneLongitudMinima) faltantes.push('al menos 6 caracteres');
+    if (!this.tieneMinuscula) faltantes.push('una minúscula (a-z)');
+    if (!this.tieneMayuscula) faltantes.push('una mayúscula (A-Z)');
+    if (!this.tieneNumero) faltantes.push('un número (0-9)');
+    return faltantes;
+  }
+
+  alEscribirContrasenia(): void {
+    this.limpiarErrorCampo('contrasenia');
+  }
+
+  limpiarErrorCampo(campo: string): void {
+    if (this.erroresCampos[campo]) {
+      delete this.erroresCampos[campo];
+    }
+  }
+
   registrarCliente(): void {
-    if (!this.datosRegistro.nombres || !this.datosRegistro.apellidos || !this.datosRegistro.correo_electronico || !this.datosRegistro.contrasenia) {
-      this.mensajeError = 'Por favor complete todos los campos obligatorios (*)';
+    this.mensajeError = null;
+
+    if (!this.validarFormulario()) {
+      this.mensajeError = 'Por favor, revisá los campos marcados antes de continuar.';
       return;
     }
 
     this.cargando = true;
-    this.mensajeError = null;
 
-    this.authService.registrarCliente(this.datosRegistro).subscribe({
+    // Saneamiento de datos antes de enviar al backend
+    const payload: RegistroClienteDTO = {
+      nombres: this.datosRegistro.nombres.trim(),
+      apellidos: this.datosRegistro.apellidos.trim(),
+      correo_electronico: this.datosRegistro.correo_electronico.trim().toLowerCase(),
+      contrasenia: this.datosRegistro.contrasenia,
+      telefono: this.datosRegistro.telefono?.trim() || undefined,
+      fecha_nacimiento: this.datosRegistro.fecha_nacimiento ? this.datosRegistro.fecha_nacimiento : undefined,
+      direccion_referencia: this.datosRegistro.direccion_referencia?.trim() || undefined,
+      preferencias: {}
+    };
+
+    this.authService.registrarCliente(payload).subscribe({
       next: (cliente) => {
         this.cargando = false;
         this.mensajeExito = `¡Cuenta creada exitosamente para ${cliente.nombre_completo}! Redirigiendo a inicio de sesión...`;
@@ -52,7 +154,7 @@ export class RegistroComponent {
       },
       error: (err) => {
         this.cargando = false;
-        this.mensajeError = err.error?.detail || 'Error al procesar el registro del cliente.';
+        this.mensajeError = formatearErrorApi(err, 'Error al procesar el registro del cliente.');
       }
     });
   }

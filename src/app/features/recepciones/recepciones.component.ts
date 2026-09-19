@@ -7,6 +7,7 @@ import { ProductoService } from '../../core/services/producto.service';
 import { ProveedorDTO, LoteRecepcionDTO, VarianteDTO } from '../../core/models/catalogo.models';
 import { SucursalDTO, CiudadDTO } from '../../core/models/organizacion.models';
 import { AuthService } from '../../core/services/auth.service';
+import { formatearErrorApi } from '../../core/utils/error-handler.util';
 
 @Component({
   selector: 'app-recepciones',
@@ -45,7 +46,7 @@ export class RecepcionesComponent implements OnInit {
   }
 
   cargarProveedores(): void {
-    this.recepcionService.gestionarProveedores().subscribe({ next: d => this.proveedores = d, error: () => this.mensajeError = 'Error cargando proveedores' });
+    this.recepcionService.gestionarProveedores().subscribe({ next: d => this.proveedores = d, error: err => this.mensajeError = formatearErrorApi(err, 'Error cargando proveedores') });
   }
   cargarLotes(): void {
     this.recepcionService.listarLotes().subscribe({ next: d => this.lotes = d, error: () => {} });
@@ -59,7 +60,7 @@ export class RecepcionesComponent implements OnInit {
   }
 
   crearProveedor(): void {
-    if (!this.nuevoProveedor.razon_social.trim()) { this.mensajeError = 'Razón social requerida (*)'; return; }
+    if (!this.nuevoProveedor.razon_social?.trim()) { this.mensajeError = 'Razón social requerida (*)'; return; }
     this.guardandoProv = true; this.mensajeError = null;
     this.recepcionService.registrarProveedor(this.nuevoProveedor).subscribe({
       next: p => {
@@ -67,7 +68,7 @@ export class RecepcionesComponent implements OnInit {
         this.nuevoProveedor = { razon_social: '', nit: '', contacto: '', telefono: '', correo_electronico: '', direccion: '' };
         this.guardandoProv = false; this.cargarProveedores();
       },
-      error: err => { this.mensajeError = err.error?.detail || 'Error al registrar proveedor'; this.guardandoProv = false; }
+      error: err => { this.mensajeError = formatearErrorApi(err, 'Error al registrar proveedor'); this.guardandoProv = false; }
     });
   }
 
@@ -100,7 +101,7 @@ export class RecepcionesComponent implements OnInit {
         this.loteForm = { proveedor_id: '', sucursal_id: '', numero_documento: '', observacion: '', detalles: [{ variante_id: '', cantidad: 1, costo_unitario: 0 }] };
         this.guardandoLote = false; this.cargarLotes();
       },
-      error: err => { this.mensajeError = err.error?.detail || JSON.stringify(err.error) || 'Error al registrar lote'; this.guardandoLote = false; }
+      error: err => { this.mensajeError = formatearErrorApi(err, 'Error al registrar lote'); this.guardandoLote = false; }
     });
   }
 
