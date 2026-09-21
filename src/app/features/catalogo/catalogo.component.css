@@ -88,7 +88,7 @@
 .stock-badge{padding:.2rem .55rem;border-radius:9999px;font-size:.7rem;font-weight:800}
 .stock-badge.in-stock{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
 .stock-badge.out-stock{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-.disp-table-wrap{max-height:160px;overflow-y:auto}
+.disp-table-wrap{max-height:160px;overflow:auto}
 .compra-acciones{margin-top:.35rem}
 .cant-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
 .cant-row label{font-size:.82rem;font-weight:700}
@@ -139,11 +139,16 @@ td.ok{color:#065f46;font-weight:700}
 @media(max-width:640px){
   .plp-head{align-items:flex-start}
   .head-stat{min-width:0;padding:.6rem .8rem;border-radius:10px}
-  .search input{min-width:0;width:calc(100% - 2rem)}
+  .search{align-items:stretch}
+  .search-ico{display:none}
+  .search input{flex:1 1 100%;min-width:0;width:100%}
   .search .btn-ink{width:100%;min-height:44px}
+  .asistente-input-row{flex-direction:column}
+  .asistente-input-row input,.asistente-input-row button{width:100%;min-width:0}
   .facets{padding:.85rem}
   .products-bar{gap:.75rem}
   .product-card{border-radius:12px}
+  .img-wrap{height:auto;aspect-ratio:1/1;padding-bottom:0}
   .hover-bar{display:none}
 }
 @media(max-width:520px){

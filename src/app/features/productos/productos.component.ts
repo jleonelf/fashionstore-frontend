@@ -299,15 +299,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validación mediante URL estándar y esquema seguro https
-    try {
-      const parsed = new URL(raw);
-      if (parsed.protocol !== 'https:') {
-        this.errorGaleria = 'Solo se aceptan URLs seguras que inicien con https://';
-        return;
-      }
-    } catch {
-      this.errorGaleria = 'La URL ingresada no es válida. Debe tener formato https://dominio.com/imagen.jpg';
+    if (!this.esUrlImagenSegura(raw)) {
+      this.errorGaleria = 'La URL ingresada no es válida. Debe iniciar con https://';
       return;
     }
 
@@ -322,6 +315,15 @@ export class ProductosComponent implements OnInit, OnDestroy {
     this.imagenesGaleria.push(nueva);
     this.nuevaImagenUrl = '';
     this.nuevaImagenAlt = '';
+  }
+
+  actualizarUrlImagen(index: number, valor: string): void {
+    const imagen = this.imagenesGaleria[index];
+    if (!imagen) return;
+
+    imagen.enlace_imagen = valor;
+    delete this.imagenPreviewError[index];
+    this.errorGaleria = null;
   }
 
   quitarImagen(index: number): void {
@@ -363,6 +365,17 @@ export class ProductosComponent implements OnInit, OnDestroy {
       this.productoEditForm.markAllAsTouched();
       return;
     }
+
+    const imagenInvalida = this.imagenesGaleria.findIndex(img => !this.esUrlImagenSegura(img.enlace_imagen.trim()));
+    if (imagenInvalida >= 0) {
+      this.errorGaleria = `Revisa la URL de la imagen ${imagenInvalida + 1}. Debe iniciar con https://`;
+      return;
+    }
+
+    this.imagenesGaleria.forEach(img => {
+      img.enlace_imagen = img.enlace_imagen.trim();
+      img.texto_alternativo = img.texto_alternativo?.trim() || undefined;
+    });
 
     // Regla de imagen principal
     if (this.imagenesGaleria.length > 0) {
@@ -421,6 +434,14 @@ export class ProductosComponent implements OnInit, OnDestroy {
           this.mensajeError = formatearErrorApi(e, 'Error al actualizar producto');
         }
       });
+  }
+
+  private esUrlImagenSegura(valor: string): boolean {
+    try {
+      return new URL(valor).protocol === 'https:';
+    } catch {
+      return false;
+    }
   }
 
   // ─── Edición de Variante (Campos editables: SKU, código de barras, precio, peso, activo, recurso) ───

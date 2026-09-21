@@ -58,6 +58,6 @@
 .drawer-user-info{gap:.6rem}
 .btn-drawer-logout{min-height:40px;background:var(--surface);color:var(--danger);border:1px solid var(--danger-border);border-radius:var(--radius-control);font-weight:700;font-size:.82rem;cursor:pointer}
 @media(max-width:1080px){.nav-item,.nav-dropdown-btn{padding-inline:.5rem;font-size:.78rem}.user-fullname{max-width:100px}.user-role{display:none}}
-@media(max-width:900px){.app-header{height:60px;padding-inline:.85rem;gap:.6rem}.nav-links,.desktop-only{display:none!important}.hamburger-btn{display:flex;flex:0 0 40px}.main-content{padding-top:.75rem}}
+@media(max-width:900px){.app-header{height:60px;padding-inline:.85rem;gap:.6rem}.nav-links,.desktop-only{display:none!important}.hamburger-btn{display:flex;flex:0 0 44px;width:44px;height:44px}.main-content{padding-top:.75rem}.cart-btn{min-height:44px}.btn-close-drawer{width:44px;height:44px}.btn-drawer-logout{min-height:44px}}
 @media(max-width:420px){.mobile-drawer{width:100vw}.brand{font-size:1.02rem}}
 @media(prefers-reduced-motion:reduce){.mobile-drawer,.mobile-backdrop,.hamburger-bar{transition:none}}

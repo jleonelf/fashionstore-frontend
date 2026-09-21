@@ -410,6 +410,53 @@
 
         <!-- Galería de Imágenes -->
         <h4 class="section-title mt-lg">Galería de Imágenes (URLs Públicas HTTPS)</h4>
+        <p class="gallery-help">Administra las fotos actuales de la prenda. Puedes cambiar su enlace o descripción, elegir la principal, reordenarlas o quitarlas. Los cambios se aplican al guardar el producto.</p>
+        <div class="gallery-list-heading">
+          <h5>Imágenes actuales</h5>
+          <span class="gallery-count" aria-live="polite">{{ imagenesGaleria.length }} {{ imagenesGaleria.length === 1 ? 'imagen' : 'imágenes' }}</span>
+        </div>
+        <div *ngIf="imagenesGaleria.length" class="gallery-list">
+          <div *ngFor="let img of imagenesGaleria; let i = index" class="gallery-item-card">
+            <div class="gallery-thumb-wrap">
+              <img *ngIf="!imagenPreviewError[i]" [src]="img.enlace_imagen" [alt]="img.texto_alternativo || 'Foto ' + (i + 1)"
+                   (error)="onImageError(i)" class="gallery-thumb" />
+              <div *ngIf="imagenPreviewError[i]" class="gallery-thumb-fallback" title="No se pudo cargar la vista previa">⚠️ Falló</div>
+            </div>
+            <div class="gallery-details">
+              <div class="f">
+                <label [for]="'imageUrl_' + i">URL de la imagen {{ i + 1 }}:</label>
+                <input
+                  [id]="'imageUrl_' + i"
+                  type="url"
+                  [ngModel]="img.enlace_imagen"
+                  (ngModelChange)="actualizarUrlImagen(i, $event)"
+                  [ngModelOptions]="{standalone: true}"
+                  placeholder="https://ejemplo.com/prenda.jpg"
+                  class="input-sm"
+                />
+              </div>
+              <div class="f">
+                <label [for]="'altText_' + i">Texto alternativo:</label>
+                <input [id]="'altText_' + i" [(ngModel)]="img.texto_alternativo" [ngModelOptions]="{standalone: true}" placeholder="Descripción de accesibilidad" class="input-sm" />
+              </div>
+            </div>
+            <div class="gallery-item-actions">
+              <button type="button" class="badge-principal-btn" [class.is-principal]="img.es_principal" (click)="marcarPrincipal(i)">
+                {{ img.es_principal ? '★ Principal' : 'Hacer Principal' }}
+              </button>
+              <div class="order-btns">
+                <button type="button" class="btn-icon" (click)="moverImagen(i, 'arriba')" [disabled]="i === 0" title="Subir orden" [attr.aria-label]="'Mover imagen ' + (i + 1) + ' hacia arriba'">▲</button>
+                <button type="button" class="btn-icon" (click)="moverImagen(i, 'abajo')" [disabled]="i === imagenesGaleria.length - 1" title="Bajar orden" [attr.aria-label]="'Mover imagen ' + (i + 1) + ' hacia abajo'">▼</button>
+              </div>
+              <button type="button" class="btn-icon btn-danger" (click)="quitarImagen(i)" title="Quitar imagen" [attr.aria-label]="'Quitar imagen ' + (i + 1)">✕</button>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!imagenesGaleria.length" class="empty-gallery-state">
+          <p>Este producto no cuenta con fotos en su galería aún.</p>
+        </div>
+
+        <h5 class="gallery-add-title">Agregar nueva imagen</h5>
         <div class="gallery-add-box">
           <div class="f flex1">
             <label for="nuevaFotoUrl">URL de la imagen (HTTPS) *</label>
@@ -422,37 +469,6 @@
           <button type="button" class="btn btn-secondary btn-agregar-foto" (click)="agregarImagen()">+ Agregar</button>
         </div>
         <p *ngIf="errorGaleria" class="field-error" role="alert">{{ errorGaleria }}</p>
-
-        <!-- Lista y Reordenamiento de Galería -->
-        <div *ngIf="imagenesGaleria.length" class="gallery-list">
-          <div *ngFor="let img of imagenesGaleria; let i = index" class="gallery-item-card">
-            <div class="gallery-thumb-wrap">
-              <img *ngIf="!imagenPreviewError[i]" [src]="img.enlace_imagen" [alt]="img.texto_alternativo || 'Foto ' + (i + 1)"
-                   (error)="onImageError(i)" class="gallery-thumb" />
-              <div *ngIf="imagenPreviewError[i]" class="gallery-thumb-fallback" title="No se pudo cargar la vista previa">⚠️ Falló</div>
-            </div>
-            <div class="gallery-details">
-              <span class="gallery-url">{{ img.enlace_imagen }}</span>
-              <div class="f">
-                <label [for]="'altText_' + i">Texto alternativo:</label>
-                <input [id]="'altText_' + i" [(ngModel)]="img.texto_alternativo" [ngModelOptions]="{standalone: true}" placeholder="Descripción de accesibilidad" class="input-sm" />
-              </div>
-            </div>
-            <div class="gallery-item-actions">
-              <button type="button" class="badge-principal-btn" [class.is-principal]="img.es_principal" (click)="marcarPrincipal(i)">
-                {{ img.es_principal ? '★ Principal' : 'Hacer Principal' }}
-              </button>
-              <div class="order-btns">
-                <button type="button" class="btn-icon" (click)="moverImagen(i, 'arriba')" [disabled]="i === 0" title="Subir orden">▲</button>
-                <button type="button" class="btn-icon" (click)="moverImagen(i, 'abajo')" [disabled]="i === imagenesGaleria.length - 1" title="Bajar orden">▼</button>
-              </div>
-              <button type="button" class="btn-icon btn-danger" (click)="quitarImagen(i)" title="Quitar imagen">✕</button>
-            </div>
-          </div>
-        </div>
-        <div *ngIf="!imagenesGaleria.length" class="empty-gallery-state">
-          <p>Este producto no cuenta con fotos en su galería aún.</p>
-        </div>
       </div>
 
       <div class="modal-footer">

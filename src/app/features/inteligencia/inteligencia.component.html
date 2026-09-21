@@ -1,97 +1,382 @@
 <section class="cycle-page">
-  <div class="cycle-hero"><div><p class="cycle-kicker">Asistente</p><h1>Inteligencia del negocio</h1></div></div>
+  <!-- Encabezado editorial -->
+  <header class="ia-hero">
+    <p class="ia-kicker">Asistente analítico</p>
+    <h1 class="ia-title">Inteligencia del negocio</h1>
+    <p class="ia-subtitle">Consultas en lenguaje natural y recomendaciones de inventario sobre datos comerciales autorizados.</p>
+  </header>
 
-  <div class="tab-switcher">
-    <button type="button" [class.active]="activeTab === 'reportes'" (click)="activeTab = 'reportes'">Reportes</button>
-    <button type="button" [class.active]="activeTab === 'decisiones'" (click)="activeTab = 'decisiones'">Decisiones de inventario</button>
+  <!-- Pestañas de navegación accesibles -->
+  <div class="tab-switcher" role="tablist" aria-label="Secciones de inteligencia">
+    <button
+      type="button"
+      role="tab"
+      id="tab-reportes"
+      aria-controls="panel-reportes"
+      [attr.aria-selected]="activeTab === 'reportes'"
+      [class.active]="activeTab === 'reportes'"
+      (click)="activeTab = 'reportes'"
+    >
+      Reportes analíticos
+    </button>
+    <button
+      type="button"
+      role="tab"
+      id="tab-decisiones"
+      aria-controls="panel-decisiones"
+      [attr.aria-selected]="activeTab === 'decisiones'"
+      [class.active]="activeTab === 'decisiones'"
+      (click)="activeTab = 'decisiones'"
+    >
+      Decisiones de inventario
+    </button>
   </div>
 
-  <!-- Reportes -->
-  <div *ngIf="activeTab === 'reportes'" class="tab-content">
-    <div class="ia-input-group">
-      <input type="text" [(ngModel)]="consulta" placeholder="Escribe tu consulta, por ejemplo: ventas por sucursal del último mes"
-             (keydown.enter)="generarReporte()" [disabled]="generando">
-      <button type="button" class="cycle-primary" (click)="generarReporte()" [disabled]="generando || !consulta.trim()">
-        {{ generando ? 'Generando…' : 'Consultar' }}
-      </button>
+  <!-- Pestaña 1: Reportes Analíticos -->
+  <div
+    *ngIf="activeTab === 'reportes'"
+    id="panel-reportes"
+    class="tab-content"
+    role="tabpanel"
+    aria-labelledby="tab-reportes"
+  >
+    <!-- Entrada de consulta en lenguaje natural -->
+    <div class="ia-input-card">
+      <div class="ia-input-group">
+        <label for="consultaInput" class="sr-only">Consulta de inteligencia de negocio</label>
+        <input
+          id="consultaInput"
+          type="text"
+          [(ngModel)]="consulta"
+          placeholder="Escribe tu consulta, por ejemplo: ventas por sucursal o prendas más vendidas"
+          aria-label="Consulta de analítica en lenguaje natural"
+          (keydown.enter)="generarReporte()"
+          [disabled]="generando"
+        />
+        <button
+          type="button"
+          class="cycle-primary btn-consultar"
+          (click)="generarReporte()"
+          [disabled]="generando || !consulta.trim()"
+        >
+          {{ generando ? 'Analizando…' : 'Consultar datos' }}
+        </button>
+      </div>
+      <p class="ia-hint">
+        Consultas sugeridas: ventas por sucursal, inventario por sucursal, temporadas activas, stock crítico, prendas más vendidas, efectividad de reservas o rotación.
+      </p>
     </div>
-    <p class="ia-hint">Puedes consultar ventas por sucursal, inventario por sucursal, temporadas, stock crítico, productos más vendidos, reservas y rotación.</p>
-    <div *ngIf="errorReporte" class="cycle-alert danger" role="alert">{{ errorReporte }}</div>
 
-    <div *ngIf="reporte" class="ia-result cycle-card">
-      <div class="ia-result-meta">
-        <span class="status status-neutral">{{ tituloReporte }}</span>
-        <span class="ia-proveedor">Asistente: {{ reporte.proveedor === 'GEMINI' ? 'Gemini' : 'motor local seguro' }}</span>
+    <!-- Momento visual de la consulta (secuencia intencional con role status) -->
+    <div *ngIf="generando" class="ia-loading-card" role="status">
+      <div class="ia-loading-pulse" aria-hidden="true"></div>
+      <div class="ia-loading-text-wrap">
+        <p class="ia-loading-step">{{ pasosCarga[pasoCargaActual] }}…</p>
+        <p class="ia-loading-note">Extrayendo registros reales sin alterar el estado operativo del negocio.</p>
       </div>
-      <div class="ia-narrativa">{{ reporte.narrativa }}</div>
+    </div>
 
-      <div *ngIf="reporteVacio" class="cycle-state" role="status">
-        <p>No existen registros que coincidan con este reporte todavía.</p>
-        <p>Prueba otra consulta o registra operaciones antes de volver a generarlo.</p>
-      </div>
+    <!-- Estado de error -->
+    <div *ngIf="errorReporte" class="cycle-alert danger" role="alert">
+      {{ errorReporte }}
+    </div>
 
-      <div *ngIf="filasInventario.length" class="table-wrap">
-        <table>
-          <caption>Existencias agrupadas por sucursal</caption>
-          <thead><tr><th>Sucursal</th><th>Variantes</th><th>Disponible</th><th>Reservado</th><th>En tránsito</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let fila of filasInventario">
-              <td>{{ valorTexto(fila, 'sucursal') }}</td>
-              <td>{{ valorTexto(fila, 'variantes') }}</td>
-              <td>{{ valorTexto(fila, 'disponible') }}</td>
-              <td>{{ valorTexto(fila, 'reservado') }}</td>
-              <td>{{ valorTexto(fila, 'en_transito') }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Resultado del reporte analítico -->
+    <div *ngIf="!generando && reporte" class="ia-report-sheet">
+
+      <!-- Encabezado editorial del reporte -->
+      <div class="report-sheet-header">
+        <div class="report-meta-tags">
+          <span class="report-type-badge">{{ tituloReporte }}</span>
+          <span class="report-engine-tag">Asistente: {{ nombreProveedor }}</span>
+        </div>
+        <p class="report-scope-note">
+          Lectura analítica de datos autorizados. La IA explica y clasifica información, no modifica operaciones.
+        </p>
       </div>
 
-      <div *ngIf="filasVentas.length" class="table-wrap">
-        <table>
-          <caption>Ventas confirmadas por sucursal</caption>
-          <thead><tr><th>Sucursal</th><th>Ventas</th><th>Ingresos</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let fila of filasVentas">
-              <td>{{ valorTexto(fila, 'sucursal') }}</td>
-              <td>{{ valorTexto(fila, 'ventas') }}</td>
-              <td>{{ bs(valorTexto(fila, 'ingresos')) }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Narrativa editorial protagonista -->
+      <div class="report-narrativa-card">
+        <span class="narrativa-lead-label">Síntesis del negocio:</span>
+        <blockquote class="narrativa-quote">
+          {{ reporte.narrativa }}
+        </blockquote>
       </div>
 
-      <details *ngIf="reporte.datos" class="ia-datos">
-        <summary>Ver detalle de datos</summary>
+      <!-- Estado vacío de reporte -->
+      <div *ngIf="reporteVacio" class="ia-empty-state" role="status">
+        <p class="empty-title">No existen registros que coincidan con este reporte en el periodo consultado.</p>
+        <p class="empty-desc">Prueba con otra consulta o verifica que existan transacciones confirmadas registradas.</p>
+      </div>
+
+      <!-- Visualizaciones dinámicas según reporte.funcion_usada -->
+      <div *ngIf="!reporteVacio" class="report-viz-container">
+
+        <!-- 1. ventasPorSucursal -->
+        <div *ngIf="reporte.funcion_usada === 'ventasPorSucursal'" class="viz-block">
+          <h2 class="viz-title">Facturación comparativa por sucursal</h2>
+          <p class="viz-subtitle">Ingresos acumulados en ventas pagadas por punto de venta</p>
+          <app-horizontal-bars
+            [items]="ventasPorSucursalBarsVM"
+            colorTema="ink"
+            ariaLabel="Ingresos comparativos por sucursal"
+            etiquetaVacio="No se registran ventas confirmadas por sucursal."
+          ></app-horizontal-bars>
+        </div>
+
+        <!-- 2. inventarioPorSucursal -->
+        <div *ngIf="reporte.funcion_usada === 'inventarioPorSucursal'" class="viz-block">
+          <h2 class="viz-title">Desglose de existencias por sucursal</h2>
+          <p class="viz-subtitle">Distribución operativa de unidades: disponible, reservado y en tránsito</p>
+          <div class="inv-branch-grid">
+            <article *ngFor="let branch of inventarioPorSucursalVM" class="inv-branch-card">
+              <div class="branch-card-head">
+                <h3 class="branch-name">{{ branch.sucursal }}</h3>
+                <span class="branch-variants">{{ branch.variantes }} {{ branch.variantes === 1 ? 'variante' : 'variantes' }}</span>
+              </div>
+              <app-segmented-bar
+                [segmentos]="branch.segmentos"
+                [ariaLabel]="'Distribución de inventario en ' + branch.sucursal"
+                etiquetaVacio="Sin unidades en inventario."
+              ></app-segmented-bar>
+            </article>
+          </div>
+        </div>
+
+        <!-- 3. ventasPorTemporada (Muestra colecciones activas sin magnitudes ficticias) -->
+        <div *ngIf="reporte.funcion_usada === 'ventasPorTemporada'" class="viz-block">
+          <h2 class="viz-title">Temporadas y colecciones del catálogo</h2>
+          <p class="viz-subtitle">Listado de temporadas activas registradas. El catálogo no suministra magnitudes comparables de venta por temporada.</p>
+          <div class="season-chips-grid">
+            <div *ngFor="let temp of temporadasVM" class="season-card">
+              <span class="season-icon" aria-hidden="true">✦</span>
+              <span class="season-name">{{ temp }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. stockCritico -->
+        <div *ngIf="reporte.funcion_usada === 'stockCritico'" class="viz-block">
+          <h2 class="viz-title">Prendas con inventario crítico</h2>
+          <p class="viz-subtitle">Artículos en umbral de reposición inmediata (≤ 5 unidades disponibles)</p>
+          <app-horizontal-bars
+            [items]="stockCriticoBarsVM"
+            colorTema="danger"
+            ariaLabel="Inventario crítico por SKU"
+            etiquetaVacio="No existen artículos en nivel crítico."
+          ></app-horizontal-bars>
+        </div>
+
+        <!-- 5. topVendidos -->
+        <div *ngIf="reporte.funcion_usada === 'topVendidos'" class="viz-block">
+          <h2 class="viz-title">Prendas líderes por rotación comercial</h2>
+          <p class="viz-subtitle">Ranking por volumen de unidades vendidas</p>
+          <app-horizontal-bars
+            [items]="topVendidosBarsVM"
+            colorTema="brass"
+            [mostrarPosicion]="true"
+            ariaLabel="Ranking de prendas líderes por unidades vendidas"
+            etiquetaVacio="No se registran ventas para este ranking."
+          ></app-horizontal-bars>
+        </div>
+
+        <!-- 6. efectividadReservas -->
+        <div *ngIf="reporte.funcion_usada === 'efectividadReservas'" class="viz-block">
+          <h2 class="viz-title">Efectividad en conversión de reservas</h2>
+          <p class="viz-subtitle">Proporción de reservas completadas respecto al total gestionado</p>
+          <div class="reservas-radial-center">
+            <app-radial-progress
+              [valor]="reservasReporteVM.conversionPct"
+              [numerador]="reservasReporteVM.completadas"
+              [denominador]="reservasReporteVM.total"
+              etiquetaLeyenda="Tasa efectiva de reservas"
+              ariaLabel="Porcentaje de conversión de reservas"
+              colorVariante="brass"
+            ></app-radial-progress>
+          </div>
+        </div>
+
+        <!-- 7. rotacionPorTemporada -->
+        <div *ngIf="reporte.funcion_usada === 'rotacionPorTemporada'" class="viz-block">
+          <h2 class="viz-title">Rotación de inventario: Stock vs Ventas</h2>
+          <p class="viz-subtitle">Comparación de stock disponible frente a unidades vendidas en la ventana de {{ rotacionFilasVM.ventanaDias }} días</p>
+          <div class="rotation-list">
+            <article *ngFor="let item of rotacionFilasVM.filas" class="rotation-card">
+              <div class="rotation-head">
+                <span class="rotation-code">{{ item.etiquetaLegible }}</span>
+              </div>
+              <div class="rotation-bars-pair">
+                <div class="pair-bar">
+                  <div class="pair-bar-label">
+                    <span>Stock disponible</span>
+                    <strong>{{ item.stock }} un.</strong>
+                  </div>
+                  <div class="pair-track" aria-hidden="true">
+                    <svg viewBox="0 0 100 6" preserveAspectRatio="none" class="pair-svg">
+                      <rect x="0" y="0" width="100" height="6" rx="3" class="pair-track-bg" />
+                      <rect x="0" y="0" [attr.width]="item.stockPct" height="6" rx="3" class="pair-fill-rect fill-stock" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="pair-bar">
+                  <div class="pair-bar-label">
+                    <span>Ventas en el periodo</span>
+                    <strong>{{ item.ventas }} un.</strong>
+                  </div>
+                  <div class="pair-track" aria-hidden="true">
+                    <svg viewBox="0 0 100 6" preserveAspectRatio="none" class="pair-svg">
+                      <rect x="0" y="0" width="100" height="6" rx="3" class="pair-track-bg" />
+                      <rect x="0" y="0" [attr.width]="item.ventasPct" height="6" rx="3" class="pair-fill-rect fill-ventas" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Fallback para funciones o estructuras no mapeadas directamente -->
+        <div *ngIf="esFuncionDesconocida" class="viz-block viz-fallback">
+          <h2 class="viz-title">Resultado de consulta en formato detallado</h2>
+          <p class="viz-subtitle">Este reporte contiene una estructura especializada que puede examinarse en el detalle de datos a continuación.</p>
+        </div>
+
+      </div>
+
+      <!-- Detalle técnico colapsable seguro -->
+      <details *ngIf="reporte.datos" class="ia-datos-colapsable">
+        <summary>Ver detalle de datos estructurados</summary>
         <pre>{{ reporte.datos | json }}</pre>
       </details>
     </div>
   </div>
 
-  <!-- Decisiones -->
-  <div *ngIf="activeTab === 'decisiones'" class="tab-content">
-    <div class="decision-params">
-      <label><span>Ventana (días)</span><input type="number" [(ngModel)]="diasVentana" min="7" max="365"></label>
-      <label><span>Umbral rotación</span><input type="number" [(ngModel)]="umbralRotacion" min="0" max="100"></label>
-      <button type="button" class="cycle-primary" (click)="consultarDecisiones()" [disabled]="consultando">
-        {{ consultando ? 'Consultando…' : 'Analizar inventario' }}
-      </button>
+  <!-- Pestaña 2: Decisiones de Inventario -->
+  <div
+    *ngIf="activeTab === 'decisiones'"
+    id="panel-decisiones"
+    class="tab-content"
+    role="tabpanel"
+    aria-labelledby="tab-decisiones"
+  >
+    <!-- Parámetros de análisis -->
+    <div class="decision-params-card">
+      <div class="decision-params-form">
+        <label class="param-field" for="diasVentanaInput">
+          <span class="param-label">Ventana de análisis (días)</span>
+          <input
+            id="diasVentanaInput"
+            type="number"
+            [(ngModel)]="diasVentana"
+            min="7"
+            max="365"
+            aria-label="Ventana de análisis en días"
+          />
+        </label>
+        <label class="param-field" for="umbralRotacionInput">
+          <span class="param-label">Umbral de baja rotación</span>
+          <input
+            id="umbralRotacionInput"
+            type="number"
+            [(ngModel)]="umbralRotacion"
+            min="0"
+            max="100"
+            aria-label="Umbral de rotación"
+          />
+        </label>
+        <button
+          type="button"
+          class="cycle-primary btn-analizar"
+          (click)="consultarDecisiones()"
+          [disabled]="consultando"
+        >
+          {{ consultando ? 'Analizando…' : 'Analizar inventario' }}
+        </button>
+      </div>
+      <p class="param-hint">
+        El motor analiza el ritmo de venta vs stock para proponer sugerencias operativas (promoción, liquidación, traslado o reposición).
+      </p>
     </div>
-    <div *ngIf="errorDecision" class="cycle-alert danger" role="alert">{{ errorDecision }}</div>
 
-    <div *ngIf="decisiones" class="decisiones-grid">
-      <p class="ia-proveedor">Motor: {{ decisiones.proveedor }}</p>
-      <div *ngFor="let d of decisiones.items" class="decision-card cycle-card">
-        <div class="decision-header">
-          <span class="decision-icon">{{ accionIcono(d.accion) }}</span>
-          <span class="status" [class]="clase(d.accion)">{{ etiqueta(d.accion) }}</span>
-        </div>
-        <p class="decision-sku"><strong>{{ d.sku }}</strong></p>
-        <p class="decision-detalle">{{ d.detalle }}</p>
-        <dl class="cycle-facts">
-          <div><dt>Stock</dt><dd>{{ d.stock_total }}</dd></div>
-          <div><dt>Ventas</dt><dd>{{ d.ventas_periodo }}</dd></div>
-          <div *ngIf="d.reposicion_sugerida"><dt>Reposición</dt><dd>{{ d.reposicion_sugerida }}</dd></div>
-        </dl>
+    <!-- Estado de carga en decisiones -->
+    <div *ngIf="consultando" class="ia-loading-card" role="status">
+      <div class="ia-loading-pulse" aria-hidden="true"></div>
+      <div class="ia-loading-text-wrap">
+        <p class="ia-loading-step">Analizando niveles de stock y ventas…</p>
+        <p class="ia-loading-note">Evaluando umbrales de rotación por SKU sin realizar cambios automáticos.</p>
+      </div>
+    </div>
+
+    <!-- Error en decisiones -->
+    <div *ngIf="errorDecision" class="cycle-alert danger" role="alert">
+      {{ errorDecision }}
+    </div>
+
+    <!-- Resultados de decisiones -->
+    <div *ngIf="!consultando && decisiones" class="decisiones-container">
+      <div class="decisiones-meta-bar">
+        <span class="meta-provider">Motor: {{ decisiones.proveedor }}</span>
+        <span class="meta-count" *ngIf="decisiones.items">{{ decisiones.items.length }} sugerencias analíticas</span>
+      </div>
+
+      <div *ngIf="decisiones.items.length === 0" class="ia-empty-state" role="status">
+        <p class="empty-title">No se detectaron decisiones críticas pendientes</p>
+        <p class="empty-desc">Los niveles de existencias se encuentran equilibrados según los umbrales de la ventana de análisis.</p>
+      </div>
+
+      <div *ngIf="decisionesVM.length > 0" class="decisiones-grid">
+        <article *ngFor="let d of decisionesVM" class="decision-card">
+          <div class="decision-card-head">
+            <span class="decision-icon-badge">{{ accionIcono(d.accion) }}</span>
+            <span class="status" [class]="clase(d.accion)">{{ etiqueta(d.accion) }}</span>
+          </div>
+
+          <p class="decision-sku">
+            <span class="sku-label">SKU:</span>
+            <strong>{{ d.sku }}</strong>
+          </p>
+
+          <p class="decision-detail">{{ d.detalle }}</p>
+
+          <!-- Comparativa visual entre stock y ventas -->
+          <div class="decision-visual-ratio" aria-label="Proporción entre stock actual y ventas del periodo">
+            <div class="ratio-bar-row">
+              <span class="ratio-label">Stock ({{ d.stock_total }})</span>
+              <div class="ratio-track" aria-hidden="true">
+                <svg viewBox="0 0 100 6" preserveAspectRatio="none" class="ratio-svg">
+                  <rect x="0" y="0" width="100" height="6" rx="3" class="ratio-track-bg" />
+                  <rect x="0" y="0" [attr.width]="d.stockPct" height="6" rx="3" class="ratio-fill-rect ratio-stock" />
+                </svg>
+              </div>
+            </div>
+            <div class="ratio-bar-row">
+              <span class="ratio-label">Ventas ({{ d.ventas_periodo }})</span>
+              <div class="ratio-track" aria-hidden="true">
+                <svg viewBox="0 0 100 6" preserveAspectRatio="none" class="ratio-svg">
+                  <rect x="0" y="0" width="100" height="6" rx="3" class="ratio-track-bg" />
+                  <rect x="0" y="0" [attr.width]="d.ventasPct" height="6" rx="3" class="ratio-fill-rect ratio-sales" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Datos exactos -->
+          <dl class="decision-facts">
+            <div class="fact-col">
+              <dt>Stock total</dt>
+              <dd>{{ d.stock_total }} un.</dd>
+            </div>
+            <div class="fact-col">
+              <dt>Ventas periodo</dt>
+              <dd>{{ d.ventas_periodo }} un.</dd>
+            </div>
+            <div class="fact-col" *ngIf="d.reposicion_sugerida">
+              <dt>Reposición sugerida</dt>
+              <dd class="text-brass">+{{ d.reposicion_sugerida }} un.</dd>
+            </div>
+          </dl>
+        </article>
       </div>
     </div>
   </div>

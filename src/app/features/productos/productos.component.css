@@ -525,6 +525,39 @@
   border: 1px solid var(--border, #e2e8f0);
 }
 
+.gallery-help {
+  margin: -0.15rem 0 0;
+  color: var(--text-muted, #64748b);
+  font-size: 0.82rem;
+}
+
+.gallery-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.gallery-list-heading h5,
+.gallery-add-title {
+  margin: 0;
+  color: var(--ink, #0f172a);
+  font-size: 0.86rem;
+}
+
+.gallery-count {
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--brass-soft, #f1e9dd);
+  color: var(--brass-strong, #80633f);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.gallery-add-title {
+  margin-top: 0.35rem;
+}
+
 .btn-agregar-foto {
   min-height: 44px;
 }
@@ -538,13 +571,16 @@
 .gallery-list {
   display: flex;
   flex-direction: column;
+  flex: 0 0 auto;
   gap: 0.6rem;
   max-height: 280px;
   overflow-y: auto;
+  padding-right: 0.2rem;
 }
 
 .gallery-item-card {
   display: grid;
+  flex: 0 0 auto;
   grid-template-columns: 60px 1fr auto;
   gap: 0.75rem;
   align-items: center;
@@ -587,15 +623,6 @@
   min-width: 0;
 }
 
-.gallery-url {
-  font-family: monospace;
-  font-size: 0.72rem;
-  color: var(--text-muted, #64748b);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .input-sm {
   padding: 0.35rem 0.6rem !important;
   font-size: 0.8rem !important;
@@ -632,8 +659,8 @@
 }
 
 .btn-icon {
-  width: 26px;
-  height: 26px;
+  width: 36px;
+  height: 36px;
   border: 1px solid var(--border, #e2e8f0);
   background: var(--surface, #ffffff);
   border-radius: 4px;
@@ -702,6 +729,41 @@
 }
 
 @media (max-width: 768px) {
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal-box,
+  .modal-box.modal-lg {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 0.5rem);
+    border-radius: 18px 18px 0 0;
+  }
+  .modal-header {
+    padding: 0.85rem 1rem;
+  }
+  .modal-header h3 {
+    min-width: 0;
+    font-size: 1.1rem;
+    overflow-wrap: anywhere;
+  }
+  .btn-close-modal {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+  }
+  .modal-body {
+    padding: 1rem;
+  }
+  .modal-footer {
+    align-items: stretch;
+    flex-direction: column-reverse;
+    padding: 0.85rem 1rem;
+  }
+  .modal-footer .btn {
+    width: 100%;
+  }
   .tags-picker-row {
     grid-template-columns: 1fr;
   }
@@ -712,5 +774,9 @@
   .gallery-thumb-wrap {
     width: 100%;
     height: 120px;
+  }
+  .btn-icon {
+    width: 44px;
+    height: 44px;
   }
 }

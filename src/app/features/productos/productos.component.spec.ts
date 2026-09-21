@@ -149,6 +149,23 @@ describe('ProductosComponent (Administración de Catálogo, Precios, Galería y 
       expect(component.imagenesGaleria.length).toBe(3);
     });
 
+    it('permite editar la URL de una imagen existente y valida https antes de guardar', () => {
+      component.abrirEditarProducto(mockProducto);
+      component.actualizarUrlImagen(0, 'http://cdn.fs.com/no-segura.jpg');
+
+      component.guardarEdicionProducto();
+
+      expect(productoServiceSpy.actualizarProducto).not.toHaveBeenCalled();
+      expect(component.errorGaleria).toContain('imagen 1');
+
+      productoServiceSpy.actualizarProducto.and.returnValue(of(mockProducto));
+      component.actualizarUrlImagen(0, 'https://cdn.fs.com/frente-editado.jpg');
+      component.guardarEdicionProducto();
+
+      const dto = productoServiceSpy.actualizarProducto.calls.mostRecent().args[1];
+      expect(dto.imagenes?.[0].enlace_imagen).toBe('https://cdn.fs.com/frente-editado.jpg');
+    });
+
     it('envía null explícito al limpiar descripción, categoría o proveedor', () => {
       component.abrirEditarProducto(mockProducto);
       component.productoEditForm.controls.descripcion.setValue('   ');

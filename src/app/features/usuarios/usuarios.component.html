@@ -18,7 +18,12 @@
   <div class="module-grid">
     <!-- PANEL FORMULARIO CREAR -->
     <div class="card-panel">
-      <h3>Crear Nuevo Usuario</h3>
+      <div class="card-panel-header">
+        <span class="panel-kicker">Alta de cuenta</span>
+        <h3>Registrar nuevo usuario</h3>
+        <p class="panel-subtitle">Define las credenciales de acceso y el rol operativo de la persona.</p>
+      </div>
+
       <form (ngSubmit)="crearUsuario()">
         <div class="form-group">
           <label for="rolId">Rol Asignado * (Rol Único)</label>
@@ -132,6 +137,17 @@
 
     <!-- PANEL LISTADO Y FILTROS -->
     <div class="card-panel">
+      <div class="card-panel-header">
+        <div class="panel-title-row">
+          <div>
+            <span class="panel-kicker">Equipo registrado</span>
+            <h3>Usuarios registrados</h3>
+          </div>
+          <span class="users-count-badge" *ngIf="!cargando">{{ usuarios.length }} {{ usuarios.length === 1 ? 'usuario' : 'usuarios' }}</span>
+        </div>
+        <p class="panel-subtitle">Consulta el listado general, filtra por rol o estado y actualiza permisos.</p>
+      </div>
+
       <div class="filters-bar">
         <div class="filter-item">
           <label for="filtroRol">Filtrar por Rol</label>
@@ -151,7 +167,64 @@
         </div>
       </div>
 
-      <div class="table-container">
+      <!-- Estados de carga y vacío comunes -->
+      <div *ngIf="cargando" class="users-state-box" role="status">
+        <p class="state-title">Cargando lista de usuarios…</p>
+        <p class="state-desc">Obteniendo la información del equipo y sus roles asignados.</p>
+      </div>
+
+      <div *ngIf="!cargando && usuarios.length === 0" class="users-state-box" role="status">
+        <p class="state-title">No se encontraron usuarios registrados</p>
+        <p class="state-desc">Prueba cambiando los filtros seleccionados o registra un nuevo usuario en el formulario.</p>
+      </div>
+
+      <!-- Vista móvil / tablet: Tarjetas de usuario -->
+      <div class="users-cards-view" *ngIf="!cargando && usuarios.length > 0">
+        <article class="user-card" *ngFor="let u of usuarios">
+          <div class="user-card-head">
+            <div class="user-card-identity">
+              <h4 class="user-name">{{ u.nombre_completo }}</h4>
+              <span class="user-sub">{{ u.telefono || 'Sin teléfono' }}</span>
+            </div>
+            <span class="badge-status" [ngClass]="u.estado === 'ACTIVO' ? 'status-activo' : 'status-inactivo'">
+              {{ u.estado }}
+            </span>
+          </div>
+
+          <div class="user-card-body">
+            <div class="user-info-item">
+              <span class="info-label">Correo</span>
+              <span class="info-val info-email">{{ u.correo_electronico }}</span>
+            </div>
+            <div class="user-info-item">
+              <span class="info-label">Rol único</span>
+              <span class="info-val">
+                <span class="badge-rol">{{ u.rol_nombre }}</span>
+              </span>
+            </div>
+            <div class="user-info-item">
+              <span class="info-label">Sucursal</span>
+              <span class="info-val">
+                <span *ngIf="u.sucursal_nombre">{{ u.sucursal_nombre }}</span>
+                <span *ngIf="!u.sucursal_nombre" class="sin-sucursal">—</span>
+                <span *ngIf="u.cargo" class="cargo-sub"> · {{ u.cargo }}</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="user-card-actions">
+            <button type="button" class="btn-action" (click)="cambiarRol(u, $event)">
+              Cambiar rol
+            </button>
+            <button type="button" class="btn-action btn-action-state" (click)="alternarEstado(u, $event)">
+              {{ u.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <!-- Vista escritorio: Tabla tradicional -->
+      <div class="table-container desktop-table-view" *ngIf="!cargando && usuarios.length > 0">
         <table>
           <thead>
             <tr>
@@ -164,18 +237,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngIf="cargando">
-              <td colspan="6" class="table-empty">Cargando lista de usuarios...</td>
-            </tr>
-            <tr *ngIf="!cargando && usuarios.length === 0">
-              <td colspan="6" class="table-empty">No se encontraron usuarios registrados</td>
-            </tr>
             <tr *ngFor="let u of usuarios">
               <td>
                 <div class="user-name">{{ u.nombre_completo }}</div>
                 <div class="user-sub">{{ u.telefono || 'Sin teléfono' }}</div>
               </td>
-              <td>{{ u.correo_electronico }}</td>
+              <td><span class="info-email">{{ u.correo_electronico }}</span></td>
               <td>
                 <span class="badge-rol">{{ u.rol_nombre }}</span>
               </td>
@@ -209,11 +276,13 @@
   <section #modalRolBox class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="role-dialog-title" (click)="$event.stopPropagation()">
     <p class="dialog-kicker">Permisos de acceso</p>
     <h3 id="role-dialog-title">Cambiar rol de {{ usuarioCambioRol.nombre_completo }}</h3>
-    <p>Selecciona el nivel de acceso que tendrá esta persona.</p>
-    <label for="nuevoRol">Nuevo rol</label>
-    <select id="nuevoRol" [(ngModel)]="nuevoRolId">
-      <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
-    </select>
+    <p class="dialog-desc">Selecciona el nivel de acceso y responsabilidades que tendrá esta persona.</p>
+    <div class="dialog-field">
+      <label for="nuevoRol">Nuevo rol</label>
+      <select id="nuevoRol" [(ngModel)]="nuevoRolId">
+        <option *ngFor="let r of roles" [value]="r.id">{{ r.nombre }}</option>
+      </select>
+    </div>
     <div class="dialog-actions">
       <button type="button" class="dialog-secondary" (click)="cerrarCambioRol()">Cancelar</button>
       <button type="button" class="dialog-primary" [disabled]="guardando || !nuevoRolId" (click)="confirmarCambioRol()">{{ guardando ? 'Guardando…' : 'Guardar cambio' }}</button>
@@ -225,7 +294,7 @@
   <section #modalEstadoBox class="dialog-card" role="alertdialog" aria-modal="true" aria-labelledby="state-dialog-title" (click)="$event.stopPropagation()">
     <p class="dialog-kicker">Confirmar acción</p>
     <h3 id="state-dialog-title">{{ usuarioCambioEstado.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }} usuario</h3>
-    <p>{{ usuarioCambioEstado.nombre_completo }} {{ usuarioCambioEstado.estado === 'ACTIVO' ? 'perderá el acceso hasta que vuelvas a activarlo.' : 'recuperará el acceso a la plataforma.' }}</p>
+    <p class="dialog-desc">{{ usuarioCambioEstado.nombre_completo }} {{ usuarioCambioEstado.estado === 'ACTIVO' ? 'perderá el acceso hasta que vuelvas a activarlo.' : 'recuperará el acceso a la plataforma.' }}</p>
     <div class="dialog-actions">
       <button type="button" class="dialog-secondary" (click)="cerrarCambioEstado()">Cancelar</button>
       <button type="button" class="dialog-primary" [class.danger]="usuarioCambioEstado.estado === 'ACTIVO'" [disabled]="guardando" (click)="confirmarCambioEstado()">{{ guardando ? 'Guardando…' : 'Confirmar' }}</button>

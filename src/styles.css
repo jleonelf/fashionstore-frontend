@@ -22,6 +22,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 button { color: inherit; }
 a { color: inherit; }
 img { display: block; max-width: 100%; }
+[hidden] { display: none !important; }
 h1, h2, h3, h4, p { margin-top: 0; }
 h1, h2 { text-wrap: balance; }
 p { text-wrap: pretty; }
@@ -69,6 +70,11 @@ table { font-variant-numeric: tabular-nums; }
 .grid-2 > *,
 .grid2 > *,
 .plp > *,
+.form-grid > *,
+.dashboard-grid > *,
+.dash-grid > *,
+.checkout-grid > *,
+.carrito-layout > *,
 .main-content {
   min-width: 0;
 }
@@ -78,6 +84,7 @@ table { font-variant-numeric: tabular-nums; }
   body { font-size: 15px; }
   .main-content { padding-top: .75rem !important; }
   .page, .page-container, .module-container, .landing { padding-inline: .85rem !important; }
+  .page, .page-container, .module-container, .landing, .cycle-page { max-width: 100%; }
   .card, .card-panel, .card.glass { padding: 1rem !important; }
   .hero h1, .hero-header h1, .module-header h2 { font-size: clamp(1.55rem, 7vw, 2rem) !important; }
   .row, .form-row, .detalle-row { flex-direction: column; align-items: stretch !important; }
@@ -85,6 +92,20 @@ table { font-variant-numeric: tabular-nums; }
   .tabs { overflow-x: auto; flex-wrap: nowrap !important; padding-bottom: .35rem; scrollbar-width: none; }
   .tabs button { flex: 0 0 auto; min-height: 44px; }
   .btn-primary, .btn, button[type='submit'] { min-height: 44px; }
+  button, a[role='button'] { min-height: 44px; }
+  input, select, textarea, button { max-width: 100%; }
+  form, fieldset, section, article, aside { min-width: 0; }
+  .table-wrap, .table-container, .table-responsive, .table-wrapper { width: 100%; max-width: 100%; overflow-x: auto; }
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal { width: 100%; max-width: 100%; max-height: calc(100dvh - 1rem); overflow-x: hidden; border-radius: 18px 18px 0 0; }
+  .modal-head { position: sticky; top: -1rem; z-index: 2; margin-inline: -1rem; padding: .85rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .modal-head h3 { font-size: 1.2rem; overflow-wrap: anywhere; }
+  .btn-close-modal { flex: 0 0 44px; width: 44px; height: 44px; }
+  .modal-detail-body, .modal-gallery, .modal-info-col { min-width: 0; }
+  .modal-main-img { height: auto; aspect-ratio: 4 / 3; }
+  .modal-main-img img { object-position: center 25%; }
+  .disp-table-wrap { max-width: 100%; overflow: auto; overscroll-behavior-inline: contain; }
+  .disp-table-wrap table { min-width: 480px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -122,7 +143,7 @@ table { font-variant-numeric: tabular-nums; }
 .section-label{font-size:.78rem;font-weight:750;color:var(--ink);display:block;margin-bottom:.35rem}
 .modal-actions{display:flex;justify-content:flex-end;align-items:center;margin-top:.8rem}
 @media(max-width:800px){.modal-detail-body{grid-template-columns:1fr}}
-@media(max-width:640px){.modal-overlay{align-items:flex-end;padding:0}.modal{max-height:90dvh;border-radius:18px 18px 0 0;padding:1rem}.modal table{min-width:560px}.modal-actions{align-items:flex-start;gap:.75rem;flex-direction:column-reverse}}
+@media(max-width:640px){.modal-overlay{align-items:flex-end;padding:0}.modal{max-height:90dvh;border-radius:18px 18px 0 0;padding:1rem;overflow-x:hidden}.modal table{min-width:0}.modal-actions{align-items:stretch;gap:.75rem;flex-direction:column-reverse}.modal-actions>*{width:100%;min-height:44px}}
 
 /* Cinta métrica decorativa */
 .tape{height:24px;background:var(--paper,#f8f6f3);border:1px solid #e8e0d6;border-radius:9999px;overflow:hidden;margin:.6rem 0 1rem}
