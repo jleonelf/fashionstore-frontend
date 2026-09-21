@@ -131,20 +131,29 @@
         <p class="anillos-sub">Tarifa base + incremento por anillo. Cada sucursal define su cobertura — el sistema calcula el costo real al checkout.</p>
 
         <div class="calc card">
-          <label>Sucursal origen</label>
-          <select [(ngModel)]="sucursalDemo" class="select">
-            <option [ngValue]="null">— Usa tarifa demo Bs 15 + 3</option>
-            <option *ngFor="let s of sucursales" [ngValue]="s">{{ s.nombre }} — Anillo {{ s.numero_anillo || '—' }} (Bs {{ s.tarifa_base_delivery }})</option>
-          </select>
-          <label>Tu anillo (1–10)</label>
-          <input type="range" min="1" max="10" [(ngModel)]="anilloDestino" class="range" />
-          <div class="calc-row">
-            <span>Anillo destino</span><strong class="ink">{{ anilloDestino }}</strong>
+          <div *ngIf="cargandoSucursales" class="calc-status" role="status">
+            <p>Cargando sucursales para el simulador…</p>
           </div>
-          <div class="calc-total">
-            <span>Costo estimado</span><strong>Bs {{ costoDelivery | number:'1.2-2' }}</strong>
+          <div *ngIf="errorSucursales" class="calc-error" role="alert">
+            <p>{{ errorSucursales }}</p>
+            <button type="button" class="btn-ghost sm" (click)="cargarSucursales()" [disabled]="cargandoSucursales">Reintentar</button>
           </div>
-          <p class="hint">Fórmula: base + |anillo destino − anillo sucursal| × incremento. Origen: {{ sucursalDemo?.numero_anillo || 1 }}</p>
+          <div *ngIf="simuladorDisponible">
+            <label>Sucursal origen</label>
+            <select [(ngModel)]="sucursalDemo" class="select" [disabled]="!simuladorDisponible">
+              <option *ngFor="let s of sucursales" [ngValue]="s">{{ s.nombre }} — Anillo {{ s.numero_anillo || '—' }} (Bs {{ s.tarifa_base_delivery }})</option>
+            </select>
+            <label>Tu anillo (1–10)</label>
+            <input type="range" min="1" max="10" [(ngModel)]="anilloDestino" class="range" [disabled]="!simuladorDisponible" />
+            <div class="calc-row">
+              <span>Anillo destino</span><strong class="ink">{{ anilloDestino }}</strong>
+            </div>
+            <div class="calc-total" *ngIf="costoDelivery !== null">
+              <span>Costo estimado</span><strong>Bs {{ costoDelivery | number:'1.2-2' }}</strong>
+            </div>
+            <p class="hint">Fórmula: base + |anillo destino − anillo sucursal| × incremento. Origen: {{ sucursalDemo?.numero_anillo || 1 }}</p>
+          </div>
+          <p *ngIf="!cargandoSucursales && !simuladorDisponible && !errorSucursales" class="hint">Simulador no disponible por el momento.</p>
         </div>
       </div>
 

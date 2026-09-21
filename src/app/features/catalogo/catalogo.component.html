@@ -6,7 +6,7 @@
     <div>
       <p class="eyebrow">Catálogo unificado · Stock por sucursal</p>
       <h1>Perchero completo</h1>
-      <p class="sub">Cada prenda muestra disponibilidad real por tienda. Filtrá con precisión de atelier: talla, color con herraje, colección y precio.</p>
+      <p class="sub">Cada prenda muestra disponibilidad real por tienda. Filtra con precisión: talla, color, colección y precio.</p>
     </div>
     <div class="head-stat">
       <div class="stat-num">{{ productos.length }}</div>
@@ -15,19 +15,79 @@
     </div>
   </div>
 
-  <!-- búsqueda + chips activos -->
+  <!-- Recomendaciones IA para CLIENTE -->
+  <section *ngIf="esCliente() && recomendaciones.length > 0" class="recomendaciones-banner card">
+    <div class="rec-head">
+      <span class="rec-badge">Sugerencias para tu estilo</span>
+      <p class="rec-sub">Selección personalizada según tus preferencias de compra y navegación.</p>
+    </div>
+    <div class="rec-grid">
+      <article *ngFor="let rec of recomendaciones" class="rec-card" (click)="seleccionarResultadoIA(rec)">
+        <div class="rec-info">
+          <h4>{{ rec.nombre }}</h4>
+          <p class="rec-motivo">{{ rec.motivo }}</p>
+          <div class="rec-meta">
+            <span class="rec-price">Bs {{ rec.precio }}</span>
+            <span class="rec-disp" *ngIf="rec.disponible > 0">{{ rec.disponible }} disp.</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- búsqueda + chips activos + toggle asistente IA -->
   <div class="search-row card">
     <div class="search">
       <span class="search-ico" aria-hidden="true">⌕</span>
       <input [(ngModel)]="filtros.texto" placeholder="Buscar: blusa seda, Urban, verde..." (keyup.enter)="filtrar()" aria-label="Buscar en catálogo" />
-      <button class="btn-ink" (click)="filtrar()" [disabled]="cargando">{{ cargando ? 'Buscando…' : 'Buscar' }}</button>
+      <button type="button" class="btn-ink" (click)="filtrar()" [disabled]="cargando">{{ cargando ? 'Buscando…' : 'Buscar' }}</button>
+      <button *ngIf="esCliente()" type="button" class="btn-ghost" (click)="modoAsistenteIA = !modoAsistenteIA">
+        {{ modoAsistenteIA ? 'Cerrar asistente' : 'Asistente de estilo IA' }}
+      </button>
+      <a *ngIf="esVisitante()" routerLink="/auth/login" class="btn-ghost">
+        Inicia sesión para asistente de estilo
+      </a>
     </div>
+
+    <!-- Panel de asistente IA por texto -->
+    <div *ngIf="esCliente() && modoAsistenteIA" class="panel-asistente-ia">
+      <label for="consulta-ia" class="asistente-label">Describe lo que necesitas con tus palabras (búsqueda asistida por texto):</label>
+      <div class="asistente-input-row">
+        <input
+          id="consulta-ia"
+          type="text"
+          [(ngModel)]="textoConsultaIA"
+          placeholder="Ej: Busco algo elegante para una cena formal en clima templado..."
+          (keyup.enter)="buscarConIA()"
+        />
+        <button type="button" class="btn-ink" (click)="buscarConIA()" [disabled]="cargandoIA">
+          {{ cargandoIA ? 'Analizando…' : 'Consultar' }}
+        </button>
+      </div>
+
+      <div *ngIf="cargandoIA" class="loading sm"><span class="shimmer"></span> Consultando con el asistente…</div>
+      <div *ngIf="mensajeIA" class="alert sm">{{ mensajeIA }}</div>
+
+      <div *ngIf="resultadoBusquedaIA.length > 0" class="asistente-resultados">
+        <p class="asistente-tit">Prendas sugeridas por el asistente:</p>
+        <div class="asistente-items">
+          <div *ngFor="let item of resultadoBusquedaIA" class="asistente-item" (click)="seleccionarResultadoIA(item)">
+            <div class="asistente-item-info">
+              <strong>{{ item.nombre }}</strong>
+              <span class="asistente-motivo">{{ item.motivo }}</span>
+            </div>
+            <span class="asistente-precio">Bs {{ item.precio }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="active-chips" *ngIf="filtrosActivos.length">
       <span *ngFor="let f of filtrosActivos" class="active-chip">
         {{ f.label }}: {{ f.display }}
         <button (click)="quitarFiltro(f.key)" aria-label="Quitar filtro">×</button>
       </span>
-      <button class="link-clear" (click)="limpiar()">Limpiar todo</button>
+      <button type="button" class="link-clear" (click)="limpiar()">Limpiar todo</button>
     </div>
   </div>
 
@@ -38,7 +98,7 @@
     <aside class="facets" [class.open]="filtrosAbiertos">
       <div class="facets-head">
         <h2>Filtros</h2>
-        <button class="icon-btn" (click)="filtrosAbiertos = !filtrosAbiertos" [attr.aria-expanded]="filtrosAbiertos">{{ filtrosAbiertos ? '—' : '+' }}</button>
+        <button type="button" class="icon-btn" (click)="filtrosAbiertos = !filtrosAbiertos" [attr.aria-expanded]="filtrosAbiertos">{{ filtrosAbiertos ? '—' : '+' }}</button>
       </div>
 
       <div class="facet-body" *ngIf="filtrosAbiertos">
@@ -72,9 +132,9 @@
         <div class="facet">
           <label>Género</label>
           <div class="swatch-row">
-            <button class="swatch-pill" [class.on]="filtros.genero==='MUJER'" (click)="seleccionarGenero('MUJER')">Mujer</button>
-            <button class="swatch-pill" [class.on]="filtros.genero==='HOMBRE'" (click)="seleccionarGenero('HOMBRE')">Hombre</button>
-            <button class="swatch-pill" [class.on]="filtros.genero==='UNISEX'" (click)="seleccionarGenero('UNISEX')">Unisex</button>
+            <button type="button" class="swatch-pill" [class.on]="filtros.genero==='MUJER'" (click)="seleccionarGenero('MUJER')">Mujer</button>
+            <button type="button" class="swatch-pill" [class.on]="filtros.genero==='HOMBRE'" (click)="seleccionarGenero('HOMBRE')">Hombre</button>
+            <button type="button" class="swatch-pill" [class.on]="filtros.genero==='UNISEX'" (click)="seleccionarGenero('UNISEX')">Unisex</button>
           </div>
         </div>
 
@@ -101,11 +161,11 @@
             <span>—</span>
             <input type="number" [(ngModel)]="filtros.precio_max" placeholder="Max" min="0" />
           </div>
-          <button class="btn-ghost full" (click)="filtrar()">Aplicar precio</button>
+          <button type="button" class="btn-ghost full" (click)="filtrar()">Aplicar precio</button>
         </div>
 
-        <button class="btn-ghost full muted-btn" (click)="limpiar()">Limpiar filtros</button>
-        <p class="hint facets-hint">Stock ≠ global. Tocá la prenda para ver <b>disponible por sucursal</b> y tiempo de reserva.</p>
+        <button type="button" class="btn-ghost full muted-btn" (click)="limpiar()">Limpiar filtros</button>
+        <p class="hint facets-hint">Stock individual por sucursal. Selecciona la prenda para ver tallas y disponibilidad.</p>
       </div>
     </aside>
 
@@ -113,20 +173,26 @@
     <section class="products">
       <div class="products-bar">
         <span class="muted sm">{{ productos.length }} resultados</span>
-        <button class="btn-ghost sm show-filters" (click)="filtrosAbiertos = !filtrosAbiertos">{{ filtrosAbiertos ? 'Ocultar filtros' : 'Mostrar filtros' }}</button>
+        <button type="button" class="btn-ghost sm show-filters" (click)="filtrosAbiertos = !filtrosAbiertos">{{ filtrosAbiertos ? 'Ocultar filtros' : 'Mostrar filtros' }}</button>
       </div>
 
       <div *ngIf="cargando" class="loading"><span class="shimmer"></span> Cargando perchero…</div>
 
       <div class="grid" *ngIf="!cargando">
-        <article *ngFor="let p of productos" class="product-card" (click)="verDisponibilidad(p)">
+        <article
+          *ngFor="let p of productos"
+          class="product-card"
+          (click)="abrirDetalle(p, $event)"
+          tabindex="0"
+          role="button"
+          (keydown.enter)="abrirDetalle(p, $event)"
+        >
           <div class="img-wrap">
             <img [src]="imagen(p)" [alt]="p.nombre" loading="lazy" />
             <span class="price">Bs {{ p.precio_base }}</span>
             <span class="stock" [class.on]="p.activo">{{ p.activo ? 'Disponible' : 'No disponible' }}</span>
             <div class="hover-bar">
-              <span class="hb-ia">Probador IA</span>
-              <span class="hb-stock">Ver sucursales →</span>
+              <span class="hb-stock">Ver detalle y tallas →</span>
             </div>
           </div>
           <div class="body">
@@ -143,37 +209,162 @@
         <div *ngIf="productos.length===0 && !cargando" class="empty">
           <div class="empty-ill" aria-hidden="true">∅</div>
           <h3>Sin coincidencias en el perchero</h3>
-          <p>Probá con menos filtros o con otra búsqueda. Cada variante es <span class="mono">producto + talla + color</span> con SKU único.</p>
-          <button class="btn-ink" (click)="limpiar()">Limpiar filtros</button>
+          <p>Prueba con menos filtros o con otra búsqueda.</p>
+          <button type="button" class="btn-ink" (click)="limpiar()">Limpiar filtros</button>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- MODAL disponibilidad -->
-  <div *ngIf="varSeleccionada" class="modal-overlay" (click)="varSeleccionada=null">
-    <div class="modal" (click)="$event.stopPropagation()">
+  <!-- MODAL detalle producto + variantes + stock + carrito -->
+  <div
+    *ngIf="productoSeleccionado"
+    class="modal-overlay"
+    (click)="cerrarModal()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-prod-nombre"
+    (keydown)="alManejarTabModal($event)"
+  >
+    <div #modalProdBox class="modal modal-wide" (click)="$event.stopPropagation()">
       <div class="modal-head">
-        <p class="eyebrow">Disponibilidad por sucursal</p>
-        <h3>{{ varSeleccionada.nombre || varSeleccionada.sku }}</h3>
-        <p class="muted">Sólo sucursales con <b>disponible &gt; 0</b>. Cada sucursal es stock separado.</p>
+        <div>
+          <p class="eyebrow">{{ productoSeleccionado.marca || 'FashionStore' }} · {{ productoSeleccionado.genero || 'Unisex' }}</p>
+          <h3 id="modal-prod-nombre">{{ productoSeleccionado.nombre }}</h3>
+        </div>
+        <button type="button" class="btn-close-modal" (click)="cerrarModal()" aria-label="Cerrar">&times;</button>
       </div>
-      <div *ngIf="cargandoDisp" class="loading">Consultando inventario…</div>
-      <table *ngIf="!cargandoDisp && disponibilidad.length>0">
-        <thead><tr><th>Sucursal</th><th>Ciudad</th><th>Disponible</th><th>Reservado</th><th>Comprometido</th><th>En tránsito</th></tr></thead>
-        <tbody>
-          <tr *ngFor="let d of disponibilidad">
-            <td class="strong">{{ d.sucursal_nombre }}</td><td>{{ d.ciudad_nombre }}</td>
-            <td class="num ok">{{ d.disponible }}</td><td class="num">{{ d.reservado }}</td><td class="num">{{ d.comprometido_traslado }}</td><td class="num">{{ d.en_transito }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div *ngIf="!cargandoDisp && disponibilidad.length===0" class="empty sm">
-        <p>Sin disponibilidad &gt;0 para esta prenda. Probá con otra talla/color o consultá traslados.</p>
+
+      <div class="modal-detail-body">
+        <!-- Columna galería -->
+        <div class="modal-gallery">
+          <div class="modal-main-img">
+            <img [src]="imagenActiva || imagen(productoSeleccionado)" [alt]="productoSeleccionado.nombre" />
+          </div>
+          <div class="modal-thumbs" *ngIf="productoSeleccionado.imagenes && productoSeleccionado.imagenes.length > 1">
+            <button
+              type="button"
+              *ngFor="let img of productoSeleccionado.imagenes"
+              class="thumb-btn"
+              [class.active]="imagenActiva === img.enlace_imagen"
+              (click)="imagenActiva = img.enlace_imagen"
+            >
+              <img [src]="img.enlace_imagen" [alt]="img.texto_alternativo || productoSeleccionado.nombre" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Columna información y variantes -->
+        <div class="modal-info-col">
+          <p class="modal-desc">{{ productoSeleccionado.descripcion || 'Prenda con confección de primera calidad.' }}</p>
+          <div class="modal-precio-row">
+            <span class="precio-label">Precio base:</span>
+            <span class="precio-val">Bs {{ productoSeleccionado.precio_base }}</span>
+          </div>
+
+          <!-- Selector de variantes -->
+          <div class="modal-variantes-section">
+            <label class="section-label">Selecciona talla y color:</label>
+            <div *ngIf="cargandoVariantes" class="loading sm"><span class="shimmer"></span> Cargando opciones…</div>
+
+            <div *ngIf="!cargandoVariantes && variantesProducto.length > 0" class="variantes-chips">
+              <button
+                type="button"
+                *ngFor="let v of variantesProducto"
+                class="var-chip"
+                [class.selected]="varianteSeleccionada?.id === v.id"
+                (click)="seleccionarVariante(v)"
+              >
+                <span class="var-talla">{{ tallaNombre(v.talla_id) }}</span>
+                <span class="var-dot" [style.background]="colorHex(v.color_id)"></span>
+                <span class="var-sku">{{ v.sku }}</span>
+                <strong class="var-precio">Bs {{ v.precio }}</strong>
+              </button>
+            </div>
+
+            <div *ngIf="!cargandoVariantes && variantesProducto.length === 0" class="empty sm">
+              <p>No hay variantes activas registradas para este producto.</p>
+            </div>
+          </div>
+
+          <!-- Detalle de la variante seleccionada -->
+          <div *ngIf="varianteSeleccionada" class="variante-detalle-box">
+            <div class="box-head">
+              <strong>Precio de esta variante: Bs {{ varianteSeleccionada.precio }}</strong>
+              <span *ngIf="stockDisponibleTotal > 0" class="stock-badge in-stock">{{ stockDisponibleTotal }} disponibles</span>
+              <span *ngIf="stockDisponibleTotal === 0 && !cargandoDisp" class="stock-badge out-stock">Agotado</span>
+            </div>
+
+            <!-- Tabla de disponibilidad por sucursal -->
+            <div class="disp-table-wrap">
+              <div *ngIf="cargandoDisp" class="loading sm"><span class="shimmer"></span> Consultando inventario por sucursal…</div>
+              <table *ngIf="!cargandoDisp && disponibilidad.length > 0">
+                <thead>
+                  <tr>
+                    <th>Sucursal</th>
+                    <th>Ciudad</th>
+                    <th class="th-num">Disponible</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let d of disponibilidad">
+                    <td class="strong">{{ d.sucursal_nombre }}</td>
+                    <td>{{ d.ciudad_nombre }}</td>
+                    <td class="num" [class.ok]="d.disponible > 0">{{ d.disponible }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div *ngIf="!cargandoDisp && disponibilidad.length === 0" class="muted sm no-disp">
+                Sin disponibilidad registrada en sucursales para esta variante.
+              </div>
+            </div>
+
+            <!-- Feedback de carrito -->
+            <div *ngIf="mensajeCarritoExito" class="alert success" role="alert">
+              {{ mensajeCarritoExito }}
+              <a routerLink="/carrito" (click)="cerrarModal()" class="alert-link">Ir al carrito →</a>
+            </div>
+            <div *ngIf="mensajeCarritoError" class="alert err" role="alert">
+              {{ mensajeCarritoError }}
+            </div>
+
+            <!-- Acciones de compra -->
+            <div class="compra-acciones">
+              <div *ngIf="esCliente() && stockDisponibleTotal > 0" class="cant-row">
+                <label for="cant-modal">Cantidad:</label>
+                <input
+                  id="cant-modal"
+                  type="number"
+                  min="1"
+                  [max]="stockDisponibleTotal"
+                  [(ngModel)]="cantidadAgregar"
+                  class="cant-input"
+                />
+                <button
+                  type="button"
+                  class="btn-ink"
+                  (click)="agregarAlCarrito()"
+                  [disabled]="agregandoAlCarrito"
+                >
+                  {{ agregandoAlCarrito ? 'Agregando…' : 'Agregar al carrito' }}
+                </button>
+              </div>
+
+              <div *ngIf="esVisitante() && stockDisponibleTotal > 0" class="login-prompt">
+                <a routerLink="/auth/login" (click)="cerrarModal()" class="btn-ink">
+                  Inicia sesión para agregar al carrito
+                </a>
+              </div>
+              <div *ngIf="esPersonalInterno() && stockDisponibleTotal > 0" class="login-prompt" role="status">
+                <p>Vista de consulta operativa. Las compras se realizan únicamente desde una cuenta de cliente.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
       <div class="modal-actions">
-        <button class="btn-ghost" (click)="varSeleccionada=null">Cerrar</button>
-        <span class="hint">Stock actualizado por sucursal</span>
+        <button type="button" class="btn-ghost" (click)="cerrarModal()">Cerrar</button>
       </div>
     </div>
   </div>

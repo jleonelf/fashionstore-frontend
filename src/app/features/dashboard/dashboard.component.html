@@ -1,0 +1,226 @@
+<section class="cycle-page">
+  <div class="cycle-hero">
+    <div>
+      <p class="cycle-kicker">Analítica y métricas</p>
+      <h1>Dashboard de indicadores</h1>
+    </div>
+  </div>
+
+  <!-- Barra de filtros -->
+  <div class="cycle-toolbar dashboard-toolbar">
+    <div class="toolbar-filtros">
+      <label for="desdeFiltro">
+        <span>Desde</span>
+        <input
+          id="desdeFiltro"
+          type="datetime-local"
+          [(ngModel)]="desdeFiltro"
+          (change)="aplicarFiltros()"
+        />
+      </label>
+
+      <label for="hastaFiltro">
+        <span>Hasta</span>
+        <input
+          id="hastaFiltro"
+          type="datetime-local"
+          [(ngModel)]="hastaFiltro"
+          (change)="aplicarFiltros()"
+        />
+      </label>
+
+      <label *ngIf="esAdmin" for="sucursalFiltro">
+        <span>Sucursal</span>
+        <select
+          id="sucursalFiltro"
+          [(ngModel)]="sucursalFiltro"
+          (change)="aplicarFiltros()"
+        >
+          <option value="">Consolidado global (todas)</option>
+          <option *ngFor="let s of sucursales" [value]="s.id">{{ s.nombre }}</option>
+        </select>
+      </label>
+
+      <div *ngIf="!esAdmin" class="sucursal-fijada">
+        <span>Ámbito local:</span>
+        <strong>{{ sucursalNombre(sucursalFiltro) }}</strong>
+      </div>
+    </div>
+
+    <div class="toolbar-acciones">
+      <button
+        *ngIf="desdeFiltro || hastaFiltro || (esAdmin && sucursalFiltro)"
+        type="button"
+        class="cycle-secondary btn-limpiar-filtros"
+        (click)="limpiarFiltros()"
+      >
+        Limpiar filtros
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="cycle-alert danger" role="alert">
+    {{ error }}
+    <button type="button" class="cycle-link" (click)="cargar()">Reintentar</button>
+  </div>
+
+  <div *ngIf="cargando" class="cycle-state" role="status">
+    <p>Calculando indicadores en tiempo real…</p>
+  </div>
+
+  <!-- Contenido de analítica -->
+  <div *ngIf="!cargando && dashboard" class="dash-grid">
+    <!-- KPIs Principales -->
+    <div class="kpi-card">
+      <p class="kpi-label">Ventas totales</p>
+      <p class="kpi-value">{{ dashboard.ventas_total }}</p>
+      <p class="kpi-sub">Transacciones pagadas</p>
+    </div>
+
+    <div class="kpi-card">
+      <p class="kpi-label">Ingresos totales</p>
+      <p class="kpi-value text-success">{{ bs(dashboard.ingresos_total) }}</p>
+      <p class="kpi-sub">Total facturado</p>
+    </div>
+
+    <div class="kpi-card">
+      <p class="kpi-label">Margen bruto total</p>
+      <p class="kpi-value">{{ bs(dashboard.margen_bruto_total) }}</p>
+      <p class="kpi-sub">Ingresos menos costo</p>
+    </div>
+
+    <div class="kpi-card">
+      <p class="kpi-label">Ticket promedio</p>
+      <p class="kpi-value">{{ bs(dashboard.ticket_promedio) }}</p>
+      <p class="kpi-sub">Por venta pagada</p>
+    </div>
+
+    <div class="kpi-card">
+      <p class="kpi-label">Valorización de inventario</p>
+      <p class="kpi-value">{{ bs(dashboard.valorizacion_total) }}</p>
+      <p class="kpi-sub">Existencia × costo promedio</p>
+    </div>
+
+    <!-- Conversión de reservas -->
+    <div class="kpi-card card-destacada">
+      <p class="kpi-label">Conversión de reservas</p>
+      <p class="kpi-value">
+        {{ (num(dashboard.conversion_reservas.tasa) * 100).toFixed(1) }}%
+      </p>
+      <p class="kpi-sub">
+        {{ dashboard.conversion_reservas.completadas }} de {{ dashboard.conversion_reservas.total }} reservas completadas
+      </p>
+    </div>
+
+    <!-- Estados de Pedidos -->
+    <div class="cycle-card dash-table span-all">
+      <h3>Distribución por estado de pedidos</h3>
+      <div *ngIf="clavesEstadosPedidos().length; else sinPedidos" class="estados-pedidos-grid">
+        <div *ngFor="let estado of clavesEstadosPedidos()" class="estado-pedido-item">
+          <span class="status" [class]="clase(estado)">{{ etiqueta(estado) }}</span>
+          <span class="estado-pedido-conteo">{{ dashboard.estados_pedidos[estado] }}</span>
+        </div>
+      </div>
+      <ng-template #sinPedidos>
+        <p class="dash-empty-note">No se registraron pedidos de entrega en el periodo seleccionado.</p>
+      </ng-template>
+    </div>
+
+    <!-- Efectividad de Promociones -->
+    <div class="cycle-card dash-table span-all">
+      <h3>Efectividad de promociones</h3>
+      <div class="promociones-resumen-grid">
+        <div class="promo-metric">
+          <span class="metric-label">Ventas con promoción</span>
+          <span class="metric-value">{{ dashboard.efectividad_promociones.con_promocion }}</span>
+        </div>
+        <div class="promo-metric">
+          <span class="metric-label">Ventas sin promoción</span>
+          <span class="metric-value">{{ dashboard.efectividad_promociones.sin_promocion }}</span>
+        </div>
+        <div class="promo-metric">
+          <span class="metric-label">Descuento total otorgado</span>
+          <span class="metric-value text-brass">{{ bs(dashboard.efectividad_promociones.descuento_total) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla por sucursal -->
+    <div class="cycle-card dash-table span-all">
+      <h3>Ventas e ingresos por sucursal</h3>
+      <div *ngIf="dashboard.por_sucursal.length; else sinSucursal" class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Sucursal</th>
+              <th scope="col">Ventas</th>
+              <th scope="col">Ingresos</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of dashboard.por_sucursal">
+              <td class="td-nombre">{{ s.sucursal_nombre }}</td>
+              <td>{{ s.ventas }}</td>
+              <td class="td-ingreso">{{ bs(s.ingresos) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #sinSucursal>
+        <p class="dash-empty-note">No se registraron ventas por sucursal en el periodo.</p>
+      </ng-template>
+    </div>
+
+    <!-- Top productos -->
+    <div class="cycle-card dash-table span-all">
+      <h3>Top productos más vendidos</h3>
+      <div *ngIf="dashboard.top_productos.length; else sinTop" class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Prenda / Producto</th>
+              <th scope="col">Unidades vendidas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of dashboard.top_productos">
+              <td class="td-nombre">{{ p.producto }}</td>
+              <td class="td-unidades">{{ p.unidades }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #sinTop>
+        <p class="dash-empty-note">No se registran unidades vendidas en el periodo seleccionado.</p>
+      </ng-template>
+    </div>
+
+    <!-- Stock crítico -->
+    <div class="cycle-card dash-table span-all">
+      <h3>Inventario crítico (disponible ≤ 5)</h3>
+      <div *ngIf="dashboard.stock_critico.length; else sinCritico" class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">SKU</th>
+              <th scope="col">Sucursal</th>
+              <th scope="col">Disponible</th>
+              <th scope="col">Existencia total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of dashboard.stock_critico">
+              <td class="td-sku">{{ s.sku }}</td>
+              <td>{{ sucursalNombre(s.sucursal_id) }}</td>
+              <td class="stock-warn">{{ s.disponible }}</td>
+              <td>{{ s.existencia }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #sinCritico>
+        <p class="dash-empty-note text-success">Todos los artículos cuentan con inventario suficiente (> 5 unidades).</p>
+      </ng-template>
+    </div>
+  </div>
+</section>

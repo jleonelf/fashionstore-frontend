@@ -91,6 +91,9 @@
 .calc-total{display:flex;justify-content:space-between;align-items:center;margin-top:.7rem;padding:.7rem .9rem;background:var(--ink);color:#fff;border-radius:10px}
 .calc-total span{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;opacity:.9}
 .calc-total strong{font-family:'Fraunces',serif;font-size:1.2rem}
+.calc-status{padding:.8rem;background:#fff;border:1px solid #e2e8f0;border-radius:10px;color:#64748b;text-align:center;font-size:.85rem}
+.calc-error{padding:.8rem;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;color:#991b1b;font-size:.85rem;display:grid;gap:.6rem}
+.calc-error p{margin:0;line-height:1.5}
 .hint{font-size:.72rem;color:#94a3b8;margin-top:.5rem}
 .map{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px;background:var(--paper);border:1px dashed #e8e0d6;border-radius:14px;padding:1rem}
 .rings{position:relative;width:220px;height:220px;display:grid;place-items:center}

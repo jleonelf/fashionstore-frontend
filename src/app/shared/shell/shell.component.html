@@ -4,27 +4,121 @@
     <span>FashionStore</span>
   </a>
 
+  <!-- Navegacion principal de escritorio organizada por rol -->
   <nav class="nav-links" aria-label="Navegación principal">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-item">Inicio</a>
-    <a routerLink="/catalogo" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}" class="nav-item">Catálogo</a>
-    <a routerLink="/reservas" routerLinkActive="active" *ngIf="puedeVerReservas()" class="nav-item">Reservas</a>
-    <a routerLink="/historial" routerLinkActive="active" *ngIf="puedeVerHistorial()" class="nav-item">Mis compras</a>
-    <a routerLink="/traslados" routerLinkActive="active" *ngIf="puedeVerTraslados()" class="nav-item">Traslados</a>
-    <a routerLink="/caja" routerLinkActive="active" *ngIf="puedeVerCaja()" class="nav-item">Caja</a>
-    <a routerLink="/operaciones" routerLinkActive="active" *ngIf="puedeVerOperaciones()" class="nav-item">Operaciones</a>
+    <!-- Visitante / No autenticado -->
+    <ng-container *ngIf="!usuarioActual">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-item">Inicio</a>
+      <a routerLink="/catalogo" routerLinkActive="active" class="nav-item">Catálogo</a>
+    </ng-container>
 
-    <!-- Navegación operativa según el rol de la sesión -->
-    <a routerLink="/sucursales" routerLinkActive="active" *ngIf="puedeVerSucursales()" class="nav-item">Sucursales</a>
-    <a routerLink="/recepciones" routerLinkActive="active" *ngIf="puedeVerRecepciones()" class="nav-item">Recepciones</a>
-    <a routerLink="/productos" routerLinkActive="active" *ngIf="puedeVerProductos()" class="nav-item">Productos</a>
-    <a routerLink="/inventario" routerLinkActive="active" *ngIf="puedeVerInventario()" class="nav-item">Kardex</a>
-    <a routerLink="/usuarios" routerLinkActive="active" *ngIf="esAdmin()" class="nav-item">Usuarios</a>
+    <!-- Rol CLIENTE -->
+    <ng-container *ngIf="esCliente()">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-item">Inicio</a>
+      <a routerLink="/catalogo" routerLinkActive="active" class="nav-item">Catálogo</a>
+      <a routerLink="/mis-pedidos" routerLinkActive="active" class="nav-item">Mis pedidos</a>
+      <a routerLink="/reservas" routerLinkActive="active" class="nav-item">Reservas</a>
+      <a routerLink="/historial" routerLinkActive="active" class="nav-item">Mis compras</a>
+    </ng-container>
+
+    <!-- Rol CAJERO -->
+    <ng-container *ngIf="esCajero()">
+      <a routerLink="/catalogo" routerLinkActive="active" class="nav-item">Catálogo</a>
+      <a routerLink="/caja" routerLinkActive="active" class="nav-item">Caja</a>
+      <a routerLink="/pedidos" routerLinkActive="active" class="nav-item">Cola pedidos</a>
+      <a routerLink="/inventario" routerLinkActive="active" class="nav-item">Kardex</a>
+    </ng-container>
+
+    <!-- Rol ENCARGADO -->
+    <ng-container *ngIf="esEncargado()">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
+      <a routerLink="/catalogo" routerLinkActive="active" class="nav-item">Catálogo</a>
+      <a routerLink="/pedidos" routerLinkActive="active" class="nav-item">Cola pedidos</a>
+      <a routerLink="/inventario" routerLinkActive="active" class="nav-item">Kardex</a>
+      <div class="nav-dropdown" (mouseenter)="abrirDropdown('encargado-ops')" (mouseleave)="cerrarDropdowns()">
+        <button
+          type="button"
+          class="nav-dropdown-btn"
+          (click)="toggleDropdown('encargado-ops', $event)"
+          [attr.aria-expanded]="dropdownActivo === 'encargado-ops'">
+          Operaciones <span class="chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="nav-dropdown-menu" [class.open]="dropdownActivo === 'encargado-ops'">
+          <a routerLink="/traslados" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Traslados</a>
+          <a routerLink="/promociones" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Promociones</a>
+          <a routerLink="/inteligencia" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Inteligencia</a>
+          <a routerLink="/operaciones" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Operaciones tienda</a>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Rol ADMINISTRADOR -->
+    <ng-container *ngIf="esAdmin()">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
+      <a routerLink="/catalogo" routerLinkActive="active" class="nav-item">Catálogo</a>
+
+      <!-- Submenú Operaciones -->
+      <div class="nav-dropdown" (mouseenter)="abrirDropdown('admin-ops')" (mouseleave)="cerrarDropdowns()">
+        <button
+          type="button"
+          class="nav-dropdown-btn"
+          (click)="toggleDropdown('admin-ops', $event)"
+          [attr.aria-expanded]="dropdownActivo === 'admin-ops'">
+          Operaciones <span class="chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="nav-dropdown-menu" [class.open]="dropdownActivo === 'admin-ops'">
+          <a routerLink="/pedidos" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Cola de pedidos</a>
+          <a routerLink="/traslados" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Traslados</a>
+          <a routerLink="/caja" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Caja</a>
+          <a routerLink="/operaciones" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Operaciones</a>
+        </div>
+      </div>
+
+      <!-- Submenú Catálogo e Inventario -->
+      <div class="nav-dropdown" (mouseenter)="abrirDropdown('admin-inv')" (mouseleave)="cerrarDropdowns()">
+        <button
+          type="button"
+          class="nav-dropdown-btn"
+          (click)="toggleDropdown('admin-inv', $event)"
+          [attr.aria-expanded]="dropdownActivo === 'admin-inv'">
+          Inventario <span class="chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="nav-dropdown-menu" [class.open]="dropdownActivo === 'admin-inv'">
+          <a routerLink="/productos" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Productos y variantes</a>
+          <a routerLink="/inventario" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Kardex de stock</a>
+          <a routerLink="/recepciones" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Recepciones</a>
+          <a routerLink="/promociones" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Promociones</a>
+        </div>
+      </div>
+
+      <!-- Submenú Administración -->
+      <div class="nav-dropdown" (mouseenter)="abrirDropdown('admin-adm')" (mouseleave)="cerrarDropdowns()">
+        <button
+          type="button"
+          class="nav-dropdown-btn"
+          (click)="toggleDropdown('admin-adm', $event)"
+          [attr.aria-expanded]="dropdownActivo === 'admin-adm'">
+          Gestión <span class="chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="nav-dropdown-menu" [class.open]="dropdownActivo === 'admin-adm'">
+          <a routerLink="/sucursales" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Sucursales</a>
+          <a routerLink="/usuarios" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Usuarios y roles</a>
+          <a routerLink="/inteligencia" routerLinkActive="active" (click)="cerrarDropdowns()" class="dropdown-item">Inteligencia</a>
+        </div>
+      </div>
+    </ng-container>
   </nav>
 
   <div class="header-right">
+    <a *ngIf="puedeVerCarrito()" routerLink="/carrito" class="cart-btn" aria-label="Carrito de compras" title="Mi carrito">
+      <span aria-hidden="true">🛒</span>
+      <span class="desktop-only">Carrito</span>
+      <span class="cart-badge" *ngIf="conteoCarrito > 0">{{ conteoCarrito }}</span>
+    </a>
+
     <ng-container *ngIf="!usuarioActual">
       <a routerLink="/auth/login" class="btn-ghost sm desktop-only">Ingresar</a>
-      <a routerLink="/catalogo" class="btn-primary sm desktop-only">Ver catálogo</a>
+      <a routerLink="/auth/registro" class="btn-primary sm desktop-only">Registrarse</a>
     </ng-container>
 
     <div *ngIf="usuarioActual" class="user-pill desktop-only">
@@ -61,10 +155,13 @@
 ></div>
 
 <aside
+  #mobileDrawer
   id="mobile-navigation"
   class="mobile-drawer"
   [class.open]="menuAbierto"
   [attr.aria-hidden]="!menuAbierto"
+  role="dialog"
+  aria-modal="true"
   aria-label="Menú de navegación"
 >
   <div class="drawer-header">
@@ -76,38 +173,74 @@
   </div>
 
   <div class="drawer-body">
+    <!-- Tienda / Cliente -->
     <div class="drawer-section">
       <div class="drawer-section-title">Tienda</div>
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="cerrarMenu()" class="drawer-link">
         <span>Inicio</span>
       </a>
       <a routerLink="/catalogo" routerLinkActive="active" (click)="cerrarMenu()" class="drawer-link"><span>Catálogo</span></a>
+      <a routerLink="/carrito" routerLinkActive="active" *ngIf="puedeVerCarrito()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Carrito</span>
+        <span class="cart-badge badge-end" *ngIf="conteoCarrito > 0">{{ conteoCarrito }}</span>
+      </a>
+      <a routerLink="/mis-pedidos" routerLinkActive="active" *ngIf="puedeVerMisPedidos()" (click)="cerrarMenu()" class="drawer-link"><span>Mis pedidos</span></a>
       <a routerLink="/reservas" routerLinkActive="active" *ngIf="puedeVerReservas()" (click)="cerrarMenu()" class="drawer-link"><span>Reservas</span></a>
       <a routerLink="/historial" routerLinkActive="active" *ngIf="puedeVerHistorial()" (click)="cerrarMenu()" class="drawer-link"><span>Mis compras</span></a>
     </div>
 
-    <div class="drawer-section" *ngIf="usuarioActual">
-      <div class="drawer-section-title">Gestión</div>
-      <a routerLink="/sucursales" routerLinkActive="active" *ngIf="puedeVerSucursales()" (click)="cerrarMenu()" class="drawer-link">
-        <span>Sucursales y delivery</span>
+    <!-- Gestión Operativa para Cajero / Encargado / Admin -->
+    <div class="drawer-section" *ngIf="usuarioActual && !esCliente()">
+      <div class="drawer-section-title">Operaciones</div>
+      <a routerLink="/pedidos" routerLinkActive="active" *ngIf="puedeVerPedidos()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Cola de pedidos</span>
       </a>
-      <a routerLink="/recepciones" routerLinkActive="active" *ngIf="puedeVerRecepciones()" (click)="cerrarMenu()" class="drawer-link">
-        <span>Recepción de lotes</span>
+      <a routerLink="/caja" routerLinkActive="active" *ngIf="puedeVerCaja()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Caja</span>
+      </a>
+      <a routerLink="/traslados" routerLinkActive="active" *ngIf="puedeVerTraslados()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Traslados</span>
+      </a>
+      <a routerLink="/operaciones" routerLinkActive="active" *ngIf="puedeVerOperaciones()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Operaciones tienda</span>
+      </a>
+    </div>
+
+    <!-- Catálogo e Inventario para Encargado / Admin -->
+    <div class="drawer-section" *ngIf="usuarioActual && (esAdmin() || esEncargado() || esCajero())">
+      <div class="drawer-section-title">Inventario y catálogo</div>
+      <a routerLink="/inventario" routerLinkActive="active" (click)="cerrarMenu()" class="drawer-link">
+        <span>Kardex de stock</span>
       </a>
       <a routerLink="/productos" routerLinkActive="active" *ngIf="puedeVerProductos()" (click)="cerrarMenu()" class="drawer-link">
         <span>Productos y variantes</span>
       </a>
-      <a routerLink="/inventario" routerLinkActive="active" *ngIf="puedeVerInventario()" (click)="cerrarMenu()" class="drawer-link">
-        <span>Inventario</span>
+      <a routerLink="/recepciones" routerLinkActive="active" *ngIf="puedeVerRecepciones()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Recepción de lotes</span>
       </a>
-      <a routerLink="/traslados" routerLinkActive="active" *ngIf="puedeVerTraslados()" (click)="cerrarMenu()" class="drawer-link"><span>Traslados entre tiendas</span></a>
-      <a routerLink="/caja" routerLinkActive="active" *ngIf="puedeVerCaja()" (click)="cerrarMenu()" class="drawer-link"><span>Caja</span></a>
-      <a routerLink="/operaciones" routerLinkActive="active" *ngIf="puedeVerOperaciones()" (click)="cerrarMenu()" class="drawer-link"><span>Operaciones de tienda</span></a>
-      <a routerLink="/usuarios" routerLinkActive="active" *ngIf="esAdmin()" (click)="cerrarMenu()" class="drawer-link">
-        <span>Usuarios y roles</span>
+      <a routerLink="/promociones" routerLinkActive="active" *ngIf="puedeVerPromociones()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Promociones</span>
       </a>
     </div>
 
+    <!-- Gestión Global para Admin / Encargado -->
+    <div class="drawer-section" *ngIf="usuarioActual && (esAdmin() || esEncargado())">
+      <div class="drawer-section-title">Gestión y reportes</div>
+      <a routerLink="/dashboard" routerLinkActive="active" (click)="cerrarMenu()" class="drawer-link">
+        <span>Dashboard de métricas</span>
+      </a>
+      <a routerLink="/sucursales" routerLinkActive="active" *ngIf="puedeVerSucursales()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Sucursales</span>
+      </a>
+      <a routerLink="/usuarios" routerLinkActive="active" *ngIf="esAdmin()" (click)="cerrarMenu()" class="drawer-link">
+        <span>Usuarios y roles</span>
+      </a>
+      <a routerLink="/inteligencia" routerLinkActive="active" (click)="cerrarMenu()" class="drawer-link">
+        <span>Inteligencia del negocio</span>
+      </a>
+    </div>
+
+    <!-- Cuenta para visitante -->
     <div class="drawer-section" *ngIf="!usuarioActual">
       <div class="drawer-section-title">Cuenta</div>
       <a routerLink="/auth/login" (click)="cerrarMenu()" class="drawer-link-btn primary">Iniciar sesión</a>

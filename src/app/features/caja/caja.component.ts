@@ -90,7 +90,7 @@ export class CajaComponent implements OnInit {
   }
 
   v(id: string) {
-    return this.variantes.find(x => x.id === id)?.sku || (id ? id.slice(0, 8) : '—');
+    return this.variantes.find(x => x.id === id)?.sku || (id ? 'Prenda' : '—');
   }
 
   vender() {
@@ -146,7 +146,7 @@ export class CajaComponent implements OnInit {
     window.print();
   }
 
-  private msg(e: any) {
+  private msg(e: unknown): string {
     return formatearErrorApi(e, 'No se pudo completar la operación en caja.');
   }
 }

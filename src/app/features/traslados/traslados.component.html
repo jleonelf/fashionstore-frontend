@@ -66,7 +66,7 @@
 
       <div class="cycle-actions">
         <button *ngIf="t.estado === 'SOLICITADO' && puedeAprobarODespachar(t)" type="button" class="cycle-primary" [disabled]="!!procesando" (click)="accion(t, 'aprobar')">Aprobar</button>
-        <button *ngIf="t.estado === 'SOLICITADO' && puedeAprobarODespachar(t)" type="button" class="cycle-danger" (click)="rechazo = t">Rechazar</button>
+        <button *ngIf="t.estado === 'SOLICITADO' && puedeAprobarODespachar(t)" type="button" class="cycle-danger" (click)="abrirRechazo(t, $event)">Rechazar</button>
         <button *ngIf="t.estado === 'APROBADO' && puedeAprobarODespachar(t)" type="button" class="cycle-primary" [disabled]="!!procesando" (click)="accion(t, 'despachar')">Marcar despacho</button>
         <button *ngIf="t.estado === 'DESPACHADO' && puedeRecibir(t)" type="button" class="cycle-primary" [disabled]="!!procesando" (click)="accion(t, 'recibir')">Confirmar recepción</button>
       </div>
@@ -74,9 +74,9 @@
   </div>
 </section>
 
-<div class="cycle-overlay" *ngIf="rechazo" (click)="rechazo = undefined">
-  <section class="cycle-dialog" role="alertdialog" aria-modal="true" aria-labelledby="rechazo-title" (click)="$event.stopPropagation()">
-    <button type="button" class="dialog-close" aria-label="Cerrar" (click)="rechazo = undefined">×</button>
+<div class="cycle-overlay" *ngIf="rechazo" (click)="cerrarRechazo()" (keydown)="alManejarTabModal($event)">
+  <section #modalRechazoDialog class="cycle-dialog" role="alertdialog" aria-modal="true" aria-labelledby="rechazo-title" (click)="$event.stopPropagation()">
+    <button type="button" class="dialog-close" aria-label="Cerrar" (click)="cerrarRechazo()">×</button>
     <h2 id="rechazo-title">Rechazar traslado</h2>
     <p>La línea quedará rechazada y el cliente podrá solicitar otro origen.</p>
     <label>
@@ -84,7 +84,7 @@
       <textarea rows="3" [(ngModel)]="motivo"></textarea>
     </label>
     <div class="dialog-actions">
-      <button type="button" class="cycle-secondary" (click)="rechazo = undefined">Volver</button>
+      <button type="button" class="cycle-secondary" (click)="cerrarRechazo()">Volver</button>
       <button type="button" class="cycle-danger" [disabled]="!!procesando" (click)="confirmarRechazo()">Confirmar rechazo</button>
     </div>
   </section>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuarioService } from '../../core/services/usuario.service';
@@ -7,6 +7,13 @@ import { UsuarioListadoDTO, UsuarioCrearDTO, RolDTO } from '../../core/models/us
 import { SucursalDTO } from '../../core/models/organizacion.models';
 
 import { formatearErrorApi } from '../../core/utils/error-handler.util';
+import {
+  bloquearScrollBody,
+  desbloquearScrollBody,
+  atraparFocoModal,
+  enfocarPrimerElemento,
+  devolverFocoDisparador
+} from '../../core/utils/modal-accessibility.util';
 
 @Component({
   selector: 'app-usuarios',
@@ -15,7 +22,7 @@ import { formatearErrorApi } from '../../core/utils/error-handler.util';
   templateUrl: './usuarios.component.html',
   styleUrls: ['./usuarios.component.css']
 })
-export class UsuariosComponent implements OnInit {
+export class UsuariosComponent implements OnInit, OnDestroy {
   usuarios: UsuarioListadoDTO[] = [];
   roles: RolDTO[] = [];
   sucursales: SucursalDTO[] = [];
@@ -41,6 +48,10 @@ export class UsuariosComponent implements OnInit {
   usuarioCambioRol: UsuarioListadoDTO | null = null;
   nuevoRolId = '';
   usuarioCambioEstado: UsuarioListadoDTO | null = null;
+
+  @ViewChild('modalRolBox') modalRolBox?: ElementRef<HTMLElement>;
+  @ViewChild('modalEstadoBox') modalEstadoBox?: ElementRef<HTMLElement>;
+  private disparadorPrevio: HTMLElement | null = null;
 
   constructor(private usuarioService: UsuarioService, private organizacionService: OrganizacionService) {}
 
@@ -68,7 +79,10 @@ export class UsuariosComponent implements OnInit {
   cargarSucursales(): void {
     this.organizacionService.gestionarSucursales().subscribe({
       next: (data) => (this.sucursales = data),
-      error: () => (this.sucursales = [])
+      error: (err) => {
+        this.sucursales = [];
+        this.mensajeError = formatearErrorApi(err, 'No se pudieron cargar las sucursales.');
+      }
     });
   }
 
@@ -142,14 +156,53 @@ export class UsuariosComponent implements OnInit {
     });
   }
 
-  cambiarRol(usuario: UsuarioListadoDTO): void {
+  ngOnDestroy(): void {
+    if (this.usuarioCambioRol || this.usuarioCambioEstado) {
+      desbloquearScrollBody();
+    }
+  }
+
+  @HostListener('keydown.escape')
+  alPresionarEscape(): void {
+    if (this.usuarioCambioRol && !this.guardando) {
+      this.cerrarCambioRol();
+    } else if (this.usuarioCambioEstado && !this.guardando) {
+      this.cerrarCambioEstado();
+    }
+  }
+
+  alManejarTabRol(event: KeyboardEvent): void {
+    if (this.modalRolBox) {
+      atraparFocoModal(event, this.modalRolBox.nativeElement);
+    }
+  }
+
+  alManejarTabEstado(event: KeyboardEvent): void {
+    if (this.modalEstadoBox) {
+      atraparFocoModal(event, this.modalEstadoBox.nativeElement);
+    }
+  }
+
+  cambiarRol(usuario: UsuarioListadoDTO, event?: Event): void {
+    this.disparadorPrevio = (event?.currentTarget as HTMLElement) || (document.activeElement as HTMLElement);
     this.usuarioCambioRol = usuario;
     this.nuevoRolId = usuario.rol_id;
+    bloquearScrollBody();
+    setTimeout(() => {
+      if (this.modalRolBox) {
+        enfocarPrimerElemento(this.modalRolBox.nativeElement);
+      }
+    }, 50);
   }
 
   cerrarCambioRol(): void {
-    this.usuarioCambioRol = null;
-    this.nuevoRolId = '';
+    if (this.usuarioCambioRol) {
+      desbloquearScrollBody();
+      this.usuarioCambioRol = null;
+      this.nuevoRolId = '';
+    }
+    devolverFocoDisparador(this.disparadorPrevio);
+    this.disparadorPrevio = null;
   }
 
   confirmarCambioRol(): void {
@@ -169,12 +222,24 @@ export class UsuariosComponent implements OnInit {
     });
   }
 
-  alternarEstado(usuario: UsuarioListadoDTO): void {
+  alternarEstado(usuario: UsuarioListadoDTO, event?: Event): void {
+    this.disparadorPrevio = (event?.currentTarget as HTMLElement) || (document.activeElement as HTMLElement);
     this.usuarioCambioEstado = usuario;
+    bloquearScrollBody();
+    setTimeout(() => {
+      if (this.modalEstadoBox) {
+        enfocarPrimerElemento(this.modalEstadoBox.nativeElement);
+      }
+    }, 50);
   }
 
   cerrarCambioEstado(): void {
-    this.usuarioCambioEstado = null;
+    if (this.usuarioCambioEstado) {
+      desbloquearScrollBody();
+      this.usuarioCambioEstado = null;
+    }
+    devolverFocoDisparador(this.disparadorPrevio);
+    this.disparadorPrevio = null;
   }
 
   confirmarCambioEstado(): void {

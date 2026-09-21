@@ -1,9 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrganizacionService } from '../../core/services/organizacion.service';
 import { CiudadDTO, SucursalDTO, SucursalCrearDTO } from '../../core/models/organizacion.models';
 import { formatearErrorApi } from '../../core/utils/error-handler.util';
+import {
+  bloquearScrollBody,
+  desbloquearScrollBody,
+  atraparFocoModal,
+  enfocarPrimerElemento,
+  devolverFocoDisparador
+} from '../../core/utils/modal-accessibility.util';
 
 @Component({
   selector: 'app-sucursales',
@@ -12,7 +19,7 @@ import { formatearErrorApi } from '../../core/utils/error-handler.util';
   templateUrl: './sucursales.component.html',
   styleUrls: ['./sucursales.component.css']
 })
-export class SucursalesComponent implements OnInit {
+export class SucursalesComponent implements OnInit, OnDestroy {
   ciudades: CiudadDTO[] = [];
   sucursales: SucursalDTO[] = [];
 
@@ -40,6 +47,9 @@ export class SucursalesComponent implements OnInit {
   sucursalTarifas: SucursalDTO | null = null;
   tarifaBaseEdicion = 0;
   incrementoEdicion = 0;
+
+  @ViewChild('modalTarifasBox') modalTarifasBox?: ElementRef<HTMLElement>;
+  private disparadorPrevio: HTMLElement | null = null;
 
   constructor(private orgService: OrganizacionService) {}
 
@@ -126,14 +136,45 @@ export class SucursalesComponent implements OnInit {
     });
   }
 
-  ajustarTarifas(sucursal: SucursalDTO): void {
+  ngOnDestroy(): void {
+    if (this.sucursalTarifas) {
+      desbloquearScrollBody();
+    }
+  }
+
+  @HostListener('keydown.escape')
+  alPresionarEscape(): void {
+    if (this.sucursalTarifas && !this.guardandoSucursal) {
+      this.cerrarTarifas();
+    }
+  }
+
+  alManejarTabModal(event: KeyboardEvent): void {
+    if (this.modalTarifasBox) {
+      atraparFocoModal(event, this.modalTarifasBox.nativeElement);
+    }
+  }
+
+  ajustarTarifas(sucursal: SucursalDTO, event?: Event): void {
+    this.disparadorPrevio = (event?.currentTarget as HTMLElement) || (document.activeElement as HTMLElement);
     this.sucursalTarifas = sucursal;
     this.tarifaBaseEdicion = Number(sucursal.tarifa_base_delivery);
     this.incrementoEdicion = Number(sucursal.incremento_anillo_delivery);
+    bloquearScrollBody();
+    setTimeout(() => {
+      if (this.modalTarifasBox) {
+        enfocarPrimerElemento(this.modalTarifasBox.nativeElement);
+      }
+    }, 50);
   }
 
   cerrarTarifas(): void {
-    this.sucursalTarifas = null;
+    if (this.sucursalTarifas) {
+      desbloquearScrollBody();
+      this.sucursalTarifas = null;
+    }
+    devolverFocoDisparador(this.disparadorPrevio);
+    this.disparadorPrevio = null;
   }
 
   guardarTarifas(): void {

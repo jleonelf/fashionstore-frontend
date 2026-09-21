@@ -180,7 +180,7 @@
                 <div class="tarifa-sub">+Bs. {{ s.incremento_anillo_delivery }}/anillo</div>
               </td>
               <td>
-                <button type="button" class="btn-action" (click)="ajustarTarifas(s)">Ajustar tarifas</button>
+                <button type="button" class="btn-action" (click)="ajustarTarifas(s, $event)">Ajustar tarifas</button>
               </td>
             </tr>
           </tbody>
@@ -190,8 +190,8 @@
   </div>
 </div>
 
-<div class="dialog-backdrop" *ngIf="sucursalTarifas" (click)="cerrarTarifas()">
-  <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="rates-dialog-title" (click)="$event.stopPropagation()">
+<div class="dialog-backdrop" *ngIf="sucursalTarifas" (click)="cerrarTarifas()" (keydown)="alManejarTabModal($event)">
+  <section #modalTarifasBox class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="rates-dialog-title" (click)="$event.stopPropagation()">
     <p class="dialog-kicker">Configuración de delivery</p>
     <h3 id="rates-dialog-title">Tarifas de {{ sucursalTarifas.nombre }}</h3>
     <p>Define el costo inicial y el incremento aplicado por cada anillo.</p>

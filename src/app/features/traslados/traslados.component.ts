@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { Ciclo2Service } from '../../core/services/ciclo2.service';
@@ -8,6 +8,13 @@ import { OrganizacionService } from '../../core/services/organizacion.service';
 import { EstadoTraslado, Traslado } from '../../core/models/ciclo2.models';
 import { SucursalDTO } from '../../core/models/organizacion.models';
 import { formatearErrorApi } from '../../core/utils/error-handler.util';
+import {
+  bloquearScrollBody,
+  desbloquearScrollBody,
+  atraparFocoModal,
+  enfocarPrimerElemento,
+  devolverFocoDisparador
+} from '../../core/utils/modal-accessibility.util';
 
 @Component({
   selector: 'app-traslados',
@@ -16,7 +23,7 @@ import { formatearErrorApi } from '../../core/utils/error-handler.util';
   templateUrl: './traslados.component.html',
   styleUrls: ['./traslados.component.css']
 })
-export class TrasladosComponent implements OnInit {
+export class TrasladosComponent implements OnInit, OnDestroy {
   items: Traslado[] = [];
   sucursales: SucursalDTO[] = [];
   estado = '';
@@ -30,6 +37,9 @@ export class TrasladosComponent implements OnInit {
   motivo = '';
 
   estados: EstadoTraslado[] = ['SOLICITADO', 'APROBADO', 'RECHAZADO', 'DESPACHADO', 'RECIBIDO', 'CANCELADO'];
+
+  @ViewChild('modalRechazoDialog') modalRechazoDialog?: ElementRef<HTMLElement>;
+  private disparadorPrevio: HTMLElement | null = null;
 
   constructor(
     private api: Ciclo2Service,
@@ -45,6 +55,47 @@ export class TrasladosComponent implements OnInit {
       error: () => (this.error = 'No pudimos cargar las sucursales.')
     });
     this.cargar();
+  }
+
+  ngOnDestroy(): void {
+    if (this.rechazo) {
+      desbloquearScrollBody();
+    }
+  }
+
+  @HostListener('keydown.escape')
+  alPresionarEscape(): void {
+    if (this.rechazo && !this.procesando) {
+      this.cerrarRechazo();
+    }
+  }
+
+  alManejarTabModal(event: KeyboardEvent): void {
+    if (this.modalRechazoDialog) {
+      atraparFocoModal(event, this.modalRechazoDialog.nativeElement);
+    }
+  }
+
+  abrirRechazo(t: Traslado, event?: Event): void {
+    this.disparadorPrevio = (event?.currentTarget as HTMLElement) || (document.activeElement as HTMLElement);
+    this.rechazo = t;
+    this.motivo = '';
+    bloquearScrollBody();
+    setTimeout(() => {
+      if (this.modalRechazoDialog) {
+        enfocarPrimerElemento(this.modalRechazoDialog.nativeElement);
+      }
+    }, 50);
+  }
+
+  cerrarRechazo(): void {
+    if (this.rechazo) {
+      desbloquearScrollBody();
+      this.rechazo = undefined;
+      this.motivo = '';
+    }
+    devolverFocoDisparador(this.disparadorPrevio);
+    this.disparadorPrevio = null;
   }
 
   get esAdmin(): boolean {
@@ -104,9 +155,9 @@ export class TrasladosComponent implements OnInit {
       }
     } else {
       // Administrador
-      const filtros: any = {};
-      if (this.estado) filtros.estado = this.estado;
-      if (this.sucursal) filtros.sucursal_origen_id = this.sucursal;
+      const filtros: Record<string, string | number> = {};
+      if (this.estado) filtros['estado'] = this.estado;
+      if (this.sucursal) filtros['sucursal_origen_id'] = this.sucursal;
       this.api.listarTraslados(filtros).subscribe({
         next: (p) => { this.items = p.items; this.cargando = false; },
         error: (e) => { this.error = this.msg(e); this.cargando = false; }
@@ -139,8 +190,7 @@ export class TrasladosComponent implements OnInit {
     this.api.rechazarTraslado(this.rechazo.id, this.motivo).subscribe({
       next: () => {
         this.procesando = '';
-        this.rechazo = undefined;
-        this.motivo = '';
+        this.cerrarRechazo();
         this.exito = 'Solicitud rechazada.';
         this.cargar();
       },
@@ -152,14 +202,14 @@ export class TrasladosComponent implements OnInit {
   }
 
   nombre(id: string): string {
-    return this.sucursales.find((s) => s.id === id)?.nombre || id.slice(0, 8);
+    return this.sucursales.find((s) => s.id === id)?.nombre || 'No disponible';
   }
 
   etiqueta(v: string): string {
     return v.toLowerCase().replaceAll('_', ' ');
   }
 
-  private msg(e: any): string {
+  private msg(e: unknown): string {
     return formatearErrorApi(e, 'No se pudo completar la operación.');
   }
 }

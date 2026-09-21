@@ -1,0 +1,98 @@
+<section class="cycle-page">
+  <div class="cycle-hero"><div><p class="cycle-kicker">Asistente</p><h1>Inteligencia del negocio</h1></div></div>
+
+  <div class="tab-switcher">
+    <button type="button" [class.active]="activeTab === 'reportes'" (click)="activeTab = 'reportes'">Reportes</button>
+    <button type="button" [class.active]="activeTab === 'decisiones'" (click)="activeTab = 'decisiones'">Decisiones de inventario</button>
+  </div>
+
+  <!-- Reportes -->
+  <div *ngIf="activeTab === 'reportes'" class="tab-content">
+    <div class="ia-input-group">
+      <input type="text" [(ngModel)]="consulta" placeholder="Escribe tu consulta, por ejemplo: ventas por sucursal del último mes"
+             (keydown.enter)="generarReporte()" [disabled]="generando">
+      <button type="button" class="cycle-primary" (click)="generarReporte()" [disabled]="generando || !consulta.trim()">
+        {{ generando ? 'Generando…' : 'Consultar' }}
+      </button>
+    </div>
+    <p class="ia-hint">Puedes consultar ventas por sucursal, inventario por sucursal, temporadas, stock crítico, productos más vendidos, reservas y rotación.</p>
+    <div *ngIf="errorReporte" class="cycle-alert danger" role="alert">{{ errorReporte }}</div>
+
+    <div *ngIf="reporte" class="ia-result cycle-card">
+      <div class="ia-result-meta">
+        <span class="status status-neutral">{{ tituloReporte }}</span>
+        <span class="ia-proveedor">Asistente: {{ reporte.proveedor === 'GEMINI' ? 'Gemini' : 'motor local seguro' }}</span>
+      </div>
+      <div class="ia-narrativa">{{ reporte.narrativa }}</div>
+
+      <div *ngIf="reporteVacio" class="cycle-state" role="status">
+        <p>No existen registros que coincidan con este reporte todavía.</p>
+        <p>Prueba otra consulta o registra operaciones antes de volver a generarlo.</p>
+      </div>
+
+      <div *ngIf="filasInventario.length" class="table-wrap">
+        <table>
+          <caption>Existencias agrupadas por sucursal</caption>
+          <thead><tr><th>Sucursal</th><th>Variantes</th><th>Disponible</th><th>Reservado</th><th>En tránsito</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let fila of filasInventario">
+              <td>{{ valorTexto(fila, 'sucursal') }}</td>
+              <td>{{ valorTexto(fila, 'variantes') }}</td>
+              <td>{{ valorTexto(fila, 'disponible') }}</td>
+              <td>{{ valorTexto(fila, 'reservado') }}</td>
+              <td>{{ valorTexto(fila, 'en_transito') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="filasVentas.length" class="table-wrap">
+        <table>
+          <caption>Ventas confirmadas por sucursal</caption>
+          <thead><tr><th>Sucursal</th><th>Ventas</th><th>Ingresos</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let fila of filasVentas">
+              <td>{{ valorTexto(fila, 'sucursal') }}</td>
+              <td>{{ valorTexto(fila, 'ventas') }}</td>
+              <td>{{ bs(valorTexto(fila, 'ingresos')) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <details *ngIf="reporte.datos" class="ia-datos">
+        <summary>Ver detalle de datos</summary>
+        <pre>{{ reporte.datos | json }}</pre>
+      </details>
+    </div>
+  </div>
+
+  <!-- Decisiones -->
+  <div *ngIf="activeTab === 'decisiones'" class="tab-content">
+    <div class="decision-params">
+      <label><span>Ventana (días)</span><input type="number" [(ngModel)]="diasVentana" min="7" max="365"></label>
+      <label><span>Umbral rotación</span><input type="number" [(ngModel)]="umbralRotacion" min="0" max="100"></label>
+      <button type="button" class="cycle-primary" (click)="consultarDecisiones()" [disabled]="consultando">
+        {{ consultando ? 'Consultando…' : 'Analizar inventario' }}
+      </button>
+    </div>
+    <div *ngIf="errorDecision" class="cycle-alert danger" role="alert">{{ errorDecision }}</div>
+
+    <div *ngIf="decisiones" class="decisiones-grid">
+      <p class="ia-proveedor">Motor: {{ decisiones.proveedor }}</p>
+      <div *ngFor="let d of decisiones.items" class="decision-card cycle-card">
+        <div class="decision-header">
+          <span class="decision-icon">{{ accionIcono(d.accion) }}</span>
+          <span class="status" [class]="clase(d.accion)">{{ etiqueta(d.accion) }}</span>
+        </div>
+        <p class="decision-sku"><strong>{{ d.sku }}</strong></p>
+        <p class="decision-detalle">{{ d.detalle }}</p>
+        <dl class="cycle-facts">
+          <div><dt>Stock</dt><dd>{{ d.stock_total }}</dd></div>
+          <div><dt>Ventas</dt><dd>{{ d.ventas_periodo }}</dd></div>
+          <div *ngIf="d.reposicion_sugerida"><dt>Reposición</dt><dd>{{ d.reposicion_sugerida }}</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CatalogoService } from '../../core/services/catalogo.service';
 import { OrganizacionService } from '../../core/services/organizacion.service';
 import { ProductoDTO } from '../../core/models/catalogo.models';
@@ -20,6 +21,9 @@ export class LandingComponent implements OnInit {
   cargando = true;
   error: string | null = null;
 
+  cargandoSucursales = false;
+  errorSucursales: string | null = null;
+
   // delivery calc
   anilloDestino = 4;
   tarifaBase = 15;
@@ -30,13 +34,15 @@ export class LandingComponent implements OnInit {
   emailOferta = '';
   mensajeOferta: string | null = null;
 
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private catalogoService: CatalogoService,
     private orgService: OrganizacionService
   ) {}
 
   ngOnInit(): void {
-    this.catalogoService.consultarCatalogo({}).subscribe({
+    this.catalogoService.consultarCatalogo({}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (d) => {
         this.productos = d.slice(0, 12);
         this.cargando = false;
@@ -46,21 +52,43 @@ export class LandingComponent implements OnInit {
         this.cargando = false;
       }
     });
-    this.orgService.gestionarSucursales().subscribe({
+    this.cargarSucursales();
+  }
+
+  cargarSucursales(): void {
+    if (this.cargandoSucursales) return;
+    this.cargandoSucursales = true;
+    this.errorSucursales = null;
+    this.orgService.gestionarSucursales().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (s) => {
         this.sucursales = s;
+        this.cargandoSucursales = false;
+        this.errorSucursales = null;
         if (s.length) {
-          this.sucursalDemo = s[0];
-          this.tarifaBase = s[0].tarifa_base_delivery ?? 15;
-          this.incrementoAnillo = s[0].incremento_anillo_delivery ?? 3;
+          const vigente = this.sucursalDemo ? s.find((item) => item.id === this.sucursalDemo?.id) : undefined;
+          const elegida = vigente ?? s[0];
+          this.sucursalDemo = elegida;
+          this.tarifaBase = elegida.tarifa_base_delivery ?? 15;
+          this.incrementoAnillo = elegida.incremento_anillo_delivery ?? 3;
+        } else {
+          this.sucursalDemo = null;
+          this.errorSucursales = 'Por el momento no hay sucursales disponibles para estimar el delivery.';
         }
       },
-      error: () => {}
+      error: () => {
+        this.cargandoSucursales = false;
+        this.sucursalDemo = null;
+        this.errorSucursales = 'No pudimos cargar las sucursales para el simulador de delivery. Verifica tu conexión e inténtalo de nuevo.';
+      }
     });
   }
 
-  get costoDelivery(): number {
-    if (!this.sucursalDemo) return this.tarifaBase + Math.max(0, this.anilloDestino - 1) * this.incrementoAnillo;
+  get simuladorDisponible(): boolean {
+    return !this.cargandoSucursales && !this.errorSucursales && this.sucursalDemo !== null && this.sucursales.length > 0;
+  }
+
+  get costoDelivery(): number | null {
+    if (!this.sucursalDemo) return null;
     const base = this.sucursalDemo.tarifa_base_delivery;
     const inc = this.sucursalDemo.incremento_anillo_delivery;
     const anilloOrigen = this.sucursalDemo.numero_anillo ?? 1;

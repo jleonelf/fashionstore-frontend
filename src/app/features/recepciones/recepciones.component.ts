@@ -4,10 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { RecepcionService } from '../../core/services/recepcion.service';
 import { OrganizacionService } from '../../core/services/organizacion.service';
 import { ProductoService } from '../../core/services/producto.service';
-import { ProveedorDTO, LoteRecepcionDTO, VarianteDTO } from '../../core/models/catalogo.models';
+import { ProveedorDTO, ProveedorCrearDTO, LoteRecepcionDTO, VarianteDTO } from '../../core/models/catalogo.models';
 import { SucursalDTO, CiudadDTO } from '../../core/models/organizacion.models';
 import { AuthService } from '../../core/services/auth.service';
 import { formatearErrorApi } from '../../core/utils/error-handler.util';
+
+interface DetalleLoteForm {
+  variante_id: string;
+  cantidad: number;
+  costo_unitario: number;
+}
 
 @Component({
   selector: 'app-recepciones',
@@ -24,8 +30,14 @@ export class RecepcionesComponent implements OnInit {
   variantes: VarianteDTO[] = [];
 
   // Formularios
-  nuevoProveedor: any = { razon_social: '', nit: '', contacto: '', telefono: '', correo_electronico: '', direccion: '' };
-  loteForm: any = {
+  nuevoProveedor: ProveedorCrearDTO = { razon_social: '', nit: '', contacto: '', telefono: '', correo_electronico: '', direccion: '' };
+  loteForm: {
+    proveedor_id: string;
+    sucursal_id: string;
+    numero_documento: string;
+    observacion: string;
+    detalles: DetalleLoteForm[];
+  } = {
     proveedor_id: '', sucursal_id: '', numero_documento: '', observacion: '',
     detalles: [{ variante_id: '', cantidad: 1, costo_unitario: 0 }]
   };
@@ -46,17 +58,32 @@ export class RecepcionesComponent implements OnInit {
   }
 
   cargarProveedores(): void {
-    this.recepcionService.gestionarProveedores().subscribe({ next: d => this.proveedores = d, error: err => this.mensajeError = formatearErrorApi(err, 'Error cargando proveedores') });
+    this.recepcionService.gestionarProveedores().subscribe({
+      next: d => this.proveedores = d,
+      error: err => this.mensajeError = formatearErrorApi(err, 'Error cargando proveedores')
+    });
   }
   cargarLotes(): void {
-    this.recepcionService.listarLotes().subscribe({ next: d => this.lotes = d, error: () => {} });
+    this.recepcionService.listarLotes().subscribe({
+      next: d => this.lotes = d,
+      error: err => this.mensajeError = formatearErrorApi(err, 'Error cargando lotes')
+    });
   }
   cargarSucursales(): void {
-    this.orgService.gestionarSucursales().subscribe({ next: d => this.sucursales = d });
-    this.orgService.gestionarCiudades().subscribe({ next: d => this.ciudades = d });
+    this.orgService.gestionarSucursales().subscribe({
+      next: d => this.sucursales = d,
+      error: err => { this.mensajeError = formatearErrorApi(err, 'No se pudieron cargar las sucursales.'); }
+    });
+    this.orgService.gestionarCiudades().subscribe({
+      next: d => this.ciudades = d,
+      error: err => { this.mensajeError = formatearErrorApi(err, 'No se pudieron cargar las ciudades.'); }
+    });
   }
   cargarVariantes(): void {
-    this.productoService.gestionarVariantes().subscribe({ next: d => this.variantes = d });
+    this.productoService.gestionarVariantes().subscribe({
+      next: d => this.variantes = d,
+      error: err => { this.mensajeError = formatearErrorApi(err, 'No se pudieron cargar las variantes.'); }
+    });
   }
 
   crearProveedor(): void {
@@ -92,17 +119,25 @@ export class RecepcionesComponent implements OnInit {
     const payload = {
       ...this.loteForm,
       recibido_por_id: usuario.usuario_id || usuario.id,
-      detalles: this.loteForm.detalles.map((d: any) => ({ variante_id: d.variante_id, cantidad: Number(d.cantidad), costo_unitario: Number(d.costo_unitario) }))
+      detalles: this.loteForm.detalles.map((d: DetalleLoteForm) => ({ variante_id: d.variante_id, cantidad: Number(d.cantidad), costo_unitario: Number(d.costo_unitario) }))
     };
     this.guardandoLote = true; this.mensajeError = null;
     this.recepcionService.registrarLoteRecepcion(payload).subscribe({
       next: lote => {
-        this.mensajeExito = `Lote ${lote.numero_documento || lote.id.slice(0, 8)} registrado: ${lote.detalles.length} variante(s) → disponible+ · costo promedio recalculado · Kardex RECEPCION_PROVEEDOR`;
+        this.mensajeExito = `Lote ${lote.numero_documento || 'registrado'} registrado: ${lote.detalles.length} variante(s) recepcionada(s) en inventario.`;
         this.loteForm = { proveedor_id: '', sucursal_id: '', numero_documento: '', observacion: '', detalles: [{ variante_id: '', cantidad: 1, costo_unitario: 0 }] };
         this.guardandoLote = false; this.cargarLotes();
       },
       error: err => { this.mensajeError = formatearErrorApi(err, 'Error al registrar lote'); this.guardandoLote = false; }
     });
+  }
+
+  proveedorNombre(id: string): string {
+    return this.proveedores.find(p => p.id === id)?.razon_social || 'Proveedor';
+  }
+
+  sucursalNombre(id: string): string {
+    return this.sucursales.find(s => s.id === id)?.nombre || 'Sucursal';
   }
 
   varianteLabel(v: VarianteDTO): string {

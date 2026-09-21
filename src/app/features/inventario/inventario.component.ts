@@ -119,25 +119,25 @@ export class InventarioComponent implements OnInit {
 
   cargarValorizacion(): void {
     this.inventarioService.consultarValorizacion(this.filtroSucursal || undefined).subscribe({
-      next: (d: any) => {
+      next: (d) => {
         if (Array.isArray(d)) {
           this.valorizacion = d;
           this.valorizacionTotalManual = d.reduce((s, v) => s + Number(v.valorizacion || 0), 0);
           this.existenciaTotalManual = d.reduce(
-            (s, v) => s + Number(v.total_existencia || (v as any).total_unidades || 0),
+            (s, v) => s + Number(v.total_existencia || 0),
             0
           );
         } else if (d && typeof d === 'object') {
-          const arr = (d.por_sucursal || []).map((x: any) => ({
+          const arr: ValorizacionDTO[] = (d.por_sucursal || []).map((x) => ({
             ...x,
-            total_existencia: x.total_existencia ?? x.total_unidades ?? 0
+            total_existencia: x.total_existencia ?? 0
           }));
           this.valorizacion = arr;
           this.valorizacionTotalManual = Number(
-            d.global?.valorizacion ?? arr.reduce((s: number, v: any) => s + Number(v.valorizacion || 0), 0)
+            d.global?.valorizacion ?? arr.reduce((s: number, v: ValorizacionDTO) => s + Number(v.valorizacion || 0), 0)
           );
           this.existenciaTotalManual = Number(
-            d.global?.total_unidades ?? arr.reduce((s: number, v: any) => s + Number(v.total_existencia || 0), 0)
+            d.global?.total_unidades ?? arr.reduce((s: number, v: ValorizacionDTO) => s + Number(v.total_existencia || 0), 0)
           );
         } else {
           this.valorizacion = [];

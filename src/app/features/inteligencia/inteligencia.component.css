@@ -1,0 +1,27 @@
+.tab-switcher{display:flex;gap:.35rem;margin:1rem 0}
+.tab-switcher button{min-height:44px;padding:.5rem 1.1rem;border:1px solid var(--border);background:var(--surface);border-radius:var(--radius-pill);font-weight:700;font-size:.82rem;cursor:pointer}
+.tab-switcher button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tab-content{margin:1rem 0}
+.ia-input-group{display:flex;gap:.5rem;margin-bottom:.5rem}
+.ia-input-group input{flex:1;min-width:0}
+.ia-hint{font-size:.75rem;color:var(--text-muted);margin-top:.25rem}
+.ia-result{padding:1.25rem;margin-top:1rem}
+.ia-result-meta{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.ia-proveedor{font-size:.72rem;color:var(--text-muted);font-style:italic}
+.ia-narrativa{font-size:.9rem;line-height:1.7;color:var(--ink)}
+.ia-datos{margin-top:1rem}
+.ia-datos summary{font-size:.78rem;color:var(--text-muted);cursor:pointer}
+.ia-datos pre{font-size:.72rem;background:var(--paper);padding:.75rem;border-radius:var(--radius-sm);overflow-x:auto;margin-top:.35rem}
+.decision-params{display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap}
+.decisiones-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:1rem}
+.decision-card{padding:1rem}
+.decision-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.decision-icon{font-size:1.3rem}
+.decision-sku{font-size:.88rem;margin:.25rem 0}
+.decision-detalle{font-size:.82rem;color:var(--text-muted);margin:.25rem 0}
+.status{display:inline-flex;padding:.35rem .65rem;border-radius:var(--radius-pill);font-size:.72rem;font-weight:800;text-transform:capitalize}
+.status-success{background:var(--success-bg);color:var(--success)}
+.status-danger{background:var(--danger-bg);color:var(--danger)}
+.status-warning{background:var(--warning-bg);color:var(--warning)}
+.status-neutral{background:var(--primary-light);color:var(--ink)}
+@media(max-width:640px){.ia-input-group{flex-direction:column}.decision-params{flex-direction:column}.decisiones-grid{grid-template-columns:1fr}}

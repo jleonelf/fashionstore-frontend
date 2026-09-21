@@ -1,41 +1,112 @@
+import { HttpErrorResponse } from '@angular/common/http';
+
 /**
  * Utilidad para formatear errores provenientes de la API (FastAPI / HTTP)
  * Convierte arrays de validación 422 y objetos en texto claro y amigable en español.
  */
 
-export function formatearErrorApi(error: any, fallback = 'No se pudo completar la operación.'): string {
+function esObjeto(valor: unknown): valor is Record<string, unknown> {
+  return typeof valor === 'object' && valor !== null;
+}
+
+interface DetalleValidacionItem {
+  loc?: unknown[];
+  msg?: unknown;
+  type?: unknown;
+}
+
+function esDetalleValidacion(item: unknown): item is DetalleValidacionItem {
+  return esObjeto(item) && ('loc' in item || 'msg' in item);
+}
+
+function extraerDetail(error: unknown): unknown {
+  if (!error) return null;
+
+  if (error instanceof HttpErrorResponse) {
+    if (error.status === 0) {
+      return 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+    }
+    if (esObjeto(error.error)) {
+      if ('detail' in error.error) return error.error['detail'];
+      if ('message' in error.error) return error.error['message'];
+      if ('mensaje' in error.error) return error.error['mensaje'];
+    }
+    if (typeof error.error === 'string' && error.error.trim().length > 0) {
+      return error.error;
+    }
+    if (error.status === 401) {
+      return 'Sesión expirada o no autorizada. Inicia sesión nuevamente.';
+    }
+    if (error.status === 403) {
+      return 'No tienes permisos para realizar esta acción.';
+    }
+    if (error.status === 404) {
+      return 'El recurso solicitado no fue encontrado.';
+    }
+    if (error.status === 409) {
+      return 'Ocurrió un conflicto con el estado actual de la operación.';
+    }
+    return error.message;
+  }
+
+  if (esObjeto(error)) {
+    if (esObjeto(error['error'])) {
+      const errSub = error['error'];
+      if ('detail' in errSub) return errSub['detail'];
+      if ('message' in errSub) return errSub['message'];
+      if ('mensaje' in errSub) return errSub['mensaje'];
+    }
+    if ('detail' in error) return error['detail'];
+    if ('message' in error) return error['message'];
+    if ('mensaje' in error) return error['mensaje'];
+    if (typeof error['error'] === 'string') return error['error'];
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  return null;
+}
+
+export function formatearErrorApi(error: unknown, fallback = 'No se pudo completar la operación.'): string {
   if (!error) return fallback;
 
-  const detail = error?.error?.detail ?? error?.detail ?? error?.error?.message ?? error?.message;
+  const detail = extraerDetail(error);
 
   if (typeof detail === 'string') {
     return traducirMensajeComun(detail);
   }
 
   if (Array.isArray(detail)) {
-    const mensajes = detail.map((d: any) => {
+    const mensajes = detail.map((d: unknown) => {
       if (typeof d === 'string') return traducirMensajeComun(d);
-      if (d && typeof d === 'object') {
-        const campo = Array.isArray(d?.loc) ? d.loc[d.loc.length - 1] : '';
-        const etiquetaCampo = traducirCampo(String(campo));
-        const textoMsg = traducirMensajeComun(d.msg || JSON.stringify(d));
+      if (esDetalleValidacion(d)) {
+        const campo = Array.isArray(d.loc) && d.loc.length > 0 ? String(d.loc[d.loc.length - 1]) : '';
+        const etiquetaCampo = traducirCampo(campo);
+        const textoMsg = typeof d.msg === 'string' ? traducirMensajeComun(d.msg) : 'Valor no válido';
         return etiquetaCampo ? `${etiquetaCampo}: ${textoMsg}` : textoMsg;
+      }
+      if (esObjeto(d)) {
+        if (typeof d['msg'] === 'string') return traducirMensajeComun(String(d['msg']));
+        if (typeof d['mensaje'] === 'string') return traducirMensajeComun(String(d['mensaje']));
+        return 'Datos no válidos';
       }
       return String(d);
     });
     return mensajes.filter(Boolean).join('. ') || fallback;
   }
 
-  if (detail && typeof detail === 'object') {
-    if (detail.msg) return traducirMensajeComun(String(detail.msg));
+  if (esObjeto(detail)) {
+    if (typeof detail['mensaje'] === 'string') return traducirMensajeComun(String(detail['mensaje']));
+    if (typeof detail['msg'] === 'string') return traducirMensajeComun(String(detail['msg']));
+    if (typeof detail['message'] === 'string') return traducirMensajeComun(String(detail['message']));
+
     const entradas = Object.entries(detail)
+      .filter(([k]) => k !== 'codigo')
       .map(([k, v]) => `${traducirCampo(k)}: ${traducirMensajeComun(String(v))}`)
       .join(', ');
     return entradas || fallback;
-  }
-
-  if (typeof error?.error === 'string') {
-    return traducirMensajeComun(error.error);
   }
 
   return fallback;
@@ -77,7 +148,7 @@ function traducirMensajeComun(msg: string): string {
     return 'Formato de fecha no válido';
   }
   if (msg.includes('Input should be a valid UUID')) {
-    return 'Identificador no válido';
+    return 'No se pudo identificar el registro';
   }
   return msg;
 }

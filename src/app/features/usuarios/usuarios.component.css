@@ -239,11 +239,14 @@ tr:hover td {
   border: 1px solid var(--danger-border, #fecaca);
 }
 
-@media (max-width: 900px) {
-  .module-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 640px) {
+  .actions-group {
+    flex-direction: column;
   }
 }
+
+.sin-sucursal { opacity: .5; }
+.cargo-sub { font-size: .8em; opacity: .6; }
 @media (max-width:640px){.module-container{padding-top:.25rem}.module-grid{gap:1rem}.filters-bar{flex-direction:column;align-items:stretch}.filter-item{width:100%}.actions-group{flex-direction:column;align-items:stretch}.btn-action{min-height:40px}table{min-width:780px}.field-help{display:block;margin-top:.35rem;color:var(--text-muted);font-size:.76rem;line-height:1.4}}
 .dialog-backdrop{position:fixed;inset:0;z-index:1100;background:rgba(23,32,42,.52);display:grid;place-items:center;padding:1rem}
 .dialog-card{width:min(440px,100%);background:var(--surface);border-radius:var(--radius-card);padding:1.35rem;box-shadow:var(--shadow-float);color:var(--text-body)}

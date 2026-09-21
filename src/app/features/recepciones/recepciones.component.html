@@ -50,7 +50,7 @@
       <div class="detalle-box">
         <div class="detalle-header">
           <span>Detalles (variante + cantidad + costo) *</span>
-          <button class="btn-add" (click)="agregarDetalle()">+ Agregar variante</button>
+          <button type="button" class="btn-add" (click)="agregarDetalle()">+ Agregar variante</button>
         </div>
 
         <div *ngFor="let d of loteForm.detalles; let i = index" class="detalle-row">
@@ -60,11 +60,11 @@
           </select>
           <input type="number" [(ngModel)]="d.cantidad" min="1" placeholder="Cant." class="inp-cant" />
           <input type="number" [(ngModel)]="d.costo_unitario" min="0" step="0.01" placeholder="Costo Bs." class="inp-costo" />
-          <button class="btn-icon" (click)="quitarDetalle(i)" *ngIf="loteForm.detalles.length > 1">✕</button>
+          <button type="button" class="btn-icon" (click)="quitarDetalle(i)" *ngIf="loteForm.detalles.length > 1">✕</button>
         </div>
       </div>
 
-      <button class="btn-primary" (click)="registrarLote()" [disabled]="guardandoLote">
+      <button type="button" class="btn-primary" (click)="registrarLote()" [disabled]="guardandoLote">
         {{ guardandoLote ? 'Procesando...' : 'Registrar Lote → disponible + y Kardex' }}
       </button>
       <p class="hint">Transacción única: Lote + Detalles + update variante (costos) + inventario_sucursal + movimientos_inventario</p>
@@ -78,8 +78,8 @@
           <tbody>
             <tr *ngFor="let l of lotes.slice(0, 8)">
               <td class="mono">{{ l.fecha_recepcion | date:'short' }}</td>
-              <td>{{ l.proveedor_id.slice(0, 8) }}…</td>
-              <td>{{ l.sucursal_id.slice(0, 8) }}…</td>
+              <td>{{ proveedorNombre(l.proveedor_id) }}</td>
+              <td>{{ sucursalNombre(l.sucursal_id) }}</td>
               <td>{{ l.numero_documento || '—' }}</td>
               <td><span class="pill">{{ l.detalles.length }} var.</span></td>
             </tr>
@@ -107,7 +107,7 @@
         <div class="form-group flex1"><label>Correo</label><input [(ngModel)]="nuevoProveedor.correo_electronico" placeholder="contacto@proveedor.bo" /></div>
       </div>
       <div class="form-group"><label>Dirección</label><input [(ngModel)]="nuevoProveedor.direccion" /></div>
-      <button class="btn-primary" (click)="crearProveedor()" [disabled]="guardandoProv">{{ guardandoProv ? 'Guardando…' : 'Crear Proveedor' }}</button>
+      <button type="button" class="btn-primary" (click)="crearProveedor()" [disabled]="guardandoProv">{{ guardandoProv ? 'Guardando…' : 'Crear Proveedor' }}</button>
     </div>
 
     <div class="card glass">

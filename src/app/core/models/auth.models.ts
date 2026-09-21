@@ -1,3 +1,5 @@
+export type RolUsuario = 'CLIENTE' | 'CAJERO' | 'ENCARGADO' | 'ADMINISTRADOR';
+
 export interface RegistroClienteDTO {
   nombres: string;
   apellidos: string;
@@ -6,7 +8,7 @@ export interface RegistroClienteDTO {
   telefono?: string;
   direccion_referencia?: string;
   fecha_nacimiento?: string;
-  preferencias?: Record<string, any>;
+  preferencias?: Record<string, unknown>;
 }
 
 export interface LoginDTO {
@@ -22,11 +24,11 @@ export interface ClientePerfil {
   nombre_completo: string;
   correo_electronico: string;
   telefono?: string;
-  rol: string;
+  rol: RolUsuario;
   estado: string;
   direccion_referencia?: string;
   fecha_nacimiento?: string;
-  preferencias: Record<string, any>;
+  preferencias: Record<string, unknown>;
   creado_en: string;
   sucursal_id?: string | null;
   sucursal_nombre?: string | null;

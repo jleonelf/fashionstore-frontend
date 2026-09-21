@@ -132,7 +132,7 @@ export class OperacionesComponent implements OnInit {
 
   obtenerSkuVariante(varianteId: string): string {
     const v = this.variantes.find(item => item.id === varianteId);
-    return v ? `${v.sku} (Bs ${v.precio})` : (varianteId ? varianteId.slice(0, 8) + '…' : '—');
+    return v ? `${v.sku} (Bs ${v.precio})` : (varianteId ? 'Prenda' : '—');
   }
 
   devolver() {
@@ -208,7 +208,7 @@ export class OperacionesComponent implements OnInit {
     });
   }
 
-  private msg(e: any) {
+  private msg(e: unknown): string {
     return formatearErrorApi(e, 'No se pudo completar la operación solicitada.');
   }
 }

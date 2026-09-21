@@ -181,8 +181,8 @@
               </td>
               <td>
                 <span *ngIf="u.sucursal_nombre">{{ u.sucursal_nombre }}</span>
-                <span *ngIf="!u.sucursal_nombre" style="opacity:.5">—</span>
-                <div *ngIf="u.cargo" style="font-size:.8em;opacity:.6">{{ u.cargo }}</div>
+                <span *ngIf="!u.sucursal_nombre" class="sin-sucursal">—</span>
+                <div *ngIf="u.cargo" class="cargo-sub">{{ u.cargo }}</div>
               </td>
               <td>
                 <span class="badge-status" [ngClass]="u.estado === 'ACTIVO' ? 'status-activo' : 'status-inactivo'">
@@ -191,8 +191,8 @@
               </td>
               <td>
                 <div class="actions-group">
-                  <button type="button" class="btn-action" (click)="cambiarRol(u)">Cambiar rol</button>
-                  <button type="button" class="btn-action" (click)="alternarEstado(u)">
+                  <button type="button" class="btn-action" (click)="cambiarRol(u, $event)">Cambiar rol</button>
+                  <button type="button" class="btn-action" (click)="alternarEstado(u, $event)">
                     {{ u.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
                   </button>
                 </div>
@@ -205,8 +205,8 @@
   </div>
 </div>
 
-<div class="dialog-backdrop" *ngIf="usuarioCambioRol" (click)="cerrarCambioRol()">
-  <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="role-dialog-title" (click)="$event.stopPropagation()">
+<div class="dialog-backdrop" *ngIf="usuarioCambioRol" (click)="cerrarCambioRol()" (keydown)="alManejarTabRol($event)">
+  <section #modalRolBox class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="role-dialog-title" (click)="$event.stopPropagation()">
     <p class="dialog-kicker">Permisos de acceso</p>
     <h3 id="role-dialog-title">Cambiar rol de {{ usuarioCambioRol.nombre_completo }}</h3>
     <p>Selecciona el nivel de acceso que tendrá esta persona.</p>
@@ -221,8 +221,8 @@
   </section>
 </div>
 
-<div class="dialog-backdrop" *ngIf="usuarioCambioEstado" (click)="cerrarCambioEstado()">
-  <section class="dialog-card" role="alertdialog" aria-modal="true" aria-labelledby="state-dialog-title" (click)="$event.stopPropagation()">
+<div class="dialog-backdrop" *ngIf="usuarioCambioEstado" (click)="cerrarCambioEstado()" (keydown)="alManejarTabEstado($event)">
+  <section #modalEstadoBox class="dialog-card" role="alertdialog" aria-modal="true" aria-labelledby="state-dialog-title" (click)="$event.stopPropagation()">
     <p class="dialog-kicker">Confirmar acción</p>
     <h3 id="state-dialog-title">{{ usuarioCambioEstado.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }} usuario</h3>
     <p>{{ usuarioCambioEstado.nombre_completo }} {{ usuarioCambioEstado.estado === 'ACTIVO' ? 'perderá el acceso hasta que vuelvas a activarlo.' : 'recuperará el acceso a la plataforma.' }}</p>
